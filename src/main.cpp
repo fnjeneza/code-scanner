@@ -12,7 +12,7 @@ std::ostream& operator<<(std::ostream& stream, const CXString& cx_string)
 
 int main(int argc, char **argv)
 {
-    CXIndex index = clang_createIndex(0,0);
+    CXIndex index = clang_createIndex(1,1);
     CXTranslationUnit unit = clang_parseTranslationUnit(
             index,
             argv[1],
@@ -30,9 +30,10 @@ int main(int argc, char **argv)
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(
             cursor,
-            [](CXCursor c, CXCursor parent, CXClientData client_data)
+            [](CXCursor x, CXCursor parent, CXClientData client_data)
             {
-                std::cout << "Cursor kind: " << clang_getCursorSpelling(c)
+                CXCursor c = clang_getCanonicalCursor(x);
+                std::cout << "Cursor kind: " << clang_getCursorDisplayName(c)
                 << "\t"<< clang_getCursorKindSpelling(clang_getCursorKind(c)) <<'\n';
                 return CXChildVisit_Recurse;
             },
