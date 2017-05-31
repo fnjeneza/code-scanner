@@ -12,7 +12,7 @@ std::ostream& operator<<(std::ostream& stream, const CXString& cx_string)
 
 int main(int argc, char **argv)
 {
-    CXIndex index = clang_createIndex(1,1);
+    CXIndex index = clang_createIndex(0,0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
             index,
             argv[1],
@@ -21,7 +21,15 @@ int main(int argc, char **argv)
             nullptr,
             0,
             CXTranslationUnit_None);
+    CXFile file = clang_getFile(unit, argv[1]);
+    std::cout << clang_getFileName(file) << std::endl;
+    CXSourceLocation loc = clang_getLocation(unit, file, 3, 7);
+    CXCursor c = clang_getCursor(unit, loc);
+                std::cout << "Cursor kind: " << clang_getCursorDisplayName(c)
+                << "\t"<< clang_getCursorKindSpelling(clang_getCursorKind(c)) <<'\n';
 
+
+/*
     if(unit == nullptr)
     {
         std::cout << "Unable to parse" << std::endl;
@@ -39,7 +47,7 @@ int main(int argc, char **argv)
             },
             nullptr);
 
-
+*/
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
 }
