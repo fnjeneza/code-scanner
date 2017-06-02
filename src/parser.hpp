@@ -1,3 +1,5 @@
+#pragma once
+
 #include <clang-c/Index.h>
 #include <string>
 #include <tuple>
