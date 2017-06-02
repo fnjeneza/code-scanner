@@ -10,7 +10,7 @@ std::ostream& operator<<(std::ostream& stream, const CXString& cx_string)
 }
 
 // Retrieve a cursor from a file/line/column
-CXCursor cursor(const std::string &filename, const unsigned &line, const unsigned &column)
+CXCursor cursor(const std::string &filename, const unsigned long &line, const unsigned long &column)
 {
     CXTranslationUnit unit;
     CXFile file = clang_getFile(unit, filename.c_str());
