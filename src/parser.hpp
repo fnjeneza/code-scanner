@@ -15,6 +15,9 @@ public:
     // Retrieve a cursor from a file/line/column
     CXCursor cursor(const unsigned long &line, const unsigned long &column);
 
+    // Retrieve the reference of a cursor
+    CXCursor reference(const CXCursor &cursor);
+
     // Retrieve a type of cursor
     std::string type(const CXCursor &cursor);
 

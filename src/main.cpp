@@ -14,6 +14,7 @@ int main(int argc, char **argv)
     unsigned long line  = std::stoul(argv[2]);
     unsigned long column = std::stoul(argv[3]);
     CXCursor cursor = parser.cursor(line, column);
+    cursor = parser.reference(cursor);
     // retrieve location
     auto loc = parser.location(cursor);
     std::cout << std::get<0>(loc) << std::endl;

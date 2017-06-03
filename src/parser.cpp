@@ -32,6 +32,10 @@ CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
     return clang_getCursor(m_unit, location);
 }
 
+CXCursor Parser::reference(const CXCursor &cursor)
+{
+    return clang_getCursorReferenced(cursor);
+}
 
 // Retrieve a type of cursor
 std::string Parser::type(const CXCursor &cursor)
@@ -72,6 +76,8 @@ std::string Parser::filename()
     clang_disposeString(spelling);
     return name;
 }
+
+
 
 } // namespace analyzer
 } // namespace code
