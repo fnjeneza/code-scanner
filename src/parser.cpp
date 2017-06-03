@@ -1,20 +1,18 @@
 #include "parser.hpp"
 
-namespace code{
-namespace analyzer{
+namespace code {
+namespace analyzer {
 Parser::Parser(const std::string &filename)
     : m_filename{filename}
-      , m_index{clang_createIndex(1,1)}
+    , m_index{clang_createIndex(1, 1)}
 {
-    m_index = clang_createIndex(0,0);
-    m_unit = clang_parseTranslationUnit(
-            m_index,
-            m_filename.c_str(),
-            nullptr,
-            0,
-            nullptr,
-            0,
-            CXTranslationUnit_None);
+    m_unit = clang_parseTranslationUnit(m_index,
+                                        m_filename.c_str(),
+                                        nullptr,
+                                        0,
+                                        nullptr,
+                                        0,
+                                        CXTranslationUnit_None);
 }
 
 Parser::~Parser()
@@ -22,7 +20,6 @@ Parser::~Parser()
     clang_disposeTranslationUnit(m_unit);
     clang_disposeIndex(m_index);
 }
-
 
 // Retrieve a cursor from a file/line/column
 CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
@@ -40,7 +37,7 @@ CXCursor Parser::reference(const CXCursor &cursor)
 // Retrieve a type of cursor
 std::string Parser::type(const CXCursor &cursor)
 {
-    //cursor type
+    // cursor type
     CXType type = clang_getCursorType(cursor);
     // cursor type spelling
     CXString spelling = clang_getTypeSpelling(type);
@@ -51,7 +48,8 @@ std::string Parser::type(const CXCursor &cursor)
     return spelling_str;
 }
 
-std::tuple<std::string, unsigned long, unsigned long> Parser::location(const CXCursor &cursor)
+std::tuple<std::string, unsigned long, unsigned long>
+Parser::location(const CXCursor &cursor)
 {
     CXSourceLocation location = clang_getCursorLocation(cursor);
 
@@ -65,7 +63,7 @@ std::tuple<std::string, unsigned long, unsigned long> Parser::location(const CXC
     std::string filename = clang_getCString(_filename);
     clang_disposeString(_filename);
 
-    return std::make_tuple(filename,line,column);
+    return std::make_tuple(filename, line, column);
 }
 
 std::string Parser::filename()
@@ -76,8 +74,6 @@ std::string Parser::filename()
     clang_disposeString(spelling);
     return name;
 }
-
-
 
 } // namespace analyzer
 } // namespace code

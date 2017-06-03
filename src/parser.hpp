@@ -4,11 +4,12 @@
 #include <string>
 #include <tuple>
 
-namespace code{
-namespace analyzer{
+namespace code {
+namespace analyzer {
 
-class Parser{
-public:
+class Parser
+{
+  public:
     Parser(const std::string &filename);
     ~Parser();
 
@@ -18,15 +19,18 @@ public:
     // Retrieve the reference of a cursor
     CXCursor reference(const CXCursor &cursor);
 
+    CXCursor definition(const CXCursor &cursor);
+
     // Retrieve a type of cursor
     std::string type(const CXCursor &cursor);
 
-    std::tuple<std::string, unsigned long, unsigned long> location(const CXCursor &cursor);
+    std::tuple<std::string, unsigned long, unsigned long>
+    location(const CXCursor &cursor);
 
     //.Retrieve name of the file being processed
     std::string filename();
 
-private:
+  private:
     std::string m_filename;
     CXIndex m_index;
     CXTranslationUnit m_unit;
