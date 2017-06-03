@@ -49,7 +49,19 @@ std::string Parser::type(const CXCursor &cursor)
 
 std::tuple<std::string, unsigned long, unsigned long> Parser::location(const CXCursor &cursor)
 {
-    return std::make_tuple("",0,0);
+    CXSourceLocation location = clang_getCursorLocation(cursor);
+
+    CXFile file;
+    unsigned line;
+    unsigned column;
+    clang_getSpellingLocation(location, &file, &line, &column, nullptr);
+
+    // filename
+    CXString _filename = clang_getFileName(file);
+    std::string filename = clang_getCString(_filename);
+    clang_disposeString(_filename);
+
+    return std::make_tuple(filename,line,column);
 }
 
 std::string Parser::filename()

@@ -14,11 +14,17 @@ int main(int argc, char **argv)
     unsigned long line  = std::stoul(argv[2]);
     unsigned long column = std::stoul(argv[3]);
     CXCursor cursor = parser.cursor(line, column);
+    // retrieve location
+    auto loc = parser.location(cursor);
+    std::cout << std::get<0>(loc) << std::endl;
+    std::cout << std::get<1>(loc) << std::endl;
+    std::cout << std::get<2>(loc) << std::endl;
+
 
     std::cout << "Cursor kind:\t" << clang_getCursorDisplayName(cursor)
     << "\t"<< clang_getCursorKindSpelling(clang_getCursorKind(cursor)) <<'\n';
     std::cout << "type: " << parser.type(cursor) << std::endl;
-    cursor = clang_getCursorSemanticParent(cursor);
-    std::cout << "Parent cursor kind:\t" << clang_getCursorDisplayName(cursor)
+    cursor = clang_getCursorReferenced(cursor);
+    std::cout << "cursor referenced kind:\t" << clang_getCursorDisplayName(cursor)
     << "\t"<< clang_getCursorKindSpelling(clang_getCursorKind(cursor)) <<'\n';
 }
