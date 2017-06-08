@@ -34,6 +34,11 @@ CXCursor Parser::reference(const CXCursor &cursor)
     return clang_getCursorReferenced(cursor);
 }
 
+CXCursor Parser::definition(const CXCursor &cursor)
+{
+    return clang_getCursorDefinition(cursor);
+}
+
 // Retrieve a type of cursor
 std::string Parser::type(const CXCursor &cursor)
 {
