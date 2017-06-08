@@ -31,8 +31,8 @@ class Parser
     std::string filename();
 
   private:
-    std::string m_filename;
-    CXIndex m_index;
+    std::string       m_filename;
+    CXIndex           m_index;
     CXTranslationUnit m_unit;
 };
 
