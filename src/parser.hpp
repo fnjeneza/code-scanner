@@ -3,6 +3,7 @@
 #include <clang-c/Index.h>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace code {
 namespace analyzer {
@@ -19,7 +20,11 @@ class Parser
     // Retrieve the reference of a cursor
     CXCursor reference(const CXCursor &cursor);
 
+    // Retrieve the definition of a cursor
     CXCursor definition(const CXCursor &cursor);
+
+    // Retrieve all callers
+    std::vector<CXCursor> callers(const CXCursor &cursor);
 
     // Retrieve a type of cursor
     std::string type(const CXCursor &cursor);

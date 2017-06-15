@@ -39,6 +39,39 @@ CXCursor Parser::definition(const CXCursor &cursor)
     return clang_getCursorDefinition(cursor);
 }
 
+std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
+{
+    // get cursor declaration/definition
+    CXCursor cursor_decl = definition(cursor);
+
+    // get translation unit cursor
+    CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
+
+    // traverse the AST and check every cursor if it is equal to the
+    // cursor declaration
+    // ignore the cursor which point to himself
+    CXCursor     cursor_temp = const_cast<CXCursor &>(cursor);
+    CXClientData user_data   = static_cast<CXClientData>(&cursor_temp);
+    clang_visitChildren(
+        unit_cursor,
+        // visitor
+        [](CXCursor cursor, CXCursor, CXClientData client_data) {
+            // check the current cursor and AST cursor
+            CXCursor *ast_cursor = static_cast<CXCursor *>(client_data);
+            // get cursor declaration
+            // TODO
+            unsigned is_equal = clang_equalCursors(cursor, *ast_cursor);
+            if (is_equal)
+            {
+                // TODO process here
+            }
+            return CXChildVisit_Recurse;
+        },
+        user_data);
+
+    std::vector<CXCursor> cursors;
+    return cursors;
+}
 // Retrieve a type of cursor
 std::string Parser::type(const CXCursor &cursor)
 {
