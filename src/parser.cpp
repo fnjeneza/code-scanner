@@ -43,33 +43,39 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
 {
     // get cursor declaration/definition
     CXCursor cursor_decl = definition(cursor);
+    std::vector<CXCursor> cursors;
+    std::tuple<CXCursor*, std::vector<CXCursor> *> cursor_data= {&cursor_decl,
+                                                      &cursors};
 
     // get translation unit cursor
-    CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
+    CXCursor              unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
     // traverse the AST and check every cursor if it is equal to the
     // cursor declaration
     // ignore the cursor which point to himself
-    CXCursor     cursor_temp = const_cast<CXCursor &>(cursor);
-    CXClientData user_data   = static_cast<CXClientData>(&cursor_temp);
+    CXClientData user_data = static_cast<CXClientData>(&cursor_data);
     clang_visitChildren(
         unit_cursor,
         // visitor
         [](CXCursor cursor, CXCursor, CXClientData client_data) {
-            // check the current cursor and AST cursor
-            CXCursor *ast_cursor = static_cast<CXCursor *>(client_data);
-            // get cursor declaration
-            // TODO
-            unsigned is_equal = clang_equalCursors(cursor, *ast_cursor);
-            if (is_equal)
+            using UserData = std::tuple<CXCursor*, std::vector<CXCursor>*>;
+            UserData * data = static_cast<UserData*>(client_data);
+            CXCursor * cursor_decl = std::get<0>(*data);
+            std::vector<CXCursor> * cursors = std::get<1>(*data);
+            // current cursor declaration
+            CXCursor current_cursor_decl = clang_getCursorDefinition(cursor);
+
+            unsigned equal =
+                clang_equalCursors(current_cursor_decl, *cursor_decl);
+            if (equal)
             {
-                // TODO process here
+                (*cursors).push_back(cursor);
             }
+            // Continue to search more
             return CXChildVisit_Recurse;
         },
         user_data);
 
-    std::vector<CXCursor> cursors;
     return cursors;
 }
 // Retrieve a type of cursor
