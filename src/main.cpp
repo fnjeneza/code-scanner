@@ -17,14 +17,14 @@ int main(int argc, char **argv)
     cursor                        = parser.definition(cursor);
 
     auto cursors = parser.callers(cursor);
-    for(auto cursor : cursors)
+    for (auto cursor : cursors)
     {
-    // retrieve location
-    auto loc = parser.location(cursor);
-    std::cout << "Defintion :" << std::endl;
-    std::cout << std::get<0>(loc) << std::endl;
-    std::cout << std::get<1>(loc) << std::endl;
-    std::cout << std::get<2>(loc) << std::endl;
+        // retrieve location
+        auto loc = parser.location(cursor);
+        std::cout << "Defintion :" << std::endl;
+        std::cout << std::get<0>(loc) << std::endl;
+        std::cout << std::get<1>(loc) << std::endl;
+        std::cout << std::get<2>(loc) << std::endl;
     }
 
     std::cout << "Cursor kind:\t" << clang_getCursorDisplayName(cursor) << "\t"

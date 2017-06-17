@@ -43,12 +43,13 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
 {
     // get cursor declaration/definition
     CXCursor cursor_decl = definition(cursor);
+    // TODO use CXCursor set
     std::vector<CXCursor> cursors;
-    std::tuple<CXCursor*, std::vector<CXCursor> *> cursor_data= {&cursor_decl,
-                                                      &cursors};
+    std::tuple<CXCursor *, std::vector<CXCursor> *> cursor_data = {&cursor_decl,
+                                                                   &cursors};
 
     // get translation unit cursor
-    CXCursor              unit_cursor = clang_getTranslationUnitCursor(m_unit);
+    CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
     // traverse the AST and check every cursor if it is equal to the
     // cursor declaration
@@ -58,13 +59,17 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
         unit_cursor,
         // visitor
         [](CXCursor cursor, CXCursor, CXClientData client_data) {
-            using UserData = std::tuple<CXCursor*, std::vector<CXCursor>*>;
-            UserData * data = static_cast<UserData*>(client_data);
-            CXCursor * cursor_decl = std::get<0>(*data);
-            std::vector<CXCursor> * cursors = std::get<1>(*data);
+            CXCursorKind cursor_kind = clang_getCursorKind(cursor);
+            if (cursor_kind != CXCursor_CallExpr)
+            {
+                return CXChildVisit_Recurse;
+            }
             // current cursor declaration
             CXCursor current_cursor_decl = clang_getCursorDefinition(cursor);
-
+            using UserData = std::tuple<CXCursor *, std::vector<CXCursor> *>;
+            UserData *             data = static_cast<UserData *>(client_data);
+            CXCursor *             cursor_decl = std::get<0>(*data);
+            std::vector<CXCursor> *cursors     = std::get<1>(*data);
             unsigned equal =
                 clang_equalCursors(current_cursor_decl, *cursor_decl);
             if (equal)
