@@ -14,13 +14,13 @@ int main(int argc, char **argv)
     unsigned long          line   = std::stoul(argv[2]);
     unsigned long          column = std::stoul(argv[3]);
     CXCursor               cursor = parser.cursor(line, column);
-    cursor                        = parser.definition(cursor);
+    cursor                        = code::analyzer::definition(cursor);
 
     auto cursors = parser.callers(cursor);
     for (auto cursor : cursors)
     {
         // retrieve location
-        auto loc = parser.location(cursor);
+        auto loc = code::analyzer::location(cursor);
         std::cout << "Defintion :" << std::endl;
         std::cout << std::get<0>(loc) << std::endl;
         std::cout << std::get<1>(loc) << std::endl;
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     std::cout << "Cursor kind:\t" << clang_getCursorDisplayName(cursor) << "\t"
               << clang_getCursorKindSpelling(clang_getCursorKind(cursor))
               << '\n';
-    std::cout << "type: " << parser.type(cursor) << std::endl;
+    std::cout << "type: " << code::analyzer::type(cursor) << std::endl;
     cursor = clang_getCursorReferenced(cursor);
     std::cout << "cursor referenced kind:\t"
               << clang_getCursorDisplayName(cursor) << "\t"

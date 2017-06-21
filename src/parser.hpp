@@ -17,20 +17,8 @@ class Parser
     // Retrieve a cursor from a file/line/column
     CXCursor cursor(const unsigned long &line, const unsigned long &column);
 
-    // Retrieve the reference of a cursor
-    CXCursor reference(const CXCursor &cursor) const;
-
-    // Retrieve the definition of a cursor
-    CXCursor definition(const CXCursor &cursor) const;
-
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
-
-    // Retrieve a type of cursor
-    std::string type(const CXCursor &cursor) const;
-
-    std::tuple<std::string, unsigned long, unsigned long>
-    location(const CXCursor &cursor) const;
 
     //.Retrieve name of the file being processed
     std::string filename() const;
@@ -41,5 +29,17 @@ class Parser
     CXTranslationUnit m_unit;
 };
 
+// Retrieve the reference of a cursor
+CXCursor reference(const CXCursor &cursor);
+
+// Retrieve the definition of a cursor
+CXCursor definition(const CXCursor &cursor);
+
+// Retrieve a type of cursor
+std::string type(const CXCursor &cursor);
+
+// Retrieve the location as file, line, column
+std::tuple<std::string, unsigned long, unsigned long>
+location(const CXCursor &cursor);
 } // namespace analyzer
 } // namespace code

@@ -16,3 +16,8 @@ target_sources(${PROJECT_NAME} PUBLIC src/parser.cpp)
 find_library(LIBCLANG NAMES clang PATHS ${CLANG_PREFIX}/lib)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBCLANG})
+
+option(TEST "Run tests" off)
+if(TEST)
+    add_subdirectory(tests)
+endif()

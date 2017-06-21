@@ -11,6 +11,7 @@ std::string to_string(const CXString &cx_str)
 
 namespace code {
 namespace analyzer {
+
 Parser::Parser(const std::string &filename)
     : m_filename{filename}
     , m_index{clang_createIndex(1, 1)}
@@ -36,16 +37,6 @@ CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
     CXFile           file     = clang_getFile(m_unit, m_filename.c_str());
     CXSourceLocation location = clang_getLocation(m_unit, file, line, column);
     return clang_getCursor(m_unit, location);
-}
-
-CXCursor Parser::reference(const CXCursor &cursor) const
-{
-    return clang_getCursorReferenced(cursor);
-}
-
-CXCursor Parser::definition(const CXCursor &cursor) const
-{
-    return clang_getCursorDefinition(cursor);
 }
 
 std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
@@ -92,8 +83,24 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
 
     return cursors;
 }
+
+std::string Parser::filename() const
+{
+    CXFile      file     = clang_getFile(m_unit, m_filename.c_str());
+    std::string spelling = to_string(clang_getFileName(file));
+    return spelling;
+}
+CXCursor definition(const CXCursor &cursor)
+{
+    return clang_getCursorDefinition(cursor);
+}
+
+CXCursor reference(const CXCursor &cursor)
+{
+    return clang_getCursorReferenced(cursor);
+}
 // Retrieve a type of cursor
-std::string Parser::type(const CXCursor &cursor) const
+std::string type(const CXCursor &cursor)
 {
     // cursor type
     CXType type = clang_getCursorType(cursor);
@@ -103,7 +110,7 @@ std::string Parser::type(const CXCursor &cursor) const
 }
 
 std::tuple<std::string, unsigned long, unsigned long>
-Parser::location(const CXCursor &cursor) const
+location(const CXCursor &cursor)
 {
     CXSourceLocation location = clang_getCursorLocation(cursor);
 
@@ -116,13 +123,6 @@ Parser::location(const CXCursor &cursor) const
     std::string _filename = to_string(clang_getFileName(file));
 
     return std::make_tuple(_filename, line, column);
-}
-
-std::string Parser::filename() const
-{
-    CXFile      file     = clang_getFile(m_unit, m_filename.c_str());
-    std::string spelling = to_string(clang_getFileName(file));
-    return spelling;
 }
 
 } // namespace analyzer
