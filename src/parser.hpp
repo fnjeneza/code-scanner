@@ -18,22 +18,22 @@ class Parser
     CXCursor cursor(const unsigned long &line, const unsigned long &column);
 
     // Retrieve the reference of a cursor
-    CXCursor reference(const CXCursor &cursor);
+    CXCursor reference(const CXCursor &cursor) const;
 
     // Retrieve the definition of a cursor
-    CXCursor definition(const CXCursor &cursor);
+    CXCursor definition(const CXCursor &cursor) const;
 
     // Retrieve all callers
-    std::vector<CXCursor> callers(const CXCursor &cursor);
+    std::vector<CXCursor> callers(const CXCursor &cursor) const;
 
     // Retrieve a type of cursor
-    std::string type(const CXCursor &cursor);
+    std::string type(const CXCursor &cursor) const;
 
     std::tuple<std::string, unsigned long, unsigned long>
-    location(const CXCursor &cursor);
+    location(const CXCursor &cursor) const;
 
     //.Retrieve name of the file being processed
-    std::string filename();
+    std::string filename() const;
 
   private:
     std::string       m_filename;

@@ -1,14 +1,13 @@
 #include "parser.hpp"
 
-namespace
+namespace {
+std::string to_string(const CXString &cx_str)
 {
-    std::string to_string(const CXString & cx_str)
-    {
-        std::string str     = clang_getCString(cx_str);
-        clang_disposeString(cx_str);
-        return str;
-    }
-} //anonymous namespace
+    std::string str = clang_getCString(cx_str);
+    clang_disposeString(cx_str);
+    return str;
+}
+} // anonymous namespace
 
 namespace code {
 namespace analyzer {
@@ -39,17 +38,17 @@ CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
     return clang_getCursor(m_unit, location);
 }
 
-CXCursor Parser::reference(const CXCursor &cursor)
+CXCursor Parser::reference(const CXCursor &cursor) const
 {
     return clang_getCursorReferenced(cursor);
 }
 
-CXCursor Parser::definition(const CXCursor &cursor)
+CXCursor Parser::definition(const CXCursor &cursor) const
 {
     return clang_getCursorDefinition(cursor);
 }
 
-std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
+std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
 {
     // get cursor declaration/definition
     CXCursor cursor_decl = definition(cursor);
@@ -80,7 +79,7 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
             UserData *             data = static_cast<UserData *>(client_data);
             CXCursor *             cursor_decl = std::get<0>(*data);
             std::vector<CXCursor> *cursors     = std::get<1>(*data);
-            unsigned equal =
+            unsigned               equal =
                 clang_equalCursors(current_cursor_decl, *cursor_decl);
             if (equal)
             {
@@ -94,7 +93,7 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor)
     return cursors;
 }
 // Retrieve a type of cursor
-std::string Parser::type(const CXCursor &cursor)
+std::string Parser::type(const CXCursor &cursor) const
 {
     // cursor type
     CXType type = clang_getCursorType(cursor);
@@ -104,7 +103,7 @@ std::string Parser::type(const CXCursor &cursor)
 }
 
 std::tuple<std::string, unsigned long, unsigned long>
-Parser::location(const CXCursor &cursor)
+Parser::location(const CXCursor &cursor) const
 {
     CXSourceLocation location = clang_getCursorLocation(cursor);
 
@@ -114,15 +113,15 @@ Parser::location(const CXCursor &cursor)
     clang_getSpellingLocation(location, &file, &line, &column, nullptr);
 
     // filename
-    std::string    _filename = to_string(clang_getFileName(file));
+    std::string _filename = to_string(clang_getFileName(file));
 
     return std::make_tuple(_filename, line, column);
 }
 
-std::string Parser::filename()
+std::string Parser::filename() const
 {
     CXFile      file     = clang_getFile(m_unit, m_filename.c_str());
-    std::string    spelling = to_string(clang_getFileName(file));
+    std::string spelling = to_string(clang_getFileName(file));
     return spelling;
 }
 
