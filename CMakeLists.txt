@@ -9,9 +9,7 @@ include_directories(SYSTEM
 
 include_directories(src)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
-
-target_sources(${PROJECT_NAME} PUBLIC src/parser.cpp)
+add_library(${PROJECT_NAME} src/parser.cpp)
 
 find_library(LIBCLANG NAMES clang PATHS ${CLANG_PREFIX}/lib)
 

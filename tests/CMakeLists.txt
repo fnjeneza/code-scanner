@@ -1,0 +1,16 @@
+enable_testing()
+set(test_name "test_parser")
+
+add_executable(${test_name} test_parser.cpp)
+target_include_directories(${test_name} PRIVATE
+    ${CMAKE_SOURCE_DIR}/3rd-party/Catch/single_include)
+
+target_link_libraries(${test_name}
+    ${PROJECT_NAME} )
+
+file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(${test_name} ${test_name})
+add_custom_target(check
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${test_name})
