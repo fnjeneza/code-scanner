@@ -32,8 +32,8 @@ class Parser
 // Retrieve the reference of a cursor
 CXCursor reference(const CXCursor &cursor);
 
-// Retrieve the definition of a cursor
-CXCursor definition(const CXCursor &cursor);
+// Retrieve the declaration of a cursor
+CXCursor declaration(const CXCursor &cursor);
 
 // Retrieve a type of cursor
 std::string type(const CXCursor &cursor);

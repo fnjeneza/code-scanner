@@ -41,8 +41,8 @@ CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
 
 std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
 {
-    // get cursor declaration/definition
-    CXCursor cursor_decl = definition(cursor);
+    // get cursor declaration/declaration
+    CXCursor cursor_decl = declaration(cursor);
     // TODO use CXCursor set
     std::vector<CXCursor> cursors;
     std::tuple<CXCursor *, std::vector<CXCursor> *> cursor_data = {&cursor_decl,
@@ -90,9 +90,10 @@ std::string Parser::filename() const
     std::string spelling = to_string(clang_getFileName(file));
     return spelling;
 }
-CXCursor definition(const CXCursor &cursor)
+CXCursor declaration(const CXCursor &cursor)
 {
-    return clang_getCursorDefinition(cursor);
+    auto cur = clang_getCursorDefinition(cursor);
+    return clang_getCanonicalCursor(cur);
 }
 
 CXCursor reference(const CXCursor &cursor)

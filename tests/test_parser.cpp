@@ -31,5 +31,14 @@ TEST_CASE("cpp parser", "[cpp_parser]")
         auto cursor_expected = parser.cursor(17,13);
         REQUIRE(clang_equalCursors(cursor, cursor_expected));
     }
+
+    SECTION("locate declaration")
+    {
+        auto cursor = parser.cursor(26,5);
+        cursor = code::analyzer::declaration(cursor);
+
+        auto cursor_expected = parser.cursor(11,10);
+        REQUIRE(clang_equalCursors(cursor, cursor_expected));
+    }
 }
 
