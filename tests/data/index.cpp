@@ -34,6 +34,7 @@ Index foo(const int &i)
     name = part;
     name.bar();
     foo();
+    int p = i;
     return part;
 }
 }

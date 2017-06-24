@@ -100,6 +100,12 @@ CXCursor reference(const CXCursor &cursor)
 {
     return clang_getCursorReferenced(cursor);
 }
+
+CXCursor definition(const CXCursor &cursor)
+{
+    return clang_getCursorDefinition(cursor);
+}
+
 // Retrieve a type of cursor
 std::string type(const CXCursor &cursor)
 {
