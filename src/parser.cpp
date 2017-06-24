@@ -42,7 +42,7 @@ CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
 std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
 {
     // get cursor declaration
-    CXCursor cursor_decl = declaration(cursor);
+    CXCursor              cursor_decl = declaration(cursor);
     std::vector<CXCursor> cursors;
     std::tuple<CXCursor *, std::vector<CXCursor> *> cursor_data = {&cursor_decl,
                                                                    &cursors};

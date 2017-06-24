@@ -62,19 +62,19 @@ TEST_CASE("cpp parser", "[cpp_parser]")
 
     SECTION("all function callers")
     {
-        auto cursor = parser.cursor(11,12);
+        auto cursor  = parser.cursor(11, 12);
         auto callers = parser.callers(cursor);
 
         REQUIRE(callers.size() == 2);
 
         auto caller = code::analyzer::location(callers[0]);
-        int line = std::get<1>(caller);
-        int column = std::get<2>(caller);
+        int  line   = std::get<1>(caller);
+        int  column = std::get<2>(caller);
         CHECK(line == 26);
         CHECK(column == 5);
 
         caller = code::analyzer::location(callers[1]);
-        line = std::get<1>(caller);
+        line   = std::get<1>(caller);
         column = std::get<2>(caller);
         CHECK(line == 35);
         CHECK(column == 5);
