@@ -41,9 +41,8 @@ CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
 
 std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
 {
-    // get cursor declaration/declaration
+    // get cursor declaration
     CXCursor cursor_decl = declaration(cursor);
-    // TODO use CXCursor set
     std::vector<CXCursor> cursors;
     std::tuple<CXCursor *, std::vector<CXCursor> *> cursor_data = {&cursor_decl,
                                                                    &cursors};
@@ -65,7 +64,7 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
                 return CXChildVisit_Recurse;
             }
             // current cursor declaration
-            CXCursor current_cursor_decl = clang_getCursorDefinition(cursor);
+            CXCursor current_cursor_decl = declaration(cursor);
             using UserData = std::tuple<CXCursor *, std::vector<CXCursor> *>;
             UserData *             data = static_cast<UserData *>(client_data);
             CXCursor *             cursor_decl = std::get<0>(*data);
