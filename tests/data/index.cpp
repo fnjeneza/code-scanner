@@ -10,7 +10,7 @@ public:
 
     void bar();
     void foobar();
-
+private:
     std::string name;
 };
 
@@ -18,7 +18,7 @@ void Index::bar()
 {
 }
 
-void tmp()
+void foo()
 {}
 
 void Index::foobar()
@@ -33,7 +33,7 @@ Index foo(const int &i)
     std::string s;
     name = part;
     name.bar();
-    tmp();
+    foo();
     return part;
 }
 }
