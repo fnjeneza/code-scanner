@@ -47,7 +47,7 @@ struct string_array
                     s+=*i;
                 }
             }
-            v.push_back(s);
+            v.push_back(std::move(s));
             return v;
         }
 
