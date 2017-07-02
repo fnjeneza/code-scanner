@@ -93,15 +93,12 @@ TEST_CASE("string array", "srting_array")
 
 TEST_CASE("Parser file with argument", "[arg_parser]")
 {
-    SECTION("retrieve cursor")
+    // SECTION("retrieve cursor")
     {
-        std::string filename =
-            "/home/njeneza/workspace/cpp-parser/tests/data/test_arg.cpp";
-        std::string argument =
-            "-std=c++11 -I/home/njeneza/workspace/cpp-parser/tests/data -c "
-            "/home/njeneza/workspace/cpp-parser/tests/data/test_arg.cpp";
-        code::analyzer::Parser parser(filename, argument);
-
+        std::string            filename  = "data/test_arg.cpp";
+        std::string            build_dir = "data";
+        code::analyzer::Parser parser(build_dir, filename);
+        int                    a = 1;
+        CHECK(a == 1);
     }
 }
-
