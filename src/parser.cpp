@@ -1,6 +1,8 @@
 #include "parser.hpp"
 #include "string_array.hpp"
 
+#include <iostream>
+
 namespace {
 std::string to_string(const CXString &cx_str)
 {
@@ -17,6 +19,38 @@ Parser::Parser(const std::string &filename)
     : m_filename{filename}
     , m_index{clang_createIndex(1, 1)}
 {
+    CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
+    m_db = clang_CompilationDatabase_fromDirectory("/home/njeneza/workspace/cpp-parser/tests/data/build", &c_error);
+
+    if(c_error == CXCompilationDatabase_CanNotLoadDatabase)
+    {
+        //TODO Handle errors in ctor
+        //return;
+    }
+
+    const std::string _filename = "/home/njeneza/workspace/cpp-parser/tests/data/test_arg.cpp";
+    CXCompileCommands compile_commands = clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
+    unsigned size = clang_CompileCommands_getSize(compile_commands);
+    if(size == 0)
+    {
+        // TODO better handle errors
+        return;
+    }
+
+    CXCompileCommand compile_command = clang_CompileCommands_getCommand(compile_commands, 0);
+    std::cout << to_string(clang_CompileCommand_getFilename(compile_command)) << std::endl;
+    unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
+    std::cout << "size " << size << std::endl;
+    std::cout << "number_args " << number_args << std::endl;
+    char ** args = new char*[number_args];
+    for(unsigned i = 0; i< number_args; ++i)
+    {
+        //args[i] = const_cast<char*>(to_string(clang_CompileCommand_getArg(compile_command, i)).c_str());
+        std::cout << to_string(clang_CompileCommand_getArg(compile_command, i)) << std::endl;
+    }
+
+    clang_CompileCommands_dispose(compile_commands);
+    delete args;
     m_unit = clang_parseTranslationUnit(m_index,
                                         m_filename.c_str(),
                                         nullptr,
@@ -50,6 +84,7 @@ Parser::~Parser()
 {
     clang_disposeTranslationUnit(m_unit);
     clang_disposeIndex(m_index);
+    clang_CompilationDatabase_dispose(m_db);
 }
 
 // Retrieve a cursor from a file/line/column

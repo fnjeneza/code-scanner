@@ -18,4 +18,5 @@ add_test(${test_name} ${test_name})
 add_custom_target(check
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${test_name}
-    DEPENDS export_compile_commands)
+    DEPENDS export_compile_commands
+)

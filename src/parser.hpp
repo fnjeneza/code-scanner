@@ -1,6 +1,7 @@
 #pragma once
 
 #include <clang-c/Index.h>
+#include <clang-c/CXCompilationDatabase.h>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -29,6 +30,7 @@ class Parser
     std::string       m_filename;
     CXIndex           m_index;
     CXTranslationUnit m_unit;
+    CXCompilationDatabase m_db;
 };
 
 // Retrieve the reference of a cursor
