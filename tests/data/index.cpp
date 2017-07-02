@@ -1,35 +1,29 @@
 #include <string>
 
-
-namespace parser{
+namespace parser {
 class Index
 {
-public:
-    Index() = default;
+  public:
+    Index()  = default;
     ~Index() = default;
 
     void bar();
     void foobar();
-private:
+
+  private:
     std::string name;
 };
 
-void Index::bar()
-{
-}
+void Index::bar() {}
 
-void foo()
-{}
+void foo() {}
 
-void Index::foobar()
-{
-    bar();
-}
+void Index::foobar() { bar(); }
 
 Index foo(const int &i)
 {
-    Index part;
-    Index name;
+    Index       part;
+    Index       name;
     std::string s;
     name = part;
     name.bar();

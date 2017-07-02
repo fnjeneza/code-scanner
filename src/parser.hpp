@@ -11,7 +11,9 @@ namespace analyzer {
 class Parser
 {
   public:
+    Parser() = delete;
     Parser(const std::string &filename);
+    Parser(const std::string &filename, const std::string &command_line_arg);
     ~Parser();
 
     // Retrieve a cursor from a file/line/column

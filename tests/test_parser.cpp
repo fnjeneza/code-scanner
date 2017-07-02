@@ -2,6 +2,7 @@
 #include "catch.hpp"
 
 #include "parser.hpp"
+#include "string_array.hpp"
 
 TEST_CASE("cpp parser", "[cpp_parser]")
 {
@@ -78,5 +79,27 @@ TEST_CASE("cpp parser", "[cpp_parser]")
         column = std::get<2>(caller);
         CHECK(line == 35);
         CHECK(column == 5);
+    }
+}
+
+TEST_CASE("string array", "srting_array")
+{
+    string_array sa("hello world");
+    auto         data = sa.data();
+    CHECK(std::string(data[0]) == "hello");
+    CHECK(std::string(data[1]) == "world");
+    CHECK(sa.size() == 2);
+}
+
+TEST_CASE("Parser file with argument", "[arg_parser]")
+{
+    SECTION("retrieve cursor")
+    {
+        std::string filename =
+            "/home/njeneza/workspace/cpp-parser/tests/data/test_arg.cpp";
+        std::string argument =
+            "-std=c++11 -I/home/njeneza/workspace/cpp-parser/tests/data -c "
+            "/home/njeneza/workspace/cpp-parser/tests/data/test_arg.cpp";
+        code::analyzer::Parser parser(filename, argument);
     }
 }

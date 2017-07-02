@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "string_array.hpp"
 
 namespace {
 std::string to_string(const CXString &cx_str)
@@ -23,6 +24,27 @@ Parser::Parser(const std::string &filename)
                                         nullptr,
                                         0,
                                         CXTranslationUnit_None);
+}
+
+Parser::Parser(const std::string &filename, const std::string &command_line_arg)
+    : m_filename{filename}
+    , m_index{clang_createIndex(1, 1)}
+{
+    string_array      argument(command_line_arg);
+    CXTranslationUnit unit;
+    auto              error = clang_parseTranslationUnit2(m_index,
+                                             filename.c_str(),
+                                             argument.data(),
+                                             argument.size(),
+                                             nullptr,
+                                             0,
+                                             CXTranslationUnit_None,
+                                             &unit);
+
+    if (error != 0)
+    {
+        return;
+    }
 }
 
 Parser::~Parser()
@@ -127,7 +149,6 @@ location(const CXCursor &cursor)
 
     // filename
     std::string _filename = to_string(clang_getFileName(file));
-
     return std::make_tuple(_filename, line, column);
 }
 
