@@ -31,7 +31,6 @@ Parser::Parser(const std::string &filename, const std::string &command_line_arg)
     , m_index{clang_createIndex(1, 1)}
 {
     string_array      argument(command_line_arg);
-    CXTranslationUnit unit;
     auto              error = clang_parseTranslationUnit2(m_index,
                                              filename.c_str(),
                                              argument.data(),
@@ -39,7 +38,7 @@ Parser::Parser(const std::string &filename, const std::string &command_line_arg)
                                              nullptr,
                                              0,
                                              CXTranslationUnit_None,
-                                             &unit);
+                                             &m_unit);
 
     if (error != 0)
     {

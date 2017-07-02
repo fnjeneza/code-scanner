@@ -26,7 +26,7 @@ TEST_CASE("cpp parser", "[cpp_parser]")
 
     SECTION("locate implementation/definition")
     {
-        auto cursor = parser.cursor(35, 10);
+        auto cursor = parser.cursor(29, 10);
         cursor      = code::analyzer::definition(cursor);
 
         auto cursor_expected = parser.cursor(17, 13);
@@ -35,49 +35,49 @@ TEST_CASE("cpp parser", "[cpp_parser]")
 
     SECTION("locate declaration")
     {
-        auto cursor          = parser.cursor(26, 5);
+        auto cursor          = parser.cursor(21, 24);
         cursor               = code::analyzer::declaration(cursor);
-        auto cursor_expected = parser.cursor(11, 10);
-        REQUIRE(clang_equalCursors(cursor, cursor_expected));
+        auto cursor_expected = parser.cursor(10, 10);
+        CHECK(clang_equalCursors(cursor, cursor_expected));
 
-        cursor          = parser.cursor(35, 11);
+        cursor          = parser.cursor(29, 10);
         cursor          = code::analyzer::declaration(cursor);
-        cursor_expected = parser.cursor(11, 10);
-        REQUIRE(clang_equalCursors(cursor, cursor_expected));
+        cursor_expected = parser.cursor(10, 10);
+        CHECK(clang_equalCursors(cursor, cursor_expected));
 
-        cursor          = parser.cursor(35, 5);
+        cursor          = parser.cursor(29, 5);
         cursor          = code::analyzer::declaration(cursor);
-        cursor_expected = parser.cursor(32, 11);
-        REQUIRE(clang_equalCursors(cursor, cursor_expected));
+        cursor_expected = parser.cursor(26, 17);
+        CHECK(clang_equalCursors(cursor, cursor_expected));
 
-        cursor          = parser.cursor(32, 6);
+        cursor          = parser.cursor(26, 6);
         cursor          = code::analyzer::declaration(cursor);
-        cursor_expected = parser.cursor(5, 7);
-        REQUIRE(clang_equalCursors(cursor, cursor_expected));
+        cursor_expected = parser.cursor(4, 7);
+        CHECK(clang_equalCursors(cursor, cursor_expected));
 
-        cursor          = parser.cursor(37, 13);
+        cursor          = parser.cursor(31, 13);
         cursor          = code::analyzer::reference(cursor);
-        cursor_expected = parser.cursor(29, 22);
-        REQUIRE(clang_equalCursors(cursor, cursor_expected));
+        cursor_expected = parser.cursor(23, 22);
+        CHECK(clang_equalCursors(cursor, cursor_expected));
     }
 
     SECTION("all function callers")
     {
-        auto cursor  = parser.cursor(11, 12);
+        auto cursor  = parser.cursor(10, 12);
         auto callers = parser.callers(cursor);
 
-        REQUIRE(callers.size() == 2);
+        CHECK(callers.size() == 2);
 
         auto caller = code::analyzer::location(callers[0]);
         int  line   = std::get<1>(caller);
         int  column = std::get<2>(caller);
-        CHECK(line == 26);
-        CHECK(column == 5);
+        CHECK(line == 21);
+        CHECK(column == 24);
 
         caller = code::analyzer::location(callers[1]);
         line   = std::get<1>(caller);
         column = std::get<2>(caller);
-        CHECK(line == 35);
+        CHECK(line == 29);
         CHECK(column == 5);
     }
 }
@@ -101,5 +101,7 @@ TEST_CASE("Parser file with argument", "[arg_parser]")
             "-std=c++11 -I/home/njeneza/workspace/cpp-parser/tests/data -c "
             "/home/njeneza/workspace/cpp-parser/tests/data/test_arg.cpp";
         code::analyzer::Parser parser(filename, argument);
+
     }
 }
+

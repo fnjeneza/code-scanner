@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.7)
 
 project("cpp-parser")
 
+add_compile_options("-fdiagnostics-color=always;-Wall;-Wpedantic")
+
 include_directories(SYSTEM
     ${CLANG_PREFIX}/include
 )
