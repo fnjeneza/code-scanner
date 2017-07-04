@@ -40,7 +40,7 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
     {
         // TODO Handle errors in ctor
-         return;
+        return;
     }
 
     CXCompileCommands compile_commands =

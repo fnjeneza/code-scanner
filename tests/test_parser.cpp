@@ -1,14 +1,22 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+#include <experimental/filesystem>
+
 #include "parser.hpp"
 #include "string_array.hpp"
 
+namespace std {
+namespace filesystem = std::experimental::filesystem;
+}
+
 TEST_CASE("cpp parser", "[cpp_parser]")
 {
-    std::string            filename("/home/njeneza/workspace/cpp-parser/build/tests/data/index.cpp");
-    std::string build_dir("/home/njeneza/workspace/cpp-parser/build/tests/data");
-    code::analyzer::Parser parser(build_dir, filename);
+    std::filesystem::path build_path = std::filesystem::current_path();
+    build_path /= "data";
+    std::filesystem::path filename = build_path;
+    filename /= "index.cpp";
+    code::analyzer::Parser parser(build_path.string(), filename.string());
 
     SECTION("retrieve cursor")
     {

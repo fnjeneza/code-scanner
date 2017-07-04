@@ -6,7 +6,9 @@ target_include_directories(${test_name} PRIVATE
     ${CMAKE_SOURCE_DIR}/3rd-party/Catch/single_include)
 
 target_link_libraries(${test_name}
-    ${PROJECT_NAME} )
+    ${PROJECT_NAME}
+    "stdc++fs" #experimental filesystem
+)
 
 file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_custom_command(OUTPUT export_compile_commands
