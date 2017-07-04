@@ -14,7 +14,7 @@ class Parser
   public:
     Parser() = delete;
     Parser(const std::string &filename);
-    Parser(const std::string &filename, const std::string &command_line_arg);
+    Parser(const std::string &build_dir, const std::string &filename);
     ~Parser();
 
     // Retrieve a cursor from a file/line/column
@@ -31,6 +31,7 @@ class Parser
     CXIndex           m_index;
     CXTranslationUnit m_unit;
     CXCompilationDatabase m_db;
+
 };
 
 // Retrieve the reference of a cursor

@@ -6,8 +6,9 @@
 
 TEST_CASE("cpp parser", "[cpp_parser]")
 {
-    std::string            filename("data/index.cpp");
-    code::analyzer::Parser parser(filename);
+    std::string            filename("/home/njeneza/workspace/cpp-parser/build/tests/data/index.cpp");
+    std::string build_dir("/home/njeneza/workspace/cpp-parser/build/tests/data");
+    code::analyzer::Parser parser(build_dir, filename);
 
     SECTION("retrieve cursor")
     {
