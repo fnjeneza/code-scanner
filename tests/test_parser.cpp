@@ -12,11 +12,9 @@ namespace filesystem = std::experimental::filesystem;
 
 TEST_CASE("cpp parser", "[cpp_parser]")
 {
-    std::filesystem::path build_path = std::filesystem::current_path();
-    build_path /= "data";
-    std::filesystem::path filename = build_path;
-    filename /= "index.cpp";
-    code::analyzer::Parser parser(build_path.string(), filename.string());
+    std::filesystem::path build_path = std::filesystem::current_path() / "data";
+    std::filesystem::path filename   = build_path / "index.cpp";
+    code::analyzer::Parser parser(build_path, filename);
 
     SECTION("retrieve cursor")
     {
@@ -102,12 +100,26 @@ TEST_CASE("string array", "srting_array")
 
 TEST_CASE("Parser file with argument", "[arg_parser]")
 {
-    // SECTION("retrieve cursor")
+    SECTION("retrieve cursor")
     {
-        std::string            filename  = "data/test_arg.cpp";
-        std::string            build_dir = "data";
-        code::analyzer::Parser parser(build_dir, filename);
-        int                    a = 1;
-        CHECK(a == 1);
+        std::filesystem::path build_path =
+            std::filesystem::current_path() / "data";
+        std::filesystem::path filename          = build_path / "test_arg.cpp";
+        std::filesystem::path expected_filename = build_path / "test_arg.hpp";
+
+        code::analyzer::Parser parser(build_path, filename);
+        auto                   cursor = parser.cursor(4, 16);
+        cursor                        = code::analyzer::declaration(cursor);
+
+        auto caller    = code::analyzer::location(cursor);
+        auto _filename = std::get<0>(caller);
+        auto _line     = std::get<1>(caller);
+        auto _column   = std::get<2>(caller);
+
+        // expect to find the header filename, line and column
+        // matching the one declared in the header
+        CHECK(expected_filename == _filename);
+        CHECK(_line == 9);
+        CHECK(_column == 14);
     }
 }
