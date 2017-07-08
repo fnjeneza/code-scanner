@@ -1,8 +1,6 @@
 #include "parser.hpp"
 #include "string_array.hpp"
 
-#include <iostream>
-
 namespace {
 std::string to_string(const CXString &cx_str)
 {
@@ -54,18 +52,12 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
 
     CXCompileCommand compile_command =
         clang_CompileCommands_getCommand(compile_commands, 0);
-    std::cout << to_string(clang_CompileCommand_getFilename(compile_command))
-              << std::endl;
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-    std::cout << "size " << size << std::endl;
-    std::cout << "number_args " << number_args << std::endl;
     char **args = new char *[number_args];
     for (unsigned i = 0; i < number_args; ++i)
     {
         args[i] = const_cast<char *>(
             to_string(clang_CompileCommand_getArg(compile_command, i)).c_str());
-        std::cout << to_string(clang_CompileCommand_getArg(compile_command, i))
-                  << std::endl;
     }
 
     clang_CompileCommands_dispose(compile_commands);
