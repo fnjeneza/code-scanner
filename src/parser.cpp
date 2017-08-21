@@ -37,10 +37,13 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     , m_unit{nullptr}
     , m_db{nullptr}
 {
-    std::string _build_dir = std::filesystem::absolute(std::filesystem::path(build_dir));
-    std::string _filename = std::filesystem::absolute(std::filesystem::path(filename));
+    std::string _build_dir =
+        std::filesystem::absolute(std::filesystem::path(build_dir));
+    std::string _filename =
+        std::filesystem::absolute(std::filesystem::path(filename));
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
-    m_db = clang_CompilationDatabase_fromDirectory(_build_dir.c_str(), &c_error);
+    m_db =
+        clang_CompilationDatabase_fromDirectory(_build_dir.c_str(), &c_error);
 
     if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
     {
@@ -60,7 +63,7 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     CXCompileCommand compile_command =
         clang_CompileCommands_getCommand(compile_commands, 0);
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-    char **args = new char *[number_args];
+    char **  args        = new char *[number_args];
     for (unsigned i = 0; i < number_args; ++i)
     {
         args[i] = const_cast<char *>(
