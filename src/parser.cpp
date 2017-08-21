@@ -1,5 +1,10 @@
 #include "parser.hpp"
-#include "string_array.hpp"
+
+#include <experimental/filesystem>
+
+namespace std {
+namespace filesystem = std::experimental::filesystem;
+}
 
 namespace {
 std::string to_string(const CXString &cx_str)
@@ -32,8 +37,10 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     , m_unit{nullptr}
     , m_db{nullptr}
 {
+    std::string _build_dir = std::filesystem::absolute(std::filesystem::path(build_dir));
+    std::string _filename = std::filesystem::absolute(std::filesystem::path(filename));
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
-    m_db = clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
+    m_db = clang_CompilationDatabase_fromDirectory(_build_dir.c_str(), &c_error);
 
     if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
     {
@@ -42,7 +49,7 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     }
 
     CXCompileCommands compile_commands =
-        clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
+        clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
     unsigned size = clang_CompileCommands_getSize(compile_commands);
     if (size == 0)
     {
@@ -62,7 +69,7 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
 
     clang_CompileCommands_dispose(compile_commands);
     auto error = clang_parseTranslationUnit2(m_index,
-                                             filename.c_str(),
+                                             _filename.c_str(),
                                              args,
                                              number_args,
                                              nullptr,
