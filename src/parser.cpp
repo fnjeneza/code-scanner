@@ -1,6 +1,7 @@
 #include "parser.hpp"
 
 #include <experimental/filesystem>
+#include <iostream>
 
 namespace std {
 namespace filesystem = std::experimental::filesystem;
@@ -96,9 +97,20 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
                                                      CXTranslationUnit_None,
                                                      &m_unit);
 
-    if (error != 0)
+    switch (error)
     {
-        return;
+    case CXError_Success:
+        std::cout << "Succeeded\n";
+        break;
+    case CXError_InvalidArguments:
+        std::cout << "Invalid argument\n";
+        break;
+    case CXError_ASTReadError:
+        std::cout << "ASTRead Error\n";
+        break;
+    default:
+        std::cout << "Error default\n";
+        break;
     }
 }
 
