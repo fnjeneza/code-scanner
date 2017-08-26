@@ -63,28 +63,43 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     CXCompileCommand compile_command =
         clang_CompileCommands_getCommand(compile_commands, 0);
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-    char **  args        = new char *[number_args];
-    for (unsigned i = 0; i < number_args; ++i)
+    std::vector<std::string> arguments = {"clang", "-x", "c++", "-std=c++14"};
+    for (unsigned i = 1; i < number_args; ++i)
     {
-        args[i] = const_cast<char *>(
-            to_string(clang_CompileCommand_getArg(compile_command, i)).c_str());
+        std::string str(
+            to_string(clang_CompileCommand_getArg(compile_command, i)));
+        if (str == "-o" || str == "-c")
+        {
+            ++i;
+            continue;
+        }
+        if (!arguments.empty() && arguments.back() == "-isystem")
+        {
+            str = std::filesystem::path(_build_dir) / str;
+        }
+        arguments.push_back(str);
+    }
+
+    std::vector<const char *> flags;
+    for (const auto &argument : arguments)
+    {
+        flags.push_back(argument.c_str());
     }
 
     clang_CompileCommands_dispose(compile_commands);
-    auto error = clang_parseTranslationUnit2(m_index,
-                                             _filename.c_str(),
-                                             args,
-                                             number_args,
-                                             nullptr,
-                                             0,
-                                             CXTranslationUnit_None,
-                                             &m_unit);
+    auto error = clang_parseTranslationUnit2FullArgv(m_index,
+                                                     _filename.c_str(),
+                                                     &flags[0],
+                                                     flags.size(),
+                                                     nullptr,
+                                                     0,
+                                                     CXTranslationUnit_None,
+                                                     &m_unit);
 
     if (error != 0)
     {
         return;
     }
-    delete args;
 }
 
 Parser::~Parser()
