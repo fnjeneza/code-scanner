@@ -5,15 +5,21 @@ project("cpp-parser")
 
 add_compile_options("-fdiagnostics-color=always;-Wall;-Wpedantic;-Wextra")
 
+if(NOT DEFINED LLVM_PREFIX)
+    message(FATAL_ERROR "you need to provide LLVM_PREFIX path")
+endif()
+set(LLVM_INCLUDE_DIR ${LLVM_PREFIX}/include PATH)
+set(LLVM_LIB_DIR ${LLVM_PREFIX}/lib PATH)
+
 include_directories(SYSTEM
-    ${CLANG_PREFIX}/include
+    ${LLVM_INCLUDE_DIR}
 )
 
 include_directories(src)
 
 add_library(${PROJECT_NAME} src/parser.cpp)
 
-find_library(LIBCLANG NAMES clang PATHS ${CLANG_PREFIX}/lib)
+find_library(LIBCLANG NAMES clang PATHS ${LLVM_LIB_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBCLANG})
 
