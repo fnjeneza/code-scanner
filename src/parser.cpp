@@ -10,7 +10,14 @@ namespace filesystem = std::experimental::filesystem;
 namespace {
 std::string to_string(const CXString &cx_str)
 {
-    std::string str = clang_getCString(cx_str);
+    auto cstr= clang_getCString(cx_str);
+
+    if (cstr == NULL)
+    {
+        return std::string();
+    }
+
+    std::string str(cstr);
     clang_disposeString(cx_str);
     return str;
 }
