@@ -45,17 +45,15 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     , m_unit{nullptr}
     , m_db{nullptr}
 {
-    std::string _build_dir =
-        std::filesystem::absolute(std::filesystem::path(build_dir));
-    std::string _filename =
-        std::filesystem::absolute(std::filesystem::path(filename));
+    std::string _filename =         std::filesystem::absolute(filename);
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
     m_db =
-        clang_CompilationDatabase_fromDirectory(_build_dir.c_str(), &c_error);
+        clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
 
     if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
     {
         // TODO Handle errors in ctor
+        std::cout << "compilation database can not be loaded" << std::endl;
         return;
     }
 
@@ -65,6 +63,7 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     if (size == 0)
     {
         // TODO better handle errors
+        std::cout << "compile command has size 0" << std::endl;
         return;
     }
 
@@ -81,10 +80,10 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
             ++i;
             continue;
         }
-        if (!arguments.empty() && arguments.back() == "-isystem")
-        {
-            str = std::filesystem::path(_build_dir) / str;
-        }
+        // if (!arguments.empty() && arguments.back() == "-isystem")
+        // {
+        //     // str = std::filesystem::path(_build_dir) / str;
+        // }
         arguments.push_back(str);
     }
 

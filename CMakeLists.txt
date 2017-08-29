@@ -35,10 +35,12 @@ add_library(${PROJECT_NAME} src/parser.cpp)
 
 find_library(LIBCLANG NAMES clang PATHS ${LLVM_LIB_DIR})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBCLANG})
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC ${LIBCLANG}
+    PUBLIC "stdc++fs"
+)
 target_link_libraries(${PROJECT_NAME}-bin
     PRIVATE ${PROJECT_NAME}
-    PRIVATE "stdc++fs"
 )
 
 option(TEST "Run tests" off)

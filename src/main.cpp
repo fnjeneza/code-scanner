@@ -1,11 +1,6 @@
 #include "args.hxx"
 #include "parser.hpp"
-#include <experimental/filesystem>
 #include <iostream>
-
-namespace std {
-namespace filesystem = std::experimental::filesystem;
-}
 
 int main(int argc, char **argv)
 {
@@ -49,8 +44,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::filesystem::path build_path;
-    std::filesystem::path filename;
+    std::string build_path;
+    std::string filename;
     int                   line;
     int                   column;
 
