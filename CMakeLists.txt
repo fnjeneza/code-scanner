@@ -24,13 +24,22 @@ file(COPY ${LLVM_LIB_DIR} DESTINATION ${CMAKE_BINARY_DIR})
 include_directories(src)
 # code -scanner client
 add_executable(${PROJECT_NAME}-bin src/main.cpp)
-set_target_properties(${PROJECT_NAME}-bin PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+# output name
+set_target_properties(${PROJECT_NAME}-bin PROPERTIES
+    RUNTIME_OUTPUT_NAME ${PROJECT_NAME}
+    RUNTIME_OUTPUT_DIRECTORY bin
+)
+target_include_directories(${PROJECT_NAME}-bin PRIVATE 3rd-party/args)
 # code scanner library
 add_library(${PROJECT_NAME} src/parser.cpp)
 
 find_library(LIBCLANG NAMES clang PATHS ${LLVM_LIB_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBCLANG})
+target_link_libraries(${PROJECT_NAME}-bin
+    PRIVATE ${PROJECT_NAME}
+    PRIVATE "stdc++fs"
+)
 
 option(TEST "Run tests" off)
 if(TEST)
