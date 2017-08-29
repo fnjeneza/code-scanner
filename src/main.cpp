@@ -42,6 +42,12 @@ int main(int argc, char **argv)
         std::cerr << arg;
         return 1;
     }
+    catch (args::ValidationError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << arg;
+        return 1;
+    }
 
     std::filesystem::path build_path;
     std::filesystem::path filename;
@@ -66,7 +72,6 @@ int main(int argc, char **argv)
     }
 
     code::analyzer::Parser parser(build_path, filename);
-    std::cout << "##############\n";
     auto cursor = parser.cursor(line, column);
     if (c)
     {
