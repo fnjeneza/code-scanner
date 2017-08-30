@@ -3,6 +3,8 @@
 #include <experimental/filesystem>
 #include <iostream>
 
+#include "config.hpp"
+
 namespace std {
 namespace filesystem = std::experimental::filesystem;
 }
@@ -25,19 +27,6 @@ std::string to_string(const CXString &cx_str)
 
 namespace code {
 namespace analyzer {
-
-Parser::Parser(const std::string &filename)
-    : m_filename{filename}
-    , m_index{clang_createIndex(1, 1)}
-{
-    m_unit = clang_parseTranslationUnit(m_index,
-                                        m_filename.c_str(),
-                                        nullptr,
-                                        0,
-                                        nullptr,
-                                        0,
-                                        CXTranslationUnit_None);
-}
 
 Parser::Parser(const std::string &build_dir, const std::string &filename)
     : m_filename{filename}
@@ -70,7 +59,12 @@ Parser::Parser(const std::string &build_dir, const std::string &filename)
     CXCompileCommand compile_command =
         clang_CompileCommands_getCommand(compile_commands, 0);
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-    std::vector<std::string> arguments = {"clang", "-x", "c++", "-std=c++14"};
+    std::vector<std::string> arguments = config::compile_commands();
+    for(auto a: arguments)
+    {
+        std::cout << a << std::endl;
+    }
+
     for (unsigned i = 1; i < number_args; ++i)
     {
         std::string str(

@@ -20,6 +20,7 @@ include_directories(SYSTEM
 )
 
 file(COPY ${LLVM_LIB_DIR} DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY "code-scanner.conf" DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(src)
 # code -scanner client
@@ -32,6 +33,7 @@ set_target_properties(${PROJECT_NAME}-bin PROPERTIES
 target_include_directories(${PROJECT_NAME}-bin PRIVATE 3rd-party/args)
 # code scanner library
 add_library(${PROJECT_NAME} src/parser.cpp)
+target_sources(${PROJECT_NAME} PRIVATE src/config.cpp)
 
 find_library(LIBCLANG NAMES clang PATHS ${LLVM_LIB_DIR})
 
