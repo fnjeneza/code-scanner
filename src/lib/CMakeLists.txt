@@ -1,11 +1,26 @@
 
+# if LLVM_PREFIX is provided
+# then search LLVM from that folder
+# else adding external project
+if(DEFINED LLVM_PREFIX)
+    # override LLVM_PREFIX to an absolute path
+    get_filename_component(LLVM_PREFIX ${LLVM_PREFIX} ABSOLUTE BASE_DIR ${CMAKE_BINARY_DIR})
+    set(LLVM_DIR "${LLVM_PREFIX}/lib/cmake/llvm")
+else()
+    set(LLVM_DIR "${CMAKE_SOURCE_DIR}/3rd-party/clang/lib/cmake/llvm")
+endif()
+# directory to search for ClangConfig.cmake
+set(Clang_DIR "${LLVM_DIR}/../clang")
+find_package(Clang REQUIRED)
+
+include_directories(SYSTEM
+    ${LLVM_INCLUDE_DIR}
+)
 # code scanner library
-add_library(${PROJECT_NAME} src/parser.cpp)
-target_include_directories(${PROJECT_NAME} PUBLIC src)
+add_library(code-scanner src/parser.cpp)
+target_include_directories(code-scanner PUBLIC src)
 
-find_library(LIBCLANG NAMES clang PATHS ${LLVM_LIB_DIR})
-
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC ${LIBCLANG}
-    PUBLIC "stdc++fs" #PRIVATE
+target_link_libraries(code-scanner
+    PRIVATE clang
+    PRIVATE "stdc++fs"
 )
