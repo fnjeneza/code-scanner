@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include <iostream>
 
+#include "config.hpp"
 int main(int argc, char **argv)
 {
     // --compile_commands_dir=<path> path to compile commands directory
@@ -66,7 +67,14 @@ int main(int argc, char **argv)
         column = args::get(col);
     }
 
-    code::analyzer::Parser parser(build_path, filename);
+    // std::vector<std::string> compile_arguments = config::compile_commands();
+    std::vector<std::string> compile_arguments{"clang", "-std=c++14", "-x", "c++"};
+    std::cout << compile_arguments.size() << std::endl;
+    for(auto co : compile_arguments)
+    {
+        std::cout << co << std::endl;
+    }
+    code::analyzer::Parser parser(build_path, filename, compile_arguments);
     auto cursor = parser.cursor(line, column);
     if (c)
     {

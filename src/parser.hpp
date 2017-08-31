@@ -13,8 +13,7 @@ class Parser
 {
   public:
     Parser() = delete;
-    Parser(const std::string &filename);
-    Parser(const std::string &build_dir, const std::string &filename);
+    Parser(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments);
     ~Parser();
 
     // Retrieve a cursor from a file/line/column

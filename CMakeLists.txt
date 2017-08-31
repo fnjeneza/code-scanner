@@ -15,34 +15,23 @@ get_filename_component(LLVM_PREFIX ${LLVM_PREFIX} ABSOLUTE BASE_DIR ${CMAKE_BINA
 set(LLVM_INCLUDE_DIR ${LLVM_PREFIX}/include)
 set(LLVM_LIB_DIR ${LLVM_PREFIX}/lib)
 
-include_directories(SYSTEM
-    ${LLVM_INCLUDE_DIR}
-)
-
 file(COPY ${LLVM_LIB_DIR} DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY "code-scanner.conf" DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
-include_directories(src)
-# code -scanner client
-add_executable(${PROJECT_NAME}-bin src/main.cpp)
-# output name
-set_target_properties(${PROJECT_NAME}-bin PROPERTIES
-    RUNTIME_OUTPUT_NAME ${PROJECT_NAME}
-    RUNTIME_OUTPUT_DIRECTORY bin
+include_directories(SYSTEM
+    ${LLVM_INCLUDE_DIR}
 )
-target_include_directories(${PROJECT_NAME}-bin PRIVATE 3rd-party/args)
+add_subdirectory(src/app)
+
 # code scanner library
 add_library(${PROJECT_NAME} src/parser.cpp)
-target_sources(${PROJECT_NAME} PRIVATE src/config.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC src)
 
 find_library(LIBCLANG NAMES clang PATHS ${LLVM_LIB_DIR})
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC ${LIBCLANG}
-    PUBLIC "stdc++fs"
-)
-target_link_libraries(${PROJECT_NAME}-bin
-    PRIVATE ${PROJECT_NAME}
+    PUBLIC "stdc++fs" #PRIVATE
 )
 
 option(TEST "Run tests" off)
