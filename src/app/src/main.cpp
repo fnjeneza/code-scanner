@@ -1,8 +1,8 @@
-#include "args.hxx"
-#include "parser.hpp"
 #include <iostream>
-
+#include <json.hpp>
+#include "args.hxx"
 #include "config.hpp"
+
 int main(int argc, char **argv)
 {
     // --compile_commands_dir=<path> path to compile commands directory
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     args::Group group(arg, "Find this symbol", args::Group::Validators::Xor);
     args::Flag  g(group, "definition", "Find this symbol definition", {'g'});
     args::Flag  c(
-        group, "callers", "FInd functions calling this function", {'c'});
+        group, "callers", "Find functions calling this function", {'c'});
     args::Flag s(group, "reference", "Find symbol reference", {'s'});
     try
     {
@@ -67,52 +67,46 @@ int main(int argc, char **argv)
         column = args::get(col);
     }
 
-    // std::vector<std::string> compile_arguments = config::compile_commands();
-    std::vector<std::string> compile_arguments{"clang", "-std=c++14", "-x", "c++"};
-    std::cout << compile_arguments.size() << std::endl;
-    for(auto co : compile_arguments)
-    {
-        std::cout << co << std::endl;
-    }
-    code::analyzer::Parser parser(build_path, filename, compile_arguments);
-    auto cursor = parser.cursor(line, column);
-    if (c)
-    {
-        auto cursors = parser.callers(cursor);
+    std::vector<std::string> compile_arguments = config::compile_commands();
+    // code::analyzer::Parser parser(build_path, filename, compile_arguments);
+    // auto cursor = parser.cursor(line, column);
+    // if (c)
+    // {
+    //     auto cursors = parser.callers(cursor);
 
-        std::cout << "[";
-        for (size_t i = 0; i < cursors.size(); ++i)
-        {
-            auto loc = code::analyzer::location(cursors[i]);
-            std::cout << "{"
-                      << "\"file\":\"" << std::get<0>(loc)
-                      << "\",\"line\":" << std::get<1>(loc)
-                      << ",\"col\":" << std::get<2>(loc) << "}";
-            if (i < cursors.size() - 1)
-            {
-                std::cout << ",\n";
-            }
-            else
-            {
-                std::cout << "\n";
-            }
-        }
-        std::cout << "]\n";
-        return 0;
-    }
-    if (g)
-    {
-        cursor = code::analyzer::definition(cursor);
-    }
-    if (s)
-    {
-        cursor = code::analyzer::declaration(cursor);
-    }
-    auto loc = code::analyzer::location(cursor);
-    std::cout << "{"
-              << "\"file\":\"" << std::get<0>(loc)
-              << "\",\"line\":" << std::get<1>(loc)
-              << ",\"col\":" << std::get<2>(loc) << "}\n";
+    //     std::cout << "[";
+    //     for (size_t i = 0; i < cursors.size(); ++i)
+    //     {
+    //         auto loc = code::analyzer::location(cursors[i]);
+    //         std::cout << "{"
+    //                   << "\"file\":\"" << std::get<0>(loc)
+    //                   << "\",\"line\":" << std::get<1>(loc)
+    //                   << ",\"col\":" << std::get<2>(loc) << "}";
+    //         if (i < cursors.size() - 1)
+    //         {
+    //             std::cout << ",\n";
+    //         }
+    //         else
+    //         {
+    //             std::cout << "\n";
+    //         }
+    //     }
+    //     std::cout << "]\n";
+    //     return 0;
+    // }
+    // if (g)
+    // {
+    //     cursor = code::analyzer::definition(cursor);
+    // }
+    // if (s)
+    // {
+    //     cursor = code::analyzer::declaration(cursor);
+    // }
+    // auto loc = code::analyzer::location(cursor);
+    // std::cout << "{"
+    //           << "\"file\":\"" << std::get<0>(loc)
+    //           << "\",\"line\":" << std::get<1>(loc)
+    //           << ",\"col\":" << std::get<2>(loc) << "}\n";
 
     return 0;
 }

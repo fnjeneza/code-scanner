@@ -1,0 +1,3 @@
+{
+    "compile_commands": "clang -x c++ -std=c++14"
+}

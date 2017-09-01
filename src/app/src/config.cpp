@@ -2,12 +2,15 @@
 
 #include <fstream>
 #include <iostream>
+#include <json.hpp>
+
+#include "utils.hpp"
 
 namespace config
 {
 std::vector<std::string> compile_commands(const std::string & config_path)
 {
-    const std::string default_config_file{"code-scanner.conf"};
+    const std::string default_config_file{"config.json"};
     std::vector<std::string> flags;
     std::ifstream in;
 
@@ -23,13 +26,14 @@ std::vector<std::string> compile_commands(const std::string & config_path)
         }
         else
         {
-            std::string line;
-            while(std::getline(in, line, ' '))
+            using json = nlohmann::json;
+            // json object = {{"compile_commands", "clang -x c++ -std=c++14"}};
+            json conf;
+            in >> conf;
+            auto compile_commands = conf["compile_commands"];
+            if(!compile_commands.empty())
             {
-                if(!line.empty() && line != " ")
-                {
-                    flags.push_back(line);
-                }
+                flags = utils::split(compile_commands);
             }
         }
     }
