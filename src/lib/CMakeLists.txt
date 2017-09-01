@@ -7,7 +7,11 @@ if(DEFINED LLVM_PREFIX)
     get_filename_component(LLVM_PREFIX ${LLVM_PREFIX} ABSOLUTE BASE_DIR ${CMAKE_BINARY_DIR})
     set(LLVM_DIR "${LLVM_PREFIX}/lib/cmake/llvm")
 else()
-    set(LLVM_DIR "${CMAKE_SOURCE_DIR}/3rd-party/clang/lib/cmake/llvm")
+    execute_process(
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND bash ${CMAKE_SOURCE_DIR}/clang_download.sh
+    )
+set(LLVM_DIR "${CMAKE_BINARY_DIR}/clang-build/lib/cmake/llvm")
 endif()
 # directory to search for ClangConfig.cmake
 set(Clang_DIR "${LLVM_DIR}/../clang")
