@@ -1,4 +1,4 @@
-#include "parser.hpp"
+#include "code-scanner/code-scanner.hpp"
 
 #include <clang-c/Index.h>
 #include <clang-c/CXCompilationDatabase.h>

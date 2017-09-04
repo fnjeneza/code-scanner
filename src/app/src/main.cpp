@@ -2,7 +2,7 @@
 #include <json.hpp>
 #include "args.hxx"
 #include "config.hpp"
-#include "parser.hpp"
+#include "code-scanner/code-scanner.hpp"
 
 int main(int argc, char **argv)
 {

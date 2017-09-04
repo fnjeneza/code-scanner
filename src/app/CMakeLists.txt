@@ -13,9 +13,9 @@ set_target_properties(${APP} PROPERTIES
 target_include_directories(${APP}
     PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/args
     PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/json/src
-    PRIVATE ${CMAKE_SOURCE_DIR}/src/lib/src
+    PRIVATE ${CMAKE_SOURCE_DIR}/src/lib/include
 )
 
 target_link_libraries(${APP}
-    PUBLIC ${PROJECT_NAME}
+    PRIVATE ${PROJECT_NAME}
 )

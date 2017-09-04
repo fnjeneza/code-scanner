@@ -24,9 +24,9 @@ include_directories(SYSTEM
 
 # code scanner library
 add_library(code-scanner src/parser.cpp)
-target_include_directories(code-scanner PRIVATE include)
+target_include_directories(code-scanner PUBLIC include)
 
 target_link_libraries(code-scanner
-    PRIVATE clang
+    PRIVATE libclang
     PRIVATE "stdc++fs"
 )
