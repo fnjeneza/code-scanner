@@ -1,52 +1,52 @@
 #pragma once
 
-#include <clang-c/Index.h>
-#include <clang-c/CXCompilationDatabase.h>
 #include <string>
-#include <tuple>
 #include <vector>
+#include <memory>
 
 namespace code {
 namespace analyzer {
 
-class Parser
-{
-  public:
-    Parser() = delete;
-    Parser(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments);
-    ~Parser();
+using DocumentUri = std::string;
 
-    // Retrieve a cursor from a file/line/column
-    CXCursor cursor(const unsigned long &line, const unsigned long &column);
-
-    // Retrieve all callers
-    std::vector<CXCursor> callers(const CXCursor &cursor) const;
-
-    //.Retrieve name of the file being processed
-    std::string filename() const;
-
-  private:
-    std::string       m_filename;
-    CXIndex           m_index;
-    CXTranslationUnit m_unit;
-    CXCompilationDatabase m_db;
-
+struct TextDocumentIdentifier{
+    DocumentUri uri;
 };
 
-// Retrieve the reference of a cursor
-CXCursor reference(const CXCursor &cursor);
+struct Position{
+    unsigned long line;
+    unsigned long character;
+};
 
-// Retrieve the definition
-CXCursor definition(const CXCursor &cursor);
+struct Range{
+    Position start;
+    Position end;
+};
 
-// Retrieve the declaration of a cursor
-CXCursor declaration(const CXCursor &cursor);
+struct Location{
+    DocumentUri uri;
+    Range range;
+};
 
-// Retrieve a type of cursor
-std::string type(const CXCursor &cursor);
+struct TextDocumentPositionParams{
+    TextDocumentIdentifier textDocument;
+    Position position;
 
-// Retrieve the location as file, line, column
-std::tuple<std::string, unsigned long, unsigned long>
-location(const CXCursor &cursor);
+    // TODO temporary
+    std::string build_dir;
+    std::vector<std::string> compile_arguments;
+};
+
+struct Parser_Impl;
+
+class Parser{
+    public:
+        Parser();
+        ~Parser();
+        Location definition(const TextDocumentPositionParams & params );
+    private:
+        std::unique_ptr<Parser_Impl> pimpl;
+};
+
 } // namespace analyzer
 } // namespace code

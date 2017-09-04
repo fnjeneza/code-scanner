@@ -1,5 +1,10 @@
 #include "parser.hpp"
 
+#include <clang-c/Index.h>
+#include <clang-c/CXCompilationDatabase.h>
+#include <string>
+#include <tuple>
+#include <vector>
 #include <experimental/filesystem>
 #include <iostream>
 
@@ -27,7 +32,47 @@ std::string to_string(const CXString &cx_str)
 namespace code {
 namespace analyzer {
 
-Parser::Parser(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments)
+class Parser_Impl
+{
+  public:
+    Parser_Impl() = delete;
+    Parser_Impl(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments);
+    ~Parser_Impl();
+
+    // Retrieve a cursor from a file/line/column
+    CXCursor cursor(const unsigned long &line, const unsigned long &column);
+
+    // Retrieve all callers
+    std::vector<CXCursor> callers(const CXCursor &cursor) const;
+
+    //.Retrieve name of the file being processed
+    std::string filename() const;
+
+  private:
+    std::string       m_filename;
+    CXIndex           m_index;
+    CXTranslationUnit m_unit;
+    CXCompilationDatabase m_db;
+
+};
+
+// Retrieve the reference of a cursor
+CXCursor reference(const CXCursor &cursor);
+
+// Retrieve the definition
+CXCursor definition(const CXCursor &cursor);
+
+// Retrieve the declaration of a cursor
+CXCursor declaration(const CXCursor &cursor);
+
+// Retrieve a type of cursor
+std::string type(const CXCursor &cursor);
+
+// Retrieve the location as file, line, column
+std::tuple<std::string, unsigned long, unsigned long>
+location(const CXCursor &cursor);
+
+Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments)
     : m_filename{filename}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
@@ -109,7 +154,7 @@ Parser::Parser(const std::string &build_dir, const std::string &filename, const 
     }
 }
 
-Parser::~Parser()
+Parser_Impl::~Parser_Impl()
 {
     clang_disposeTranslationUnit(m_unit);
     clang_disposeIndex(m_index);
@@ -117,14 +162,14 @@ Parser::~Parser()
 }
 
 // Retrieve a cursor from a file/line/column
-CXCursor Parser::cursor(const unsigned long &line, const unsigned long &column)
+CXCursor Parser_Impl::cursor(const unsigned long &line, const unsigned long &column)
 {
     CXFile           file     = clang_getFile(m_unit, m_filename.c_str());
     CXSourceLocation location = clang_getLocation(m_unit, file, line, column);
     return clang_getCursor(m_unit, location);
 }
 
-std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
+std::vector<CXCursor> Parser_Impl::callers(const CXCursor &cursor) const
 {
     // get cursor declaration
     CXCursor              cursor_decl = declaration(cursor);
@@ -168,7 +213,7 @@ std::vector<CXCursor> Parser::callers(const CXCursor &cursor) const
     return cursors;
 }
 
-std::string Parser::filename() const
+std::string Parser_Impl::filename() const
 {
     CXFile      file     = clang_getFile(m_unit, m_filename.c_str());
     std::string spelling = to_string(clang_getFileName(file));
@@ -213,6 +258,30 @@ location(const CXCursor &cursor)
     // filename
     std::string _filename = to_string(clang_getFileName(file));
     return std::make_tuple(_filename, line, column);
+}
+
+Parser::Parser() = default;
+Parser::~Parser() = default;
+
+Location Parser::definition(const TextDocumentPositionParams & params)
+{
+    pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.textDocument.uri, params.compile_arguments);
+    auto cursor = pimpl->cursor(params.position.line, params.position.character);
+    cursor = code::analyzer::definition(cursor);
+    auto loc = location(cursor);
+
+    Position position;
+    position.line = std::get<1>(loc);
+    position.character = std::get<2>(loc);
+
+    Range range;
+    range.start = position;
+    range.end = position;
+
+    Location _location;
+    _location.uri = std::get<0>(loc);
+    _location.range = range;
+    return _location;
 }
 
 } // namespace analyzer

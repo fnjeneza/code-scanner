@@ -2,6 +2,7 @@
 #include <json.hpp>
 #include "args.hxx"
 #include "config.hpp"
+#include "parser.hpp"
 
 int main(int argc, char **argv)
 {
@@ -68,6 +69,17 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::string> compile_arguments = config::compile_commands();
+    code::analyzer::TextDocumentPositionParams params;
+    params.textDocument.uri = filename;
+    code::analyzer::Position position;
+    position.line = line;
+    position.character = column;
+    params.position = position;
+
+    // TODO temporary
+    params.build_dir = build_path;
+    params.compile_arguments = compile_arguments;
+
     // code::analyzer::Parser parser(build_path, filename, compile_arguments);
     // auto cursor = parser.cursor(line, column);
     // if (c)
@@ -94,10 +106,11 @@ int main(int argc, char **argv)
     //     std::cout << "]\n";
     //     return 0;
     // }
-    // if (g)
-    // {
-    //     cursor = code::analyzer::definition(cursor);
-    // }
+    if (g)
+    {
+        code::analyzer::Parser parser;
+        code::analyzer::Location location = parser.definition(params);
+    }
     // if (s)
     // {
     //     cursor = code::analyzer::declaration(cursor);

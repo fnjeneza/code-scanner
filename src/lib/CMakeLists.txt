@@ -21,9 +21,10 @@ find_package(Clang REQUIRED)
 include_directories(SYSTEM
     ${LLVM_INCLUDE_DIR}
 )
+
 # code scanner library
 add_library(code-scanner src/parser.cpp)
-target_include_directories(code-scanner PUBLIC src)
+target_include_directories(code-scanner PRIVATE include)
 
 target_link_libraries(code-scanner
     PRIVATE clang

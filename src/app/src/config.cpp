@@ -27,7 +27,6 @@ std::vector<std::string> compile_commands(const std::string & config_path)
         else
         {
             using json = nlohmann::json;
-            // json object = {{"compile_commands", "clang -x c++ -std=c++14"}};
             json conf;
             in >> conf;
             auto compile_commands = conf["compile_commands"];
