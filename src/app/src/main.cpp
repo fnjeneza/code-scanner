@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::string> compile_arguments = config::compile_commands();
-    code::analyzer::TextDocumentPositionParams params;
+    code::analyzer::ReferenceParams params;
     params.textDocument.uri = filename;
     code::analyzer::Position position;
     position.line = line;
@@ -109,7 +109,8 @@ int main(int argc, char **argv)
     if (g)
     {
         code::analyzer::Parser parser;
-        code::analyzer::Location location = parser.definition(params);
+        code::analyzer::Location location = parser.references(params);
+        std::cout << location.uri << ":" << location.range.start.line <<":"<< location.range.start.character << '\n';
     }
     // if (s)
     // {

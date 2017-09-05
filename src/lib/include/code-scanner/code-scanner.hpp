@@ -37,6 +37,14 @@ struct TextDocumentPositionParams{
     std::vector<std::string> compile_arguments;
 };
 
+struct ReferenceContext {
+  bool includeDeclaration;
+};
+
+struct ReferenceParams: public TextDocumentPositionParams {
+  ReferenceContext context;
+};
+
 struct Parser_Impl;
 
 class Parser{
@@ -44,6 +52,7 @@ class Parser{
         Parser();
         ~Parser();
         Location definition(const TextDocumentPositionParams & params );
+        Location references(const ReferenceParams & params );
     private:
         std::unique_ptr<Parser_Impl> pimpl;
 };

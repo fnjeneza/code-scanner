@@ -265,9 +265,15 @@ Parser::~Parser() = default;
 
 Location Parser::definition(const TextDocumentPositionParams & params)
 {
+    Location location;
+    return location;
+}
+
+Location Parser::references(const ReferenceParams & params)
+{
     pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.textDocument.uri, params.compile_arguments);
     auto cursor = pimpl->cursor(params.position.line, params.position.character);
-    cursor = code::analyzer::definition(cursor);
+    cursor = code::analyzer::reference(cursor);
     auto loc = location(cursor);
 
     Position position;
