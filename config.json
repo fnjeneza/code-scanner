@@ -1,3 +1,4 @@
 {
-    "compile_commands": "clang -x c++ -std=c++14"
+    "compile_commands": "clang -x c++ -std=c++14",
+    "ignore_flags": ["all", "-debug"]
 }
