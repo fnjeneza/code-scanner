@@ -1,0 +1,25 @@
+namespace code.analyzer;
+
+table TextDocumentIdentifier {
+  uri:string;
+}
+
+struct Position {
+  line:int;
+  character:int;
+}
+
+struct Range {
+  start:Position;
+  end:Position;
+}
+
+table Location {
+  uri:string;
+  range:Range;
+}
+
+table TextDocumentPositionParams {
+  textDocument:TextDocumentIdentifier;
+  position:Position;
+}
