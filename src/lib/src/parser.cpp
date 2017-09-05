@@ -1,13 +1,14 @@
 #include "code-scanner/code-scanner.hpp"
 
-#include <clang-c/Index.h>
-#include <clang-c/CXCompilationDatabase.h>
+#include <algorithm>
+#include <iostream>
 #include <string>
 #include <tuple>
 #include <vector>
 #include <experimental/filesystem>
-#include <iostream>
 
+#include <clang-c/Index.h>
+#include <clang-c/CXCompilationDatabase.h>
 
 namespace std {
 namespace filesystem = std::experimental::filesystem;
@@ -119,6 +120,14 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
         //     // str = std::filesystem::path(_build_dir) / str;
         // }
         arguments.push_back(str);
+    }
+
+    // TODO read elements from config file
+    std::vector<std::string> flags_to_ignore = {"all", "-pc32", "-restrict", "-debug" };
+
+    for(const auto & value : flags_to_ignore)
+    {
+        std::remove(std::begin(arguments), std::end(arguments), value);
     }
 
     std::vector<const char *> flags;
