@@ -1,6 +1,7 @@
 #include "code-scanner/code-scanner.hpp"
 
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -27,6 +28,14 @@ std::string to_string(const CXString &cx_str)
     std::string str(cstr);
     clang_disposeString(cx_str);
     return str;
+}
+
+bool is_header_file(const std::string & filename)
+{
+    std::string extension = std::filesystem::path(filename).extension();
+    std::array<std::string, 3> header_extensions = {".h",".hpp",".hxx"};
+    auto found = std::find(std::begin(header_extensions), std::end(header_extensions), extension);
+    return found != std::end(header_extensions);
 }
 } // anonymous namespace
 
@@ -57,13 +66,13 @@ class Parser_Impl
 
 };
 
-// Retrieve the reference of a cursor
+// Retrieve the declaration of a cursor
 CXCursor reference(const CXCursor &cursor);
 
 // Retrieve the definition
 CXCursor definition(const CXCursor &cursor);
 
-// Retrieve the declaration of a cursor
+// TODO Retrieve the declaration of a cursor
 CXCursor declaration(const CXCursor &cursor);
 
 // Retrieve a type of cursor
@@ -93,12 +102,16 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
 
     CXCompileCommands compile_commands =
         clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
-    unsigned size = clang_CompileCommands_getSize(compile_commands);
-    if (size == 0)
+
+    if(!is_header_file(filename))
     {
-        // TODO better handle errors
-        std::cout << "compile command has size 0" << std::endl;
-        return;
+      unsigned size = clang_CompileCommands_getSize(compile_commands);
+      if (size == 0)
+      {
+          // TODO better handle errors
+          std::cout << "compile command has size 0" << std::endl;
+          return;
+      }
     }
 
     CXCompileCommand compile_command =
