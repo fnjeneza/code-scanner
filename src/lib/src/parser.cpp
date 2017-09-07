@@ -108,17 +108,13 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
     CXCompileCommands compile_commands =
         clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
 
-    if(!is_header_file(filename))
+    unsigned size = clang_CompileCommands_getSize(compile_commands);
+    if (size == 0)
     {
-      unsigned size = clang_CompileCommands_getSize(compile_commands);
-      if (size == 0)
-      {
-          // TODO better handle errors
-          std::cout << "compile command has size 0" << std::endl;
-          return;
-      }
+        // TODO better handle errors
+        std::cout << "compile command has size 0" << std::endl;
+        return;
     }
-
 
     CXCompileCommand compile_command =
         clang_CompileCommands_getCommand(compile_commands, 0);
@@ -134,10 +130,6 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
             ++i;
             continue;
         }
-        // if (!arguments.empty() && arguments.back() == "-isystem")
-        // {
-        //     // str = std::filesystem::path(_build_dir) / str;
-        // }
         arguments.push_back(str);
     }
 
@@ -269,19 +261,25 @@ void Parser_Impl::find_all_include_directories()
       {
         // read the next argument and increment the index in same time
         std::string dir_path(to_string(clang_CompileCommand_getArg(command, ++pos)));
+        // TODO try std::move on emplace
         system_include_dirs.emplace(dir_path);
         continue;
       }
     }
   }
 
+  // free compile commands
+  clang_CompileCommands_dispose(all_compile_commands);
+
+  // remove all previously findings
   include_directories.clear();
-  for(auto include_dir : system_include_dirs)
+  // TODO try std::move on pus_back
+  for(const auto & include_dir : system_include_dirs)
   {
       include_directories.push_back("-isystem");
       include_directories.push_back(include_dir);
   }
-  for(auto include_dir : local_include_dirs)
+  for(const auto & include_dir : local_include_dirs)
   {
       include_directories.push_back(include_dir);
   }
