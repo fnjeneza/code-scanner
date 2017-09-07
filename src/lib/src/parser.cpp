@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <unordered_set>
 #include <vector>
 #include <experimental/filesystem>
 
@@ -58,8 +59,12 @@ class Parser_Impl
     //.Retrieve name of the file being processed
     std::string filename() const;
 
+    // Fetch all include directories
+    void find_all_include_directories();
+
   private:
     std::string       m_filename;
+    std::vector<std::string> include_directories;
     CXIndex           m_index;
     CXTranslationUnit m_unit;
     CXCompilationDatabase m_db;
@@ -113,6 +118,7 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
           return;
       }
     }
+
 
     CXCompileCommand compile_command =
         clang_CompileCommands_getCommand(compile_commands, 0);
@@ -233,6 +239,52 @@ std::vector<CXCursor> Parser_Impl::callers(const CXCursor &cursor) const
         user_data);
 
     return cursors;
+}
+
+void Parser_Impl::find_all_include_directories()
+{
+  auto all_compile_commands = clang_CompilationDatabase_getAllCompileCommands(m_db);
+  auto size = clang_CompileCommands_getSize(all_compile_commands);
+  std::unordered_set<std::string> local_include_dirs;
+  std::unordered_set<std::string> system_include_dirs;
+  for(std::size_t i = 0; i< size; ++i)
+  {
+    auto command = clang_CompileCommands_getCommand(all_compile_commands, i);
+    auto number_args = clang_CompileCommand_getNumArgs(command);
+    for (std::size_t pos = 1; pos < number_args; ++pos)
+    {
+      std::string str(
+          to_string(clang_CompileCommand_getArg(command, pos)));
+      if (str == "-o" || str == "-c")
+      {
+          ++pos;
+          continue;
+      }
+      if(str.substr(0, 2) == "-I")
+      {
+        local_include_dirs.emplace(str);
+        continue;
+      }
+      if(str == "-isystem")
+      {
+        // read the next argument and increment the index in same time
+        std::string dir_path(to_string(clang_CompileCommand_getArg(command, ++pos)));
+        system_include_dirs.emplace(dir_path);
+        continue;
+      }
+    }
+  }
+
+  include_directories.clear();
+  for(auto include_dir : system_include_dirs)
+  {
+      include_directories.push_back("-isystem");
+      include_directories.push_back(include_dir);
+  }
+  for(auto include_dir : local_include_dirs)
+  {
+      include_directories.push_back(include_dir);
+  }
 }
 
 std::string Parser_Impl::filename() const
