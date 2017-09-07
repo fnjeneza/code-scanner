@@ -60,11 +60,17 @@ class Parser_Impl
     std::string filename() const;
 
     // Fetch all include directories
-    void find_all_include_directories();
+    void find_all_include_directories(const std::vector<std::string> & cmd);
+
+  private:
+    void initialize(const InitializeParams & params);
 
   private:
     std::string       m_filename;
     std::vector<std::string> include_directories;
+    std::vector<std::string> include_compile_commands;
+    // TODO read elements from config file
+    std::vector<std::string> flags_to_ignore = {"all", "-pc32", "-restrict", "-debug" };
     CXIndex           m_index;
     CXTranslationUnit m_unit;
     CXCompilationDatabase m_db;
@@ -93,6 +99,7 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
     , m_unit{nullptr}
     , m_db{nullptr}
 {
+    // TODO no need of absolute path
     std::string _filename =         std::filesystem::absolute(filename);
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
     m_db =
@@ -109,36 +116,43 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
         clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
 
     unsigned size = clang_CompileCommands_getSize(compile_commands);
-    if (size == 0)
-    {
-        // TODO better handle errors
-        std::cout << "compile command has size 0" << std::endl;
-        return;
-    }
-
-    CXCompileCommand compile_command =
-        clang_CompileCommands_getCommand(compile_commands, 0);
-    unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
     std::vector<std::string> arguments = compile_arguments;
-
-    for (unsigned i = 1; i < number_args; ++i)
+    if(!is_header_file(filename))
     {
-        std::string str(
-            to_string(clang_CompileCommand_getArg(compile_command, i)));
-        if (str == "-o" || str == "-c")
+
+        if (size == 0)
         {
-            ++i;
-            continue;
+            // TODO better handle errors
+            std::cout << "compile command has size 0" << std::endl;
+            return;
         }
-        arguments.push_back(str);
+
+        CXCompileCommand compile_command =
+            clang_CompileCommands_getCommand(compile_commands, 0);
+        unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
+        // std::vector<std::string> arguments = compile_arguments;
+
+        for (unsigned i = 1; i < number_args; ++i)
+        {
+            std::string str(
+                to_string(clang_CompileCommand_getArg(compile_command, i)));
+            if (str == "-o" || str == "-c")
+            {
+                ++i;
+                continue;
+            }
+            arguments.push_back(str);
+        }
+
+        for(const auto & value : flags_to_ignore)
+        {
+            std::remove(std::begin(arguments), std::end(arguments), value);
+        }
+
     }
-
-    // TODO read elements from config file
-    std::vector<std::string> flags_to_ignore = {"all", "-pc32", "-restrict", "-debug" };
-
-    for(const auto & value : flags_to_ignore)
-    {
-        std::remove(std::begin(arguments), std::end(arguments), value);
+    else{
+        find_all_include_directories(compile_arguments);
+         arguments = include_directories;
     }
 
     std::vector<const char *> flags;
@@ -179,6 +193,10 @@ Parser_Impl::~Parser_Impl()
     clang_disposeTranslationUnit(m_unit);
     clang_disposeIndex(m_index);
     clang_CompilationDatabase_dispose(m_db);
+}
+
+void Parser_Impl::initialize(const InitializeParams & )
+{
 }
 
 // Retrieve a cursor from a file/line/column
@@ -233,7 +251,7 @@ std::vector<CXCursor> Parser_Impl::callers(const CXCursor &cursor) const
     return cursors;
 }
 
-void Parser_Impl::find_all_include_directories()
+void Parser_Impl::find_all_include_directories(const std::vector<std::string> & cmd)
 {
   auto all_compile_commands = clang_CompilationDatabase_getAllCompileCommands(m_db);
   auto size = clang_CompileCommands_getSize(all_compile_commands);
@@ -273,6 +291,7 @@ void Parser_Impl::find_all_include_directories()
 
   // remove all previously findings
   include_directories.clear();
+  include_directories = cmd;
   // TODO try std::move on pus_back
   for(const auto & include_dir : system_include_dirs)
   {
@@ -335,7 +354,7 @@ location(const CXCursor &cursor)
 Parser::Parser() = default;
 Parser::~Parser() = default;
 
-Location Parser::definition(const TextDocumentPositionParams & params)
+Location Parser::definition(const TextDocumentPositionParams & )
 {
     Location location;
     return location;
