@@ -51,7 +51,7 @@ class Parser_Impl
     ~Parser_Impl();
 
     // Retrieve a cursor from a file/line/column
-    CXCursor cursor(const unsigned long &line, const unsigned long &column);
+    CXCursor cursor(const std::string & filename, const unsigned long &line, const unsigned long &column);
 
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
@@ -67,7 +67,6 @@ class Parser_Impl
     void find_all_include_directories(const std::vector<std::string> & cmd);
 
   private:
-    std::string       m_filename;
     std::vector<std::string> m_compile_arguments;
     std::vector<std::string> include_directories;
     std::vector<std::string> include_compile_commands;
@@ -197,9 +196,8 @@ Parser_Impl::~Parser_Impl()
     clang_CompilationDatabase_dispose(m_db);
 }
 
-void Parser_Impl::parse(const std::string & _filename)
+void Parser_Impl::parse(const std::string & filename)
 {
-    std::string filename =         std::filesystem::absolute(_filename);
     CXCompileCommands compile_commands =
         clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
 
@@ -313,9 +311,9 @@ void Parser_Impl::initialize(const InitializeParams & )
 }
 
 // Retrieve a cursor from a file/line/column
-CXCursor Parser_Impl::cursor(const unsigned long &line, const unsigned long &column)
+CXCursor Parser_Impl::cursor(const std::string & filename, const unsigned long &line, const unsigned long &column)
 {
-    CXFile           file     = clang_getFile(m_unit, m_filename.c_str());
+    CXFile           file     = clang_getFile(m_unit, filename.c_str());
     CXSourceLocation location = clang_getLocation(m_unit, file, line, column);
     return clang_getCursor(m_unit, location);
 }
@@ -471,7 +469,7 @@ Location Parser::references(const ReferenceParams & params)
 {
     pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.compile_arguments);
     pimpl->parse(params.textDocument.uri);
-    auto cursor = pimpl->cursor(params.position.line, params.position.character);
+    auto cursor = pimpl->cursor(params.textDocument.uri, params.position.line, params.position.character);
     cursor = code::analyzer::reference(cursor);
     auto loc = location(cursor);
 
