@@ -47,26 +47,27 @@ class Parser_Impl
 {
   public:
     Parser_Impl() = delete;
-    Parser_Impl(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments);
+    Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments);
     ~Parser_Impl();
 
     // Retrieve a cursor from a file/line/column
-    CXCursor cursor(const unsigned long &line, const unsigned long &column);
+    CXCursor cursor(const std::string & filename, const unsigned long &line, const unsigned long &column);
 
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
 
-    //.Retrieve name of the file being processed
-    std::string filename() const;
+    void initialize(const InitializeParams & params);
+    void parse(const std::string & filename);
+
+  private:
+    std::vector<std::string> source_file_compile_flags(const CXCompileCommands & compile_commands);
+    std::vector<std::string> include_file_compile_flags();
 
     // Fetch all include directories
     void find_all_include_directories(const std::vector<std::string> & cmd);
 
   private:
-    void initialize(const InitializeParams & params);
-
-  private:
-    std::string       m_filename;
+    std::vector<std::string> m_compile_arguments;
     std::vector<std::string> include_directories;
     std::vector<std::string> include_compile_commands;
     // TODO read elements from config file
@@ -93,14 +94,14 @@ std::string type(const CXCursor &cursor);
 std::tuple<std::string, unsigned long, unsigned long>
 location(const CXCursor &cursor);
 
-Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filename, const std::vector<std::string> & compile_arguments)
-    : m_filename{filename}
+Parser_Impl::Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments)
+    : m_compile_arguments{compile_arguments}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
     , m_db{nullptr}
 {
-    // TODO no need of absolute path
-    std::string _filename =         std::filesystem::absolute(filename);
+    // // TODO no need of absolute path
+    // std::string _filename =         std::filesystem::absolute(filename);
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
     m_db =
         clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
@@ -111,26 +112,31 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
         std::cout << "compilation database can not be loaded" << std::endl;
         return;
     }
+}
 
+Parser_Impl::~Parser_Impl()
+{
+    clang_disposeTranslationUnit(m_unit);
+    clang_disposeIndex(m_index);
+    clang_CompilationDatabase_dispose(m_db);
+}
+
+void Parser_Impl::parse(const std::string & filename)
+{
     CXCompileCommands compile_commands =
-        clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
+        clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
 
     unsigned size = clang_CompileCommands_getSize(compile_commands);
-    std::vector<std::string> arguments = compile_arguments;
-    if(!is_header_file(filename))
+    std::vector<std::string> file_flags;
+
+    if (size != 0)
     {
+      // compile command of the source file
+      CXCompileCommand compile_command =
+          clang_CompileCommands_getCommand(compile_commands, 0);
 
-        if (size == 0)
-        {
-            // TODO better handle errors
-            std::cout << "compile command has size 0" << std::endl;
-            return;
-        }
-
-        CXCompileCommand compile_command =
-            clang_CompileCommands_getCommand(compile_commands, 0);
         unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-        // std::vector<std::string> arguments = compile_arguments;
+        file_flags = m_compile_arguments;
 
         for (unsigned i = 1; i < number_args; ++i)
         {
@@ -141,29 +147,35 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
                 ++i;
                 continue;
             }
-            arguments.push_back(str);
+            file_flags.push_back(str);
         }
-
-        for(const auto & value : flags_to_ignore)
-        {
-            std::remove(std::begin(arguments), std::end(arguments), value);
-        }
-
+      // flags applied to the source file
+      // file_flags = source_file_compile_flags(compile_command);
     }
-    else{
-        find_all_include_directories(compile_arguments);
-         arguments = include_directories;
-    }
-
-    std::vector<const char *> flags;
-    for (const auto &argument : arguments)
+    else
     {
-        flags.push_back(argument.c_str());
+      // TODO better handle errors
+      std::cout << "compile command has size 0" << std::endl;
+      // flags applied to the header file
+      file_flags = include_file_compile_flags();
+    }
+
+    // remove flags that can lead to an ASTRead Error
+    for(const auto & value : flags_to_ignore)
+    {
+        std::remove(std::begin(file_flags), std::end(file_flags), value);
+    }
+
+    // convert to "const char *" understable by parseTranslationUnit
+    std::vector<const char *> flags;
+    for (const auto & flag : file_flags)
+    {
+        flags.push_back(flag.c_str());
     }
 
     clang_CompileCommands_dispose(compile_commands);
     auto error = clang_parseTranslationUnit2FullArgv(m_index,
-                                                     _filename.c_str(),
+                                                     filename.c_str(),
                                                      &flags[0],
                                                      flags.size(),
                                                      nullptr,
@@ -186,13 +198,37 @@ Parser_Impl::Parser_Impl(const std::string &build_dir, const std::string &filena
         std::cout << "Error default\n";
         break;
     }
+
 }
 
-Parser_Impl::~Parser_Impl()
+std::vector<std::string> Parser_Impl::source_file_compile_flags(const CXCompileCommand & compile_command)
 {
-    clang_disposeTranslationUnit(m_unit);
-    clang_disposeIndex(m_index);
-    clang_CompilationDatabase_dispose(m_db);
+    unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
+
+    std::vector<std::string> flags = m_compile_arguments;
+
+    for (unsigned i = 1; i < number_args; ++i)
+    {
+        std::string str(
+            to_string(clang_CompileCommand_getArg(compile_command, i)));
+        if (str == "-o" || str == "-c")
+        {
+            ++i;
+            continue;
+        }
+        flags.push_back(str);
+    }
+
+    return flags;
+
+}
+
+std::vector<std::string> Parser_Impl::include_file_compile_flags()
+{
+    std::vector<std::string> flags = m_compile_arguments;
+    find_all_include_directories(flags);
+    flags = include_directories;
+    return flags;
 }
 
 void Parser_Impl::initialize(const InitializeParams & )
@@ -200,9 +236,9 @@ void Parser_Impl::initialize(const InitializeParams & )
 }
 
 // Retrieve a cursor from a file/line/column
-CXCursor Parser_Impl::cursor(const unsigned long &line, const unsigned long &column)
+CXCursor Parser_Impl::cursor(const std::string & filename, const unsigned long &line, const unsigned long &column)
 {
-    CXFile           file     = clang_getFile(m_unit, m_filename.c_str());
+    CXFile           file     = clang_getFile(m_unit, filename.c_str());
     CXSourceLocation location = clang_getLocation(m_unit, file, line, column);
     return clang_getCursor(m_unit, location);
 }
@@ -304,12 +340,6 @@ void Parser_Impl::find_all_include_directories(const std::vector<std::string> & 
   }
 }
 
-std::string Parser_Impl::filename() const
-{
-    CXFile      file     = clang_getFile(m_unit, m_filename.c_str());
-    std::string spelling = to_string(clang_getFileName(file));
-    return spelling;
-}
 CXCursor declaration(const CXCursor &cursor)
 {
     auto cur = clang_getCursorDefinition(cursor);
@@ -362,8 +392,9 @@ Location Parser::definition(const TextDocumentPositionParams & )
 
 Location Parser::references(const ReferenceParams & params)
 {
-    pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.textDocument.uri, params.compile_arguments);
-    auto cursor = pimpl->cursor(params.position.line, params.position.character);
+    pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.compile_arguments);
+    pimpl->parse(params.textDocument.uri);
+    auto cursor = pimpl->cursor(params.textDocument.uri, params.position.line, params.position.character);
     cursor = code::analyzer::reference(cursor);
     auto loc = location(cursor);
 
