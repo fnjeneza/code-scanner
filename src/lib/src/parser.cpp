@@ -47,7 +47,7 @@ class Parser_Impl
 {
   public:
     Parser_Impl() = delete;
-    Parser_Impl(const std::vector<std::string> & compile_arguments);
+    Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments);
     ~Parser_Impl();
 
     // Retrieve a cursor from a file/line/column
@@ -56,11 +56,8 @@ class Parser_Impl
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
 
-    //.Retrieve name of the file being processed
-    std::string filename() const;
-
     void initialize(const InitializeParams & params);
-    void parse(const std::string & filename, const std::string & build_dir);
+    void parse(const std::string & filename);
 
   private:
     std::vector<std::string> source_file_compile_flags(const CXCompileCommands & compile_commands);
@@ -98,7 +95,7 @@ std::string type(const CXCursor &cursor);
 std::tuple<std::string, unsigned long, unsigned long>
 location(const CXCursor &cursor);
 
-Parser_Impl::Parser_Impl(const std::vector<std::string> & compile_arguments)
+Parser_Impl::Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments)
     : m_compile_arguments{compile_arguments}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
@@ -106,16 +103,16 @@ Parser_Impl::Parser_Impl(const std::vector<std::string> & compile_arguments)
 {
     // // TODO no need of absolute path
     // std::string _filename =         std::filesystem::absolute(filename);
-    // CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
-    // m_db =
-    //     clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
+    CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
+    m_db =
+        clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
 
-    // if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
-    // {
-    //     // TODO Handle errors in ctor
-    //     std::cout << "compilation database can not be loaded" << std::endl;
-    //     return;
-    // }
+    if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
+    {
+        // TODO Handle errors in ctor
+        std::cout << "compilation database can not be loaded" << std::endl;
+        return;
+    }
 
     // CXCompileCommands compile_commands =
     //     clang_CompilationDatabase_getCompileCommands(m_db, _filename.c_str());
@@ -200,20 +197,9 @@ Parser_Impl::~Parser_Impl()
     clang_CompilationDatabase_dispose(m_db);
 }
 
-void Parser_Impl::parse(const std::string & filename, const std::string & build_dir)
+void Parser_Impl::parse(const std::string & _filename)
 {
-    std::cout << filename << "\n" << build_dir << std::endl;
-    CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
-    m_db =
-        clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
-
-    if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
-    {
-        // TODO Handle errors in ctor
-        std::cout << "compilation database can not be loaded" << std::endl;
-        return;
-    }
-
+    std::string filename =         std::filesystem::absolute(_filename);
     CXCompileCommands compile_commands =
         clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
 
@@ -225,13 +211,29 @@ void Parser_Impl::parse(const std::string & filename, const std::string & build_
       // compile command of the source file
       CXCompileCommand compile_command =
           clang_CompileCommands_getCommand(compile_commands, 0);
+
+        unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
+        file_flags = m_compile_arguments;
+
+        for (unsigned i = 1; i < number_args; ++i)
+        {
+            std::string str(
+                to_string(clang_CompileCommand_getArg(compile_command, i)));
+            if (str == "-o" || str == "-c")
+            {
+                ++i;
+                continue;
+            }
+            file_flags.push_back(str);
+        }
       // flags applied to the source file
-      file_flags = source_file_compile_flags(compile_command);
+      // file_flags = source_file_compile_flags(compile_command);
     }
     else
     {
       // TODO better handle errors
       std::cout << "compile command has size 0" << std::endl;
+      // flags applied to the header file
       file_flags = include_file_compile_flags();
     }
 
@@ -241,7 +243,7 @@ void Parser_Impl::parse(const std::string & filename, const std::string & build_
         std::remove(std::begin(file_flags), std::end(file_flags), value);
     }
 
-    // convert to char * understable by parseTranslationUnit
+    // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
     for (const auto & flag : file_flags)
     {
@@ -415,12 +417,6 @@ void Parser_Impl::find_all_include_directories(const std::vector<std::string> & 
   }
 }
 
-std::string Parser_Impl::filename() const
-{
-    CXFile      file     = clang_getFile(m_unit, m_filename.c_str());
-    std::string spelling = to_string(clang_getFileName(file));
-    return spelling;
-}
 CXCursor declaration(const CXCursor &cursor)
 {
     auto cur = clang_getCursorDefinition(cursor);
@@ -473,8 +469,8 @@ Location Parser::definition(const TextDocumentPositionParams & )
 
 Location Parser::references(const ReferenceParams & params)
 {
-    pimpl = std::make_unique<Parser_Impl>(params.compile_arguments);
-    pimpl->parse(params.textDocument.uri, params.build_dir);
+    pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.compile_arguments);
+    pimpl->parse(params.textDocument.uri);
     auto cursor = pimpl->cursor(params.position.line, params.position.character);
     cursor = code::analyzer::reference(cursor);
     auto loc = location(cursor);
