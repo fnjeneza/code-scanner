@@ -65,7 +65,7 @@ class Parser_Impl
     std::vector<std::string> get_compile_flags(const std::string & filename);
 
     // Fetch all include directories
-    void find_all_include_directories(const std::vector<std::string> & cmd);
+    void find_all_include_directories();
 
   private:
     std::vector<std::string> m_compile_arguments;
@@ -186,9 +186,8 @@ std::vector<std::string> Parser_Impl::source_compile_flags(const CXCompileComman
 
 std::vector<std::string> Parser_Impl::header_compile_flags()
 {
-    std::vector<std::string> flags = m_compile_arguments;
-    find_all_include_directories(flags);
-    flags = include_directories;
+    find_all_include_directories();
+    std::vector<std::string> flags = include_directories;
     return flags;
 }
 
@@ -282,7 +281,7 @@ std::vector<CXCursor> Parser_Impl::callers(const CXCursor &cursor) const
     return cursors;
 }
 
-void Parser_Impl::find_all_include_directories(const std::vector<std::string> & cmd)
+void Parser_Impl::find_all_include_directories()
 {
   auto all_compile_commands = clang_CompilationDatabase_getAllCompileCommands(m_db);
   auto size = clang_CompileCommands_getSize(all_compile_commands);
@@ -320,9 +319,7 @@ void Parser_Impl::find_all_include_directories(const std::vector<std::string> & 
   // free compile commands
   clang_CompileCommands_dispose(all_compile_commands);
 
-  // remove all previously findings
-  include_directories.clear();
-  include_directories = cmd;
+  include_directories = m_compile_arguments;
   // TODO try std::move on pus_back
   for(const auto & include_dir : system_include_dirs)
   {
