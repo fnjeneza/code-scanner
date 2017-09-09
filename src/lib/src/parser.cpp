@@ -60,8 +60,9 @@ class Parser_Impl
     void parse(const std::string & filename);
 
   private:
-    std::vector<std::string> source_file_compile_flags(const CXCompileCommands & compile_commands);
-    std::vector<std::string> include_file_compile_flags();
+    std::vector<std::string> source_compile_flags(const CXCompileCommands & compile_commands);
+    std::vector<std::string> header_compile_flags();
+    std::vector<std::string> get_compile_flags(const std::string & filename);
 
     // Fetch all include directories
     void find_all_include_directories(const std::vector<std::string> & cmd);
@@ -123,43 +124,17 @@ Parser_Impl::~Parser_Impl()
 
 void Parser_Impl::parse(const std::string & filename)
 {
-    CXCompileCommands compile_commands =
-        clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
 
-    unsigned size = clang_CompileCommands_getSize(compile_commands);
-    std::vector<std::string> file_flags;
-
-    if (size != 0)
-    {
-      // compile command of the source file
-      CXCompileCommand compile_command =
-          clang_CompileCommands_getCommand(compile_commands, 0);
-
-      // flags applied to the source file
-      file_flags = source_file_compile_flags(compile_command);
-    }
-    else
-    {
-      // TODO better handle errors
-      std::cout << "compile command has size 0" << std::endl;
-      // flags applied to the header file
-      file_flags = include_file_compile_flags();
-    }
-
-    // remove flags that can lead to an ASTRead Error
-    for(const auto & value : flags_to_ignore)
-    {
-        std::remove(std::begin(file_flags), std::end(file_flags), value);
-    }
-
+    // need to store flags before using them. Otherwise char* has undefined
+    // behavior
+    std::vector<std::string> file_flags = get_compile_flags(filename);
     // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
-    for (const auto & flag : file_flags)
+    for (const auto & flag : file_flags )
     {
         flags.push_back(flag.c_str());
     }
 
-    clang_CompileCommands_dispose(compile_commands);
     auto error = clang_parseTranslationUnit2FullArgv(m_index,
                                                      filename.c_str(),
                                                      &flags[0],
@@ -187,7 +162,7 @@ void Parser_Impl::parse(const std::string & filename)
 
 }
 
-std::vector<std::string> Parser_Impl::source_file_compile_flags(const CXCompileCommand & compile_command)
+std::vector<std::string> Parser_Impl::source_compile_flags(const CXCompileCommand & compile_command)
 {
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
 
@@ -209,12 +184,46 @@ std::vector<std::string> Parser_Impl::source_file_compile_flags(const CXCompileC
 
 }
 
-std::vector<std::string> Parser_Impl::include_file_compile_flags()
+std::vector<std::string> Parser_Impl::header_compile_flags()
 {
     std::vector<std::string> flags = m_compile_arguments;
     find_all_include_directories(flags);
     flags = include_directories;
     return flags;
+}
+
+std::vector<std::string> Parser_Impl::get_compile_flags(const std::string & filename)
+{
+    CXCompileCommands compile_commands =
+        clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
+
+    unsigned size = clang_CompileCommands_getSize(compile_commands);
+    std::vector<std::string> file_flags;
+
+    if (size != 0) //is source file
+    {
+      // compile command of the source file
+      CXCompileCommand compile_command =
+          clang_CompileCommands_getCommand(compile_commands, 0);
+
+      // flags applied to the source file
+      file_flags = source_compile_flags(compile_command);
+      clang_CompileCommands_dispose(compile_commands);
+    }
+    else // is header file
+    {
+      // TODO better handle errors
+      std::cout << "compile command has size 0" << std::endl;
+      // flags applied to the header file
+      file_flags = header_compile_flags();
+    }
+
+    // remove flags that can lead to an ASTRead Error
+    for(const auto & value : flags_to_ignore)
+    {
+        std::remove(std::begin(file_flags), std::end(file_flags), value);
+    }
+    return file_flags;
 }
 
 void Parser_Impl::initialize(const InitializeParams & )
