@@ -135,22 +135,8 @@ void Parser_Impl::parse(const std::string & filename)
       CXCompileCommand compile_command =
           clang_CompileCommands_getCommand(compile_commands, 0);
 
-        unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-        file_flags = m_compile_arguments;
-
-        for (unsigned i = 1; i < number_args; ++i)
-        {
-            std::string str(
-                to_string(clang_CompileCommand_getArg(compile_command, i)));
-            if (str == "-o" || str == "-c")
-            {
-                ++i;
-                continue;
-            }
-            file_flags.push_back(str);
-        }
       // flags applied to the source file
-      // file_flags = source_file_compile_flags(compile_command);
+      file_flags = source_file_compile_flags(compile_command);
     }
     else
     {
