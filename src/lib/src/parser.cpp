@@ -60,15 +60,15 @@ class Parser_Impl
     void parse(const std::string & filename);
 
   private:
-    std::vector<std::string> source_compile_flags(const CXCompileCommands & compile_commands);
+    void source_compile_flags(const CXCompileCommands & compile_commands);
     std::vector<std::string> header_compile_flags();
-    std::vector<std::string> get_compile_flags(const std::string & filename);
+    void set_flags(const std::string & filename);
 
     // Fetch all include directories
     void find_all_include_directories();
 
   private:
-    std::vector<std::string> m_compile_arguments;
+    std::vector<std::string> m_flags;
     std::vector<std::string> include_directories;
     std::vector<std::string> include_compile_commands;
     // TODO read elements from config file
@@ -96,7 +96,7 @@ std::tuple<std::string, unsigned long, unsigned long>
 location(const CXCursor &cursor);
 
 Parser_Impl::Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments)
-    : m_compile_arguments{compile_arguments}
+    : m_flags{compile_arguments}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
     , m_db{nullptr}
@@ -125,12 +125,10 @@ Parser_Impl::~Parser_Impl()
 void Parser_Impl::parse(const std::string & filename)
 {
 
-    // need to store flags before using them. Otherwise char* has undefined
-    // behavior
-    std::vector<std::string> file_flags = get_compile_flags(filename);
+    set_flags(filename);
     // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
-    for (const auto & flag : file_flags )
+    for (const auto & flag : m_flags )
     {
         flags.push_back(flag.c_str());
     }
@@ -162,11 +160,9 @@ void Parser_Impl::parse(const std::string & filename)
 
 }
 
-std::vector<std::string> Parser_Impl::source_compile_flags(const CXCompileCommand & compile_command)
+void Parser_Impl::source_compile_flags(const CXCompileCommand & compile_command)
 {
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
-
-    std::vector<std::string> flags = m_compile_arguments;
 
     for (unsigned i = 1; i < number_args; ++i)
     {
@@ -177,27 +173,23 @@ std::vector<std::string> Parser_Impl::source_compile_flags(const CXCompileComman
             ++i;
             continue;
         }
-        flags.push_back(str);
+        m_flags.push_back(str);
     }
-
-    return flags;
-
 }
 
 std::vector<std::string> Parser_Impl::header_compile_flags()
 {
     find_all_include_directories();
-    std::vector<std::string> flags = include_directories;
+    std::vector<std::string> flags = m_flags;
     return flags;
 }
 
-std::vector<std::string> Parser_Impl::get_compile_flags(const std::string & filename)
+void Parser_Impl::set_flags(const std::string & filename)
 {
     CXCompileCommands compile_commands =
         clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
 
     unsigned size = clang_CompileCommands_getSize(compile_commands);
-    std::vector<std::string> file_flags;
 
     if (size != 0) //is source file
     {
@@ -206,7 +198,7 @@ std::vector<std::string> Parser_Impl::get_compile_flags(const std::string & file
           clang_CompileCommands_getCommand(compile_commands, 0);
 
       // flags applied to the source file
-      file_flags = source_compile_flags(compile_command);
+      source_compile_flags(compile_command);
       clang_CompileCommands_dispose(compile_commands);
     }
     else // is header file
@@ -214,15 +206,14 @@ std::vector<std::string> Parser_Impl::get_compile_flags(const std::string & file
       // TODO better handle errors
       std::cout << "compile command has size 0" << std::endl;
       // flags applied to the header file
-      file_flags = header_compile_flags();
+      header_compile_flags();
     }
 
     // remove flags that can lead to an ASTRead Error
     for(const auto & value : flags_to_ignore)
     {
-        std::remove(std::begin(file_flags), std::end(file_flags), value);
+        std::remove(std::begin(m_flags), std::end(m_flags), value);
     }
-    return file_flags;
 }
 
 void Parser_Impl::initialize(const InitializeParams & )
@@ -319,16 +310,15 @@ void Parser_Impl::find_all_include_directories()
   // free compile commands
   clang_CompileCommands_dispose(all_compile_commands);
 
-  include_directories = m_compile_arguments;
   // TODO try std::move on pus_back
   for(const auto & include_dir : system_include_dirs)
   {
-      include_directories.push_back("-isystem");
-      include_directories.push_back(include_dir);
+      m_flags.push_back("-isystem");
+      m_flags.push_back(include_dir);
   }
   for(const auto & include_dir : local_include_dirs)
   {
-      include_directories.push_back(include_dir);
+      m_flags.push_back(include_dir);
   }
 }
 
