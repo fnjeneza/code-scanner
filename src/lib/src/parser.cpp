@@ -59,7 +59,7 @@ class Parser_Impl
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
 
-    void initialize(const std::string & root_uri, const std::vector<std::string> & compile_arguments);
+    void initialize(const std::string & root_uri, const std::vector<std::string> & compile_arguments, const std::vector<std::string> & flags_to_ignore);
     void parse(const std::string & filename);
 
   private:
@@ -74,7 +74,7 @@ class Parser_Impl
     std::string m_root_uri;
     std::vector<std::string> m_flags;
     // TODO read elements from config file
-    std::vector<std::string> flags_to_ignore = {"all", "-pc32", "-restrict", "-debug" };
+    std::vector<std::string> m_flags_to_ignore;// = {"all", "-pc32", "-restrict", "-debug" };
     CXIndex           m_index;
     CXTranslationUnit m_unit;
     CXCompilationDatabase m_db;
@@ -201,17 +201,19 @@ void Parser_Impl::set_flags(const std::string & filename)
     }
 
     // remove flags that can lead to an ASTRead Error
-    for(const auto & value : flags_to_ignore)
+    for(const auto & value : m_flags_to_ignore)
     {
         std::remove(std::begin(m_flags), std::end(m_flags), value);
     }
 }
 
 void Parser_Impl::initialize(const std::string & root_uri,
-        const std::vector<std::string> & compile_commands)
+        const std::vector<std::string> & compile_commands,
+        const std::vector<std::string> & flags_to_ignore)
 {
     m_root_uri = root_uri;
     m_flags = compile_commands;
+    m_flags_to_ignore = flags_to_ignore;
 
     // // TODO no need of absolute path
     // std::string _filename =         std::filesystem::absolute(filename);
@@ -398,7 +400,8 @@ void Parser::initialize(const InitializeParams & params)
         compile_arguments = utils::split(compile_commands);
     }
 
-    pimpl->initialize(root_uri, compile_arguments);
+    auto flags_to_ignore = conf["ignore_flags"];
+    pimpl->initialize(root_uri, compile_arguments, flags_to_ignore);
 }
 
 Location Parser::definition(const TextDocumentPositionParams & )
