@@ -1,7 +1,7 @@
-#include <iostream>
-#include <fstream>
 #include "args.hxx"
 #include "code-scanner/code-scanner.hpp"
+#include <fstream>
+#include <iostream>
 
 int main(int argc, char **argv)
 {
@@ -50,8 +50,8 @@ int main(int argc, char **argv)
     std::string build_path;
     std::string filename;
     std::string configuration_file = "config.json";
-    int                   line;
-    int                   column;
+    int         line;
+    int         column;
 
     if (compile_commands)
     {
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     {
         column = args::get(col);
     }
-    if(config_file)
+    if (config_file)
     {
         configuration_file = args::get(config_file);
     }
@@ -77,15 +77,15 @@ int main(int argc, char **argv)
     code::analyzer::ReferenceParams params;
     params.textDocument.uri = filename;
     code::analyzer::Position position;
-    position.line = line;
+    position.line      = line;
     position.character = column;
-    params.position = position;
+    params.position    = position;
 
     // Initialize parameters
     code::analyzer::InitializeParams initialize_params;
-    std::ifstream in(configuration_file);
-    std::string current_line;
-    while(std::getline(in, current_line))
+    std::ifstream                    in(configuration_file);
+    std::string                      current_line;
+    while (std::getline(in, current_line))
     {
         // retrieve initialization options. The config json content
         initialize_params.initializationOptions += current_line;
@@ -122,7 +122,8 @@ int main(int argc, char **argv)
         code::analyzer::Parser parser;
         parser.initialize(initialize_params);
         code::analyzer::Location location = parser.references(params);
-        std::cout << location.uri << ":" << location.range.start.line <<":"<< location.range.start.character << '\n';
+        std::cout << location.uri << ":" << location.range.start.line << ":"
+                  << location.range.start.character << '\n';
     }
     // if (s)
     // {

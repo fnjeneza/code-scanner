@@ -10,15 +10,15 @@
 
 #include <json.hpp>
 
-#include <clang-c/Index.h>
 #include <clang-c/CXCompilationDatabase.h>
+#include <clang-c/Index.h>
 
 #include "utils.hpp"
 
 namespace {
 std::string to_string(const CXString &cx_str)
 {
-    auto cstr= clang_getCString(cx_str);
+    auto cstr = clang_getCString(cx_str);
 
     if (cstr == NULL)
     {
@@ -41,31 +41,35 @@ class Parser_Impl
     ~Parser_Impl();
 
     // Retrieve a cursor from a file/line/column
-    CXCursor cursor(const std::string & filename, const unsigned long &line, const unsigned long &column);
+    CXCursor cursor(const std::string &  filename,
+                    const unsigned long &line,
+                    const unsigned long &column);
 
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
 
-    void initialize(const std::string & root_uri, const std::vector<std::string> & compile_arguments, const std::vector<std::string> & flags_to_ignore);
-    void parse(const std::string & filename);
+    void initialize(const std::string &             root_uri,
+                    const std::vector<std::string> &compile_arguments,
+                    const std::vector<std::string> &flags_to_ignore);
+    void parse(const std::string &filename);
 
   private:
-    void source_compile_flags(const CXCompileCommands & compile_commands);
+    void source_compile_flags(const CXCompileCommands &compile_commands);
     std::vector<std::string> header_compile_flags();
-    void set_flags(const std::string & filename);
+    void set_flags(const std::string &filename);
 
     // Fetch all include directories
     void find_all_include_directories();
 
   private:
-    std::string m_root_uri;
+    std::string              m_root_uri;
     std::vector<std::string> m_flags;
     // TODO read elements from config file
-    std::vector<std::string> m_flags_to_ignore;// = {"all", "-pc32", "-restrict", "-debug" };
-    CXIndex           m_index;
-    CXTranslationUnit m_unit;
+    std::vector<std::string>
+                          m_flags_to_ignore; // = {"all", "-pc32", "-restrict", "-debug" };
+    CXIndex               m_index;
+    CXTranslationUnit     m_unit;
     CXCompilationDatabase m_db;
-
 };
 
 // Retrieve the declaration of a cursor
@@ -85,7 +89,7 @@ std::tuple<std::string, unsigned long, unsigned long>
 location(const CXCursor &cursor);
 
 Parser_Impl::Parser_Impl()
-    : m_root_uri {}
+    : m_root_uri{}
     , m_flags{}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
@@ -100,13 +104,13 @@ Parser_Impl::~Parser_Impl()
     clang_CompilationDatabase_dispose(m_db);
 }
 
-void Parser_Impl::parse(const std::string & filename)
+void Parser_Impl::parse(const std::string &filename)
 {
 
     set_flags(filename);
     // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
-    for (const auto & flag : m_flags )
+    for (const auto &flag : m_flags)
     {
         flags.push_back(flag.c_str());
     }
@@ -135,10 +139,9 @@ void Parser_Impl::parse(const std::string & filename)
         std::cout << "Error default\n";
         break;
     }
-
 }
 
-void Parser_Impl::source_compile_flags(const CXCompileCommand & compile_command)
+void Parser_Impl::source_compile_flags(const CXCompileCommand &compile_command)
 {
     unsigned number_args = clang_CompileCommand_getNumArgs(compile_command);
 
@@ -162,44 +165,44 @@ std::vector<std::string> Parser_Impl::header_compile_flags()
     return flags;
 }
 
-void Parser_Impl::set_flags(const std::string & filename)
+void Parser_Impl::set_flags(const std::string &filename)
 {
     CXCompileCommands compile_commands =
         clang_CompilationDatabase_getCompileCommands(m_db, filename.c_str());
 
     unsigned size = clang_CompileCommands_getSize(compile_commands);
 
-    if (size != 0) //is source file
+    if (size != 0) // is source file
     {
-      // compile command of the source file
-      CXCompileCommand compile_command =
-          clang_CompileCommands_getCommand(compile_commands, 0);
+        // compile command of the source file
+        CXCompileCommand compile_command =
+            clang_CompileCommands_getCommand(compile_commands, 0);
 
-      // flags applied to the source file
-      source_compile_flags(compile_command);
-      clang_CompileCommands_dispose(compile_commands);
+        // flags applied to the source file
+        source_compile_flags(compile_command);
+        clang_CompileCommands_dispose(compile_commands);
     }
     else // is header file
     {
-      // TODO better handle errors
-      std::cout << "compile command has size 0" << std::endl;
-      // flags applied to the header file
-      header_compile_flags();
+        // TODO better handle errors
+        std::cout << "compile command has size 0" << std::endl;
+        // flags applied to the header file
+        header_compile_flags();
     }
 
     // remove flags that can lead to an ASTRead Error
-    for(const auto & value : m_flags_to_ignore)
+    for (const auto &value : m_flags_to_ignore)
     {
         std::remove(std::begin(m_flags), std::end(m_flags), value);
     }
 }
 
-void Parser_Impl::initialize(const std::string & root_uri,
-        const std::vector<std::string> & compile_commands,
-        const std::vector<std::string> & flags_to_ignore)
+void Parser_Impl::initialize(const std::string &             root_uri,
+                             const std::vector<std::string> &compile_commands,
+                             const std::vector<std::string> &flags_to_ignore)
 {
-    m_root_uri = root_uri;
-    m_flags = compile_commands;
+    m_root_uri        = root_uri;
+    m_flags           = compile_commands;
     m_flags_to_ignore = flags_to_ignore;
 
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
@@ -215,7 +218,9 @@ void Parser_Impl::initialize(const std::string & root_uri,
 }
 
 // Retrieve a cursor from a file/line/column
-CXCursor Parser_Impl::cursor(const std::string & filename, const unsigned long &line, const unsigned long &column)
+CXCursor Parser_Impl::cursor(const std::string &  filename,
+                             const unsigned long &line,
+                             const unsigned long &column)
 {
     CXFile           file     = clang_getFile(m_unit, filename.c_str());
     CXSourceLocation location = clang_getLocation(m_unit, file, line, column);
@@ -268,52 +273,55 @@ std::vector<CXCursor> Parser_Impl::callers(const CXCursor &cursor) const
 
 void Parser_Impl::find_all_include_directories()
 {
-  auto all_compile_commands = clang_CompilationDatabase_getAllCompileCommands(m_db);
-  auto size = clang_CompileCommands_getSize(all_compile_commands);
-  std::unordered_set<std::string> local_include_dirs;
-  std::unordered_set<std::string> system_include_dirs;
-  for(std::size_t i = 0; i< size; ++i)
-  {
-    auto command = clang_CompileCommands_getCommand(all_compile_commands, i);
-    auto number_args = clang_CompileCommand_getNumArgs(command);
-    for (std::size_t pos = 1; pos < number_args; ++pos)
+    auto all_compile_commands =
+        clang_CompilationDatabase_getAllCompileCommands(m_db);
+    auto size = clang_CompileCommands_getSize(all_compile_commands);
+    std::unordered_set<std::string> local_include_dirs;
+    std::unordered_set<std::string> system_include_dirs;
+    for (std::size_t i = 0; i < size; ++i)
     {
-      std::string str(
-          to_string(clang_CompileCommand_getArg(command, pos)));
-      if (str == "-o" || str == "-c")
-      {
-          ++pos;
-          continue;
-      }
-      if(str.substr(0, 2) == "-I")
-      {
-        local_include_dirs.emplace(str);
-        continue;
-      }
-      if(str == "-isystem")
-      {
-        // read the next argument and increment the index in same time
-        std::string dir_path(to_string(clang_CompileCommand_getArg(command, ++pos)));
-        // TODO try std::move on emplace
-        system_include_dirs.emplace(dir_path);
-        continue;
-      }
+        auto command =
+            clang_CompileCommands_getCommand(all_compile_commands, i);
+        auto number_args = clang_CompileCommand_getNumArgs(command);
+        for (std::size_t pos = 1; pos < number_args; ++pos)
+        {
+            std::string str(
+                to_string(clang_CompileCommand_getArg(command, pos)));
+            if (str == "-o" || str == "-c")
+            {
+                ++pos;
+                continue;
+            }
+            if (str.substr(0, 2) == "-I")
+            {
+                local_include_dirs.emplace(str);
+                continue;
+            }
+            if (str == "-isystem")
+            {
+                // read the next argument and increment the index in same time
+                std::string dir_path(
+                    to_string(clang_CompileCommand_getArg(command, ++pos)));
+                // TODO try std::move on emplace
+                system_include_dirs.emplace(dir_path);
+                continue;
+            }
+        }
     }
-  }
 
-  // free compile commands
-  clang_CompileCommands_dispose(all_compile_commands);
+    // free compile commands
+    clang_CompileCommands_dispose(all_compile_commands);
 
-  // TODO try std::move on pus_back
-  for(const auto & include_dir : system_include_dirs)
-  {
-      m_flags.push_back("-isystem");
-      m_flags.push_back(include_dir);
-  }
-  for(const auto & include_dir : local_include_dirs)
-  {
-      m_flags.push_back(include_dir);
-  }
+    // TODO try std::move on pus_back
+    for (const auto &include_dir : system_include_dirs)
+    {
+        m_flags.push_back("-isystem");
+        m_flags.push_back(include_dir);
+    }
+    for (const auto &include_dir : local_include_dirs)
+    {
+        m_flags.push_back(include_dir);
+    }
 }
 
 CXCursor declaration(const CXCursor &cursor)
@@ -359,28 +367,29 @@ location(const CXCursor &cursor)
 
 Parser::Parser()
     : pimpl{std::make_unique<Parser_Impl>()}
-{}
+{
+}
 
 Parser::~Parser() = default;
 
-void Parser::initialize(const InitializeParams & params)
+void Parser::initialize(const InitializeParams &params)
 {
-    const std::string root_uri  = params.rootUri;
+    const std::string root_uri = params.rootUri;
     // compile arguments from initializationOptions
-    std::vector<std::string> compile_arguments ;
+    std::vector<std::string> compile_arguments;
 
     using json = nlohmann::json;
-    if(params.initializationOptions.empty())
+    if (params.initializationOptions.empty())
     {
         std::cerr << "Missing initialization options" << std::endl;
         // TODO return error code
         return;
     }
 
-    json conf = json::parse(params.initializationOptions);
+    json conf             = json::parse(params.initializationOptions);
     auto compile_commands = conf["compile_commands"];
 
-    if(!compile_commands.empty())
+    if (!compile_commands.empty())
     {
         compile_arguments = utils::split(compile_commands);
     }
@@ -389,29 +398,31 @@ void Parser::initialize(const InitializeParams & params)
     pimpl->initialize(root_uri, compile_arguments, flags_to_ignore);
 }
 
-Location Parser::definition(const TextDocumentPositionParams & )
+Location Parser::definition(const TextDocumentPositionParams &)
 {
     Location location;
     return location;
 }
 
-Location Parser::references(const ReferenceParams & params)
+Location Parser::references(const ReferenceParams &params)
 {
     pimpl->parse(params.textDocument.uri);
-    auto cursor = pimpl->cursor(params.textDocument.uri, params.position.line, params.position.character);
-    cursor = code::analyzer::reference(cursor);
+    auto cursor = pimpl->cursor(params.textDocument.uri,
+                                params.position.line,
+                                params.position.character);
+    cursor   = code::analyzer::reference(cursor);
     auto loc = location(cursor);
 
     Position position;
-    position.line = std::get<1>(loc);
+    position.line      = std::get<1>(loc);
     position.character = std::get<2>(loc);
 
     Range range;
     range.start = position;
-    range.end = position;
+    range.end   = position;
 
     Location _location;
-    _location.uri = std::get<0>(loc);
+    _location.uri   = std::get<0>(loc);
     _location.range = range;
     return _location;
 }

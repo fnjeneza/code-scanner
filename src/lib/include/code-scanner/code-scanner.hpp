@@ -1,80 +1,94 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace code {
 namespace analyzer {
 
 using DocumentUri = std::string;
 
-struct TextDocumentIdentifier{
+struct TextDocumentIdentifier
+{
     DocumentUri uri;
 };
 
-struct Position{
+struct Position
+{
     unsigned long line;
     unsigned long character;
 };
 
-struct Range{
+struct Range
+{
     Position start;
     Position end;
 };
 
-struct Location{
+struct Location
+{
     DocumentUri uri;
-    Range range;
+    Range       range;
 };
 
-struct TextDocumentPositionParams{
+struct TextDocumentPositionParams
+{
     TextDocumentIdentifier textDocument;
-    Position position;
+    Position               position;
 };
 
-struct ReferenceContext {
-  bool includeDeclaration;
+struct ReferenceContext
+{
+    bool includeDeclaration;
 };
 
-struct ReferenceParams: public TextDocumentPositionParams {
-  ReferenceContext context;
+struct ReferenceParams : public TextDocumentPositionParams
+{
+    ReferenceContext context;
 };
 
-struct DynamicRegistration {
-  bool dynamicRegistration;
+struct DynamicRegistration
+{
+    bool dynamicRegistration;
 };
 
-struct WorkspaceEdit {
-  bool documentChanges;
+struct WorkspaceEdit
+{
+    bool documentChanges;
 };
 
-struct WorkspaceClientCapabilities{
-  bool applyEdit;
-  WorkspaceEdit workspaceEdit;
-  DynamicRegistration didChangeConfiguration;
-  DynamicRegistration didChangeWatchedFiles;
-  DynamicRegistration symbol;
-  DynamicRegistration executeCommand;
+struct WorkspaceClientCapabilities
+{
+    bool                applyEdit;
+    WorkspaceEdit       workspaceEdit;
+    DynamicRegistration didChangeConfiguration;
+    DynamicRegistration didChangeWatchedFiles;
+    DynamicRegistration symbol;
+    DynamicRegistration executeCommand;
 };
 
-struct CompletionItem {
-  bool snippetSupport;
+struct CompletionItem
+{
+    bool snippetSupport;
 };
 
-struct Completion : public DynamicRegistration{
-  CompletionItem completionItem;
+struct Completion : public DynamicRegistration
+{
+    CompletionItem completionItem;
 };
 
-struct Synchronization : public DynamicRegistration{
-  bool willSave;
-  bool WillSaveWaituntil;
-  bool didSave;
+struct Synchronization : public DynamicRegistration
+{
+    bool willSave;
+    bool WillSaveWaituntil;
+    bool didSave;
 };
 
-struct TextDocumentClientCapabilities {
-    Synchronization synchronization;
-    Completion completion;
+struct TextDocumentClientCapabilities
+{
+    Synchronization     synchronization;
+    Completion          completion;
     DynamicRegistration hover;
     DynamicRegistration signatureHelp;
     DynamicRegistration references;
@@ -90,37 +104,42 @@ struct TextDocumentClientCapabilities {
     DynamicRegistration rename;
 };
 
-struct Capabilities {
-  WorkspaceClientCapabilities workspace;
-  TextDocumentClientCapabilities textDocument;
-  std::string experimental;
+struct Capabilities
+{
+    WorkspaceClientCapabilities    workspace;
+    TextDocumentClientCapabilities textDocument;
+    std::string                    experimental;
 };
 
-enum class Trace {
-  off,
-  messages,
-  verbose
+enum class Trace
+{
+    off,
+    messages,
+    verbose
 };
 
-struct InitializeParams {
-    std::size_t processId;
-    DocumentUri rootUri;
-    std::string initializationOptions; // json config options
+struct InitializeParams
+{
+    std::size_t  processId;
+    DocumentUri  rootUri;
+    std::string  initializationOptions; // json config options
     Capabilities capabilities;
-    Trace trace;
+    Trace        trace;
 };
 
 struct Parser_Impl;
 
-class Parser{
-    public:
-        Parser();
-        ~Parser();
-        void initialize(const InitializeParams & params);
-        Location definition(const TextDocumentPositionParams & params );
-        Location references(const ReferenceParams & params );
-    private:
-        std::unique_ptr<Parser_Impl> pimpl;
+class Parser
+{
+  public:
+    Parser();
+    ~Parser();
+    void initialize(const InitializeParams &params);
+    Location definition(const TextDocumentPositionParams &params);
+    Location references(const ReferenceParams &params);
+
+  private:
+    std::unique_ptr<Parser_Impl> pimpl;
 };
 
 } // namespace analyzer
