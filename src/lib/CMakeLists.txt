@@ -36,5 +36,4 @@ target_include_directories(code-scanner
 
 target_link_libraries(code-scanner
     PRIVATE libclang
-    PRIVATE "stdc++fs"
 )

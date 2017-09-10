@@ -7,7 +7,6 @@
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include <experimental/filesystem>
 
 #include <json.hpp>
 
@@ -15,10 +14,6 @@
 #include <clang-c/CXCompilationDatabase.h>
 
 #include "utils.hpp"
-
-namespace std {
-namespace filesystem = std::experimental::filesystem;
-}
 
 namespace {
 std::string to_string(const CXString &cx_str)
@@ -33,14 +28,6 @@ std::string to_string(const CXString &cx_str)
     std::string str(cstr);
     clang_disposeString(cx_str);
     return str;
-}
-
-bool is_header_file(const std::string & filename)
-{
-    std::string extension = std::filesystem::path(filename).extension();
-    std::array<std::string, 3> header_extensions = {".h",".hpp",".hxx"};
-    auto found = std::find(std::begin(header_extensions), std::end(header_extensions), extension);
-    return found != std::end(header_extensions);
 }
 } // anonymous namespace
 
@@ -215,8 +202,6 @@ void Parser_Impl::initialize(const std::string & root_uri,
     m_flags = compile_commands;
     m_flags_to_ignore = flags_to_ignore;
 
-    // // TODO no need of absolute path
-    // std::string _filename =         std::filesystem::absolute(filename);
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
     m_db =
         clang_CompilationDatabase_fromDirectory(m_root_uri.c_str(), &c_error);
