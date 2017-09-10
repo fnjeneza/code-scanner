@@ -8,7 +8,6 @@ set_target_properties(${APP} PROPERTIES
 )
 target_include_directories(${APP}
     PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/args
-    PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/json/src
     PRIVATE ${CMAKE_SOURCE_DIR}/src/lib/include
 )
 

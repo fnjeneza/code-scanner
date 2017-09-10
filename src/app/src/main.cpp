@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <json.hpp>
 #include "args.hxx"
 #include "code-scanner/code-scanner.hpp"
 
