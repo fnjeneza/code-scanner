@@ -1,5 +1,5 @@
-#include "args.hxx"
 #include "code-scanner/code-scanner.hpp"
+#include <args.hxx>
 #include <fstream>
 #include <iostream>
 
@@ -17,9 +17,9 @@ int main(int argc, char **argv)
         arg, "file", "source/header file path", {'f', "file"});
     args::ValueFlag<std::string> config_file(
         arg, "config_file", "json config file", {'c', "config"});
-    args::ValueFlag<int> row(arg, "row", "The line number", {'l'});
-    args::ValueFlag<int> col(arg, "offset", "The column number", {'o'});
-
+    args::ValueFlag<unsigned int> row(arg, "row", "The line number", {'l'});
+    args::ValueFlag<unsigned int> col(
+        arg, "offset", "The column number", {'o'});
     args::Group group(arg, "Find this symbol", args::Group::Validators::Xor);
     args::Flag  g(group, "definition", "Find this symbol definition", {'g'});
     args::Flag  c(
@@ -47,11 +47,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::string build_path;
-    std::string filename;
-    std::string configuration_file = "config.json";
-    int         line;
-    int         column;
+    std::string  build_path;
+    std::string  filename;
+    std::string  configuration_file = "config.json";
+    unsigned int line;
+    unsigned int column;
 
     if (compile_commands)
     {

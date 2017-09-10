@@ -41,9 +41,9 @@ class Parser_Impl
     ~Parser_Impl();
 
     // Retrieve a cursor from a file/line/column
-    CXCursor cursor(const std::string &  filename,
-                    const unsigned long &line,
-                    const unsigned long &column);
+    CXCursor cursor(const std::string & filename,
+                    const unsigned int &line,
+                    const unsigned int &column);
 
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
@@ -85,12 +85,13 @@ CXCursor declaration(const CXCursor &cursor);
 std::string type(const CXCursor &cursor);
 
 // Retrieve the location as file, line, column
-std::tuple<std::string, unsigned long, unsigned long>
+std::tuple<std::string, unsigned int, unsigned int>
 location(const CXCursor &cursor);
 
 Parser_Impl::Parser_Impl()
     : m_root_uri{}
     , m_flags{}
+    , m_flags_to_ignore{}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
     , m_db{nullptr}
@@ -115,14 +116,15 @@ void Parser_Impl::parse(const std::string &filename)
         flags.push_back(flag.c_str());
     }
 
-    auto error = clang_parseTranslationUnit2FullArgv(m_index,
-                                                     filename.c_str(),
-                                                     &flags[0],
-                                                     flags.size(),
-                                                     nullptr,
-                                                     0,
-                                                     CXTranslationUnit_None,
-                                                     &m_unit);
+    auto error =
+        clang_parseTranslationUnit2FullArgv(m_index,
+                                            filename.c_str(),
+                                            &flags[0],
+                                            static_cast<int>(flags.size()),
+                                            nullptr,
+                                            0,
+                                            CXTranslationUnit_None,
+                                            &m_unit);
 
     switch (error)
     {
@@ -218,9 +220,9 @@ void Parser_Impl::initialize(const std::string &             root_uri,
 }
 
 // Retrieve a cursor from a file/line/column
-CXCursor Parser_Impl::cursor(const std::string &  filename,
-                             const unsigned long &line,
-                             const unsigned long &column)
+CXCursor Parser_Impl::cursor(const std::string & filename,
+                             const unsigned int &line,
+                             const unsigned int &column)
 {
     CXFile           file     = clang_getFile(m_unit, filename.c_str());
     CXSourceLocation location = clang_getLocation(m_unit, file, line, column);
@@ -245,23 +247,23 @@ std::vector<CXCursor> Parser_Impl::callers(const CXCursor &cursor) const
     clang_visitChildren(
         unit_cursor,
         // visitor
-        [](CXCursor cursor, CXCursor, CXClientData client_data) {
-            CXCursorKind cursor_kind = clang_getCursorKind(cursor);
+        [](CXCursor cursor_, CXCursor, CXClientData client_data) {
+            CXCursorKind cursor_kind = clang_getCursorKind(cursor_);
             if (cursor_kind != CXCursor_CallExpr)
             {
                 return CXChildVisit_Recurse;
             }
             // current cursor declaration
-            CXCursor current_cursor_decl = declaration(cursor);
+            CXCursor current_cursor_decl = declaration(cursor_);
             using UserData = std::tuple<CXCursor *, std::vector<CXCursor> *>;
             UserData *             data = static_cast<UserData *>(client_data);
-            CXCursor *             cursor_decl = std::get<0>(*data);
-            std::vector<CXCursor> *cursors     = std::get<1>(*data);
+            CXCursor *             cursor_decl_ = std::get<0>(*data);
+            std::vector<CXCursor> *cursors_     = std::get<1>(*data);
             unsigned               equal =
-                clang_equalCursors(current_cursor_decl, *cursor_decl);
+                clang_equalCursors(current_cursor_decl, *cursor_decl_);
             if (equal)
             {
-                (*cursors).push_back(cursor);
+                (*cursors_).push_back(cursor_);
             }
             // Continue to search more
             return CXChildVisit_Recurse;
@@ -280,13 +282,13 @@ void Parser_Impl::find_all_include_directories()
     std::unordered_set<std::string> system_include_dirs;
     for (std::size_t i = 0; i < size; ++i)
     {
-        auto command =
-            clang_CompileCommands_getCommand(all_compile_commands, i);
+        auto command = clang_CompileCommands_getCommand(
+            all_compile_commands, static_cast<unsigned int>(i));
         auto number_args = clang_CompileCommand_getNumArgs(command);
         for (std::size_t pos = 1; pos < number_args; ++pos)
         {
-            std::string str(
-                to_string(clang_CompileCommand_getArg(command, pos)));
+            std::string str(to_string(clang_CompileCommand_getArg(
+                command, static_cast<unsigned int>(pos))));
             if (str == "-o" || str == "-c")
             {
                 ++pos;
@@ -300,8 +302,8 @@ void Parser_Impl::find_all_include_directories()
             if (str == "-isystem")
             {
                 // read the next argument and increment the index in same time
-                std::string dir_path(
-                    to_string(clang_CompileCommand_getArg(command, ++pos)));
+                std::string dir_path(to_string(clang_CompileCommand_getArg(
+                    command, static_cast<unsigned int>(++pos))));
                 // TODO try std::move on emplace
                 system_include_dirs.emplace(dir_path);
                 continue;
@@ -350,7 +352,7 @@ std::string type(const CXCursor &cursor)
     return spelling;
 }
 
-std::tuple<std::string, unsigned long, unsigned long>
+std::tuple<std::string, unsigned int, unsigned int>
 location(const CXCursor &cursor)
 {
     CXSourceLocation location = clang_getCursorLocation(cursor);

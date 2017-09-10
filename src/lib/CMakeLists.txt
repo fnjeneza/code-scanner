@@ -20,6 +20,7 @@ find_package(Clang REQUIRED)
 
 include_directories(SYSTEM
     ${LLVM_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/3rd-party/json/src
 )
 
 # code scanner library
@@ -31,7 +32,6 @@ target_sources(code-scanner
 
 target_include_directories(code-scanner
     PUBLIC include
-    PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/json/src
 )
 
 target_link_libraries(code-scanner

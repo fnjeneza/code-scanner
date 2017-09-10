@@ -16,8 +16,8 @@ struct TextDocumentIdentifier
 
 struct Position
 {
-    unsigned long line;
-    unsigned long character;
+    unsigned int line;
+    unsigned int character;
 };
 
 struct Range

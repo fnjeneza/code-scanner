@@ -6,8 +6,11 @@ set_target_properties(${APP} PROPERTIES
     RUNTIME_OUTPUT_NAME code-scanner
     RUNTIME_OUTPUT_DIRECTORY bin
 )
+
+include_directories(
+    SYSTEM ${CMAKE_SOURCE_DIR}/3rd-party/args
+)
 target_include_directories(${APP}
-    PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/args
     PRIVATE ${CMAKE_SOURCE_DIR}/src/lib/include
 )
 
