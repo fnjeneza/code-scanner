@@ -31,10 +31,6 @@ struct Location{
 struct TextDocumentPositionParams{
     TextDocumentIdentifier textDocument;
     Position position;
-
-    // TODO temporary
-    std::string build_dir;
-    std::vector<std::string> compile_arguments;
 };
 
 struct ReferenceContext {
@@ -109,7 +105,7 @@ enum class Trace {
 struct InitializeParams {
     std::size_t processId;
     DocumentUri rootUri;
-    std::string initializationOptions;
+    std::string initializationOptions; // json config options
     Capabilities capabilities;
     Trace trace;
 };
@@ -120,6 +116,7 @@ class Parser{
     public:
         Parser();
         ~Parser();
+        void initialize(const InitializeParams & params);
         Location definition(const TextDocumentPositionParams & params );
         Location references(const ReferenceParams & params );
     private:

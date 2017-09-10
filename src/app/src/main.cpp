@@ -1,7 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <json.hpp>
 #include "args.hxx"
-#include "config.hpp"
 #include "code-scanner/code-scanner.hpp"
 
 int main(int argc, char **argv)
@@ -16,6 +16,8 @@ int main(int argc, char **argv)
         arg, "compile_commands_dir", "compile commands directory", {"cc"});
     args::ValueFlag<std::string> file(
         arg, "file", "source/header file path", {'f', "file"});
+    args::ValueFlag<std::string> config_file(
+        arg, "config_file", "json config file", {'c', "config"});
     args::ValueFlag<int> row(arg, "row", "The line number", {'l'});
     args::ValueFlag<int> col(arg, "offset", "The column number", {'o'});
 
@@ -48,6 +50,7 @@ int main(int argc, char **argv)
 
     std::string build_path;
     std::string filename;
+    std::string configuration_file = "config.json";
     int                   line;
     int                   column;
 
@@ -67,8 +70,11 @@ int main(int argc, char **argv)
     {
         column = args::get(col);
     }
+    if(config_file)
+    {
+        configuration_file = args::get(config_file);
+    }
 
-    std::vector<std::string> compile_arguments = config::compile_commands();
     code::analyzer::ReferenceParams params;
     params.textDocument.uri = filename;
     code::analyzer::Position position;
@@ -76,9 +82,15 @@ int main(int argc, char **argv)
     position.character = column;
     params.position = position;
 
-    // TODO temporary
-    params.build_dir = build_path;
-    params.compile_arguments = compile_arguments;
+    // Initialize parameters
+    code::analyzer::InitializeParams initialize_params;
+    std::ifstream in(configuration_file);
+    std::string current_line;
+    while(std::getline(in, current_line))
+    {
+        // retrieve initialization options. The config json content
+        initialize_params.initializationOptions += current_line;
+    }
 
     // code::analyzer::Parser parser(build_path, filename, compile_arguments);
     // auto cursor = parser.cursor(line, column);
@@ -109,6 +121,7 @@ int main(int argc, char **argv)
     if (g)
     {
         code::analyzer::Parser parser;
+        parser.initialize(initialize_params);
         code::analyzer::Location location = parser.references(params);
         std::cout << location.uri << ":" << location.range.start.line <<":"<< location.range.start.character << '\n';
     }

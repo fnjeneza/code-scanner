@@ -9,8 +9,12 @@
 #include <vector>
 #include <experimental/filesystem>
 
+#include <json.hpp>
+
 #include <clang-c/Index.h>
 #include <clang-c/CXCompilationDatabase.h>
+
+#include "utils.hpp"
 
 namespace std {
 namespace filesystem = std::experimental::filesystem;
@@ -46,8 +50,7 @@ namespace analyzer {
 class Parser_Impl
 {
   public:
-    Parser_Impl() = delete;
-    Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments);
+    Parser_Impl();
     ~Parser_Impl();
 
     // Retrieve a cursor from a file/line/column
@@ -56,7 +59,7 @@ class Parser_Impl
     // Retrieve all callers
     std::vector<CXCursor> callers(const CXCursor &cursor) const;
 
-    void initialize(const InitializeParams & params);
+    void initialize(const std::string & root_uri, const std::vector<std::string> & compile_arguments);
     void parse(const std::string & filename);
 
   private:
@@ -68,9 +71,8 @@ class Parser_Impl
     void find_all_include_directories();
 
   private:
+    std::string m_root_uri;
     std::vector<std::string> m_flags;
-    std::vector<std::string> include_directories;
-    std::vector<std::string> include_compile_commands;
     // TODO read elements from config file
     std::vector<std::string> flags_to_ignore = {"all", "-pc32", "-restrict", "-debug" };
     CXIndex           m_index;
@@ -95,24 +97,13 @@ std::string type(const CXCursor &cursor);
 std::tuple<std::string, unsigned long, unsigned long>
 location(const CXCursor &cursor);
 
-Parser_Impl::Parser_Impl(const std::string & build_dir, const std::vector<std::string> & compile_arguments)
-    : m_flags{compile_arguments}
+Parser_Impl::Parser_Impl()
+    : m_root_uri {}
+    , m_flags{}
     , m_index{clang_createIndex(1, 1)}
     , m_unit{nullptr}
     , m_db{nullptr}
 {
-    // // TODO no need of absolute path
-    // std::string _filename =         std::filesystem::absolute(filename);
-    CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
-    m_db =
-        clang_CompilationDatabase_fromDirectory(build_dir.c_str(), &c_error);
-
-    if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
-    {
-        // TODO Handle errors in ctor
-        std::cout << "compilation database can not be loaded" << std::endl;
-        return;
-    }
 }
 
 Parser_Impl::~Parser_Impl()
@@ -216,8 +207,24 @@ void Parser_Impl::set_flags(const std::string & filename)
     }
 }
 
-void Parser_Impl::initialize(const InitializeParams & )
+void Parser_Impl::initialize(const std::string & root_uri,
+        const std::vector<std::string> & compile_commands)
 {
+    m_root_uri = root_uri;
+    m_flags = compile_commands;
+
+    // // TODO no need of absolute path
+    // std::string _filename =         std::filesystem::absolute(filename);
+    CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
+    m_db =
+        clang_CompilationDatabase_fromDirectory(m_root_uri.c_str(), &c_error);
+
+    if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
+    {
+        // TODO Handle errors in ctor
+        std::cout << "compilation database can not be loaded" << std::endl;
+        return;
+    }
 }
 
 // Retrieve a cursor from a file/line/column
@@ -363,8 +370,36 @@ location(const CXCursor &cursor)
     return std::make_tuple(_filename, line, column);
 }
 
-Parser::Parser() = default;
+Parser::Parser()
+    : pimpl{std::make_unique<Parser_Impl>()}
+{}
+
 Parser::~Parser() = default;
+
+void Parser::initialize(const InitializeParams & params)
+{
+    const std::string root_uri  = params.rootUri;
+    // compile arguments from initializationOptions
+    std::vector<std::string> compile_arguments ;
+
+    using json = nlohmann::json;
+    if(params.initializationOptions.empty())
+    {
+        std::cerr << "Missing initialization options" << std::endl;
+        // TODO return error code
+        return;
+    }
+
+    json conf = json::parse(params.initializationOptions);
+    auto compile_commands = conf["compile_commands"];
+
+    if(!compile_commands.empty())
+    {
+        compile_arguments = utils::split(compile_commands);
+    }
+
+    pimpl->initialize(root_uri, compile_arguments);
+}
 
 Location Parser::definition(const TextDocumentPositionParams & )
 {
@@ -374,7 +409,6 @@ Location Parser::definition(const TextDocumentPositionParams & )
 
 Location Parser::references(const ReferenceParams & params)
 {
-    pimpl = std::make_unique<Parser_Impl>(params.build_dir, params.compile_arguments);
     pimpl->parse(params.textDocument.uri);
     auto cursor = pimpl->cursor(params.textDocument.uri, params.position.line, params.position.character);
     cursor = code::analyzer::reference(cursor);
