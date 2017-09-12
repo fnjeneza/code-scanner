@@ -52,6 +52,8 @@ class Parser_Impl
                     const std::vector<std::string> &compile_arguments,
                     const std::vector<std::string> &flags_to_ignore);
     void parse(const std::string &filename);
+    std::vector<std::string> get_all_filenames();
+    CXCursor find(const std::string &usr);
 
   private:
     void source_compile_flags(const CXCompileCommands &compile_commands);
@@ -141,6 +143,50 @@ void Parser_Impl::parse(const std::string &filename)
         std::cout << "Error default\n";
         break;
     }
+}
+
+CXCursor Parser_Impl::find(const std::string &usr)
+{
+    // TODO investigate clang_findReferencesInFile() a Higher level API
+    // functions
+
+    // get translation unit cursor
+    CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
+
+    // traverse the AST and check every cursor if it is equal to the
+    // cursor declaration
+    // ignore the cursor which point to himself
+
+    // will be populate by the cursor definition if found
+    using Data = std::tuple<std::string, CXCursor>;
+    // USR and CXCursor to pass to the visitor
+    Data _user_data{usr, clang_getNullCursor()};
+    clang_visitChildren(
+        unit_cursor,
+        // visitor
+        [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
+
+            // do not visit if parent is method or function definition
+            // if(clang_Kind parent == CXXMethod or Function)
+            // TODO do something
+            // CXChildVisit_Continue
+            Data *       data = static_cast<Data *>(client_data);
+            std::string &_usr = std::get<0>(*data);
+
+            if (to_string(clang_getCursorUSR(cursor_)) == _usr)
+            {
+                if (clang_isCursorDefinition(cursor_))
+                {
+                    std::get<1>(*data) = cursor_;
+                    return CXChildVisit_Break;
+                }
+            }
+
+            return CXChildVisit_Recurse;
+        },
+        &_user_data);
+
+    return std::get<1>(_user_data);
 }
 
 void Parser_Impl::source_compile_flags(const CXCompileCommand &compile_command)
@@ -339,7 +385,28 @@ CXCursor reference(const CXCursor &cursor)
 
 CXCursor definition(const CXCursor &cursor)
 {
-    return clang_getCursorDefinition(cursor);
+    // search for definition in current translation unit
+    CXCursor cursor_ = clang_getCursorDefinition(cursor);
+    return cursor_;
+}
+
+std::vector<std::string> Parser_Impl::get_all_filenames()
+{
+
+    // all files associated to the compile commands
+    std::vector<std::string> files;
+    auto                     all_compile_commands =
+        clang_CompilationDatabase_getAllCompileCommands(m_db);
+    auto size = clang_CompileCommands_getSize(all_compile_commands);
+    // parse each file
+    for (unsigned i = 0; i < size; ++i)
+    {
+        auto command =
+            clang_CompileCommands_getCommand(all_compile_commands, i);
+        auto filename = to_string(clang_CompileCommand_getFilename(command));
+        files.push_back(filename);
+    }
+    return files;
 }
 
 // Retrieve a type of cursor
@@ -400,8 +467,53 @@ void Parser::initialize(const InitializeParams &params)
     pimpl->initialize(root_uri, compile_arguments, flags_to_ignore);
 }
 
-Location Parser::definition(const TextDocumentPositionParams &)
+Location Parser::definition(const TextDocumentPositionParams &params)
 {
+    pimpl->parse(params.textDocument.uri);
+    auto cursor = pimpl->cursor(params.textDocument.uri,
+                                params.position.line,
+                                params.position.character);
+    CXCursor found = code::analyzer::definition(cursor);
+
+    // retrieve location from CXCursor
+    auto get_location = [](CXCursor &_cursor) {
+
+        auto loc = location(_cursor);
+
+        Position position;
+        position.line      = std::get<1>(loc);
+        position.character = std::get<2>(loc);
+
+        Range range;
+        range.start = position;
+        range.end   = position;
+
+        Location _location;
+        _location.uri   = std::get<0>(loc);
+        _location.range = range;
+        return _location;
+    };
+
+    // if a cursor has been found
+    if (!clang_Cursor_isNull(found))
+    {
+        return get_location(found);
+    }
+
+    auto              cu        = clang_getCursorReferenced(cursor);
+    const std::string usr       = to_string(clang_getCursorUSR(cu));
+    auto              filenames = pimpl->get_all_filenames();
+    for (auto f : filenames)
+    {
+        pimpl->parse(f);
+        found = pimpl->find(usr);
+        if (clang_Cursor_isNull(found))
+        {
+            continue;
+        }
+        return get_location(found);
+    }
+
     Location location;
     return location;
 }

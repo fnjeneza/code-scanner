@@ -74,13 +74,6 @@ int main(int argc, char **argv)
         configuration_file = args::get(config_file);
     }
 
-    code::analyzer::ReferenceParams params;
-    params.textDocument.uri = filename;
-    code::analyzer::Position position;
-    position.line      = line;
-    position.character = column;
-    params.position    = position;
-
     // Initialize parameters
     code::analyzer::InitializeParams initialize_params;
     std::ifstream                    in(configuration_file);
@@ -90,6 +83,9 @@ int main(int argc, char **argv)
         // retrieve initialization options. The config json content
         initialize_params.initializationOptions += current_line;
     }
+
+    code::analyzer::Parser parser;
+    parser.initialize(initialize_params);
 
     // code::analyzer::Parser parser(build_path, filename, compile_arguments);
     // auto cursor = parser.cursor(line, column);
@@ -119,16 +115,30 @@ int main(int argc, char **argv)
     // }
     if (g)
     {
-        code::analyzer::Parser parser;
-        parser.initialize(initialize_params);
+        code::analyzer::ReferenceParams params;
+        params.textDocument.uri = filename;
+        code::analyzer::Position position;
+        position.line      = line;
+        position.character = column;
+        params.position    = position;
+
+        code::analyzer::Location location = parser.definition(params);
+        std::cout << location.uri << ":" << location.range.start.line << ":"
+                  << location.range.start.character << '\n';
+    }
+    if (s)
+    {
+        code::analyzer::ReferenceParams params;
+        params.textDocument.uri = filename;
+        code::analyzer::Position position;
+        position.line      = line;
+        position.character = column;
+        params.position    = position;
+
         code::analyzer::Location location = parser.references(params);
         std::cout << location.uri << ":" << location.range.start.line << ":"
                   << location.range.start.character << '\n';
     }
-    // if (s)
-    // {
-    //     cursor = code::analyzer::declaration(cursor);
-    // }
     // auto loc = code::analyzer::location(cursor);
     // std::cout << "{"
     //           << "\"file\":\"" << std::get<0>(loc)
