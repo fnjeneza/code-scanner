@@ -1,7 +1,6 @@
 #include "code-scanner/code-scanner.hpp"
 
 #include <algorithm>
-#include <array>
 #include <iostream>
 #include <string>
 #include <tuple>
