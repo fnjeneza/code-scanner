@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Capabilities.hpp"
+#include "Position.hpp"
 
 #include <string>
 

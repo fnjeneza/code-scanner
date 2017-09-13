@@ -29,7 +29,7 @@ class Parser_Impl
     void parse(const std::string &filename);
     std::vector<std::string> get_all_filenames();
     CXCursor find(const std::string &usr);
-    CXTranslationUnit     m_unit;
+    CXTranslationUnit m_unit;
 
   private:
     void source_compile_flags(const CXCompileCommands &compile_commands);
@@ -43,10 +43,9 @@ class Parser_Impl
     std::string              m_root_uri;
     std::vector<std::string> m_flags;
     // TODO read elements from config file
-    std::vector<std::string>
-                          m_flags_to_ignore;
-    CXIndex               m_index;
-    CXCompilationDatabase m_db;
+    std::vector<std::string> m_flags_to_ignore;
+    CXIndex                  m_index;
+    CXCompilationDatabase    m_db;
 };
 
 } // namespace analyzer

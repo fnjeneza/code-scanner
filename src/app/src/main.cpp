@@ -1,8 +1,8 @@
+#include "code-scanner/Params.hpp"
 #include "code-scanner/code-scanner.hpp"
 #include <args.hxx>
 #include <fstream>
 #include <iostream>
-#include "code-scanner/Params.hpp"
 
 int main(int argc, char **argv)
 {
@@ -78,8 +78,8 @@ int main(int argc, char **argv)
     // Initialize parameters
     code::analyzer::InitializeParams initialize_params;
     initialize_params.rootUri = build_path;
-    std::ifstream                    in(configuration_file);
-    std::string                      current_line;
+    std::ifstream in(configuration_file);
+    std::string   current_line;
     while (std::getline(in, current_line))
     {
         // retrieve initialization options. The config json content
