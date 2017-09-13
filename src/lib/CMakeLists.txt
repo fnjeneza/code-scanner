@@ -28,6 +28,8 @@ add_library(code-scanner src/parser.cpp)
 
 target_sources(code-scanner
     PRIVATE src/utils.cpp
+    PRIVATE src/Parser_Impl.cpp
+    PRIVATE src/functional.cpp
 )
 
 target_include_directories(code-scanner
