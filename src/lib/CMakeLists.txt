@@ -24,7 +24,7 @@ include_directories(SYSTEM
 )
 
 # code scanner library
-add_library(code-scanner src/parser.cpp)
+add_library(code-scanner src/code-scanner.cpp)
 
 target_sources(code-scanner
     PRIVATE src/utils.cpp

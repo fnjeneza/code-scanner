@@ -125,7 +125,6 @@ Location Parser::definition(const TextDocumentPositionParams &params)
           found = clang_getCursorDefinition(present);
         }
 
-        // found = pimpl->find(usr);
         if (clang_Cursor_isNull(found))
         {
             ++i;
