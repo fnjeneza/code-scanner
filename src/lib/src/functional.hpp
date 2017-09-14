@@ -24,5 +24,9 @@ std::string type(const CXCursor &cursor);
 std::tuple<std::string, unsigned int, unsigned int>
 location(const CXCursor &cursor);
 
+bool is_identifier(CXCursor & cursor);
+
+bool is_declaration_locate_in_other_file(CXCursor & cursor);
+
 } // namespace analyzer
 } // namespace code

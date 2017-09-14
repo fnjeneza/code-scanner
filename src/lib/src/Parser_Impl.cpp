@@ -81,18 +81,10 @@ void Parser_Impl::parse(const std::string &filename)
     }
 }
 
-CXCursor Parser_Impl::find(const std::string &filename)
+CXCursor Parser_Impl::locate_definitions(const std::string &filename)
 {
-    // TODO investigate clang_findReferencesInFile() a Higher level API
-    // functions
-
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
-
-    // traverse the AST and check every cursor if it is equal to the
-    // cursor declaration
-    // ignore the cursor which point to himself
-    //
 
     std::string _filename = filename;
     clang_visitChildren(
@@ -100,37 +92,20 @@ CXCursor Parser_Impl::find(const std::string &filename)
         // visitor
         [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
 
-            // do not visit if parent is method or function definition
-            // if(clang_Kind parent == CXXMethod or Function)
-            // TODO do something
-            // CXChildVisit_Continue
-
             std::string *__filename = static_cast<std::string *>(client_data);
             std::string  str      = to_string(clang_getCursorUSR(cursor_));
-            if (!str.empty() && clang_isCursorDefinition(cursor_))
+            if (!str.empty() &&
+                is_identifier(cursor_))
             {
-                // std::cout << to_string(clang_getCursorSpelling(cursor_)) << "
-                // ";
-
                 auto loc = location(cursor_);
-                if (*__filename == std::get<0>(loc))
+                if (*__filename == std::get<0>(loc)
+                    && is_declaration_locate_in_other_file(cursor_))
                 {
-                    std::cout << std::get<0>(loc) << ":" << std::get<1>(loc)
-                              << ":" << std::get<2>(loc) << std::endl;
+                      std::cout << to_string(clang_getCursorSpelling(cursor_)) << " ";
+                      std::cout << std::get<0>(loc) << ":" << std::get<1>(loc)
+                                << ":" << std::get<2>(loc) << std::endl;
                 }
             }
-            // is_keyword(unit, cursor_);
-            // Data *       data = static_cast<Data *>(client_data);
-            // std::string &_usr = std::get<0>(*data);
-
-            // if (to_string(clang_getCursorUSR(cursor_)) == _usr)
-            // {
-            //     if (clang_isCursorDefinition(cursor_))
-            //     {
-            //         std::get<1>(*data) = cursor_;
-            //         return CXChildVisit_Break;
-            //     }
-            // }
 
             return CXChildVisit_Recurse;
         },

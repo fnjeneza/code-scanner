@@ -17,22 +17,6 @@
 #include "functional.hpp"
 #include "utils.hpp"
 
-namespace {
-std::string to_string(const CXString &cx_str)
-{
-    auto cstr = clang_getCString(cx_str);
-
-    if (cstr == NULL)
-    {
-        return std::string();
-    }
-
-    std::string str(cstr);
-    clang_disposeString(cx_str);
-    return str;
-}
-} // anonymous namespace
-
 namespace code {
 namespace analyzer {
 
@@ -102,36 +86,13 @@ Location Parser::definition(const TextDocumentPositionParams &params)
         return get_location(found);
     }
 
-    auto cu            = clang_getCursorReferenced(cursor);
-    auto loc           = location(cu);
-    auto decl_filename = std::get<0>(loc);
-    auto decl_line     = std::get<1>(loc);
-    auto decl_column   = std::get<2>(loc);
-
-    const std::string usr       = to_string(clang_getCursorUSR(cu));
     auto              filenames = pimpl->get_all_filenames();
 
-    // std::size_t i = 1;
-    // std::size_t total = filenames.size();
     for (auto f : filenames)
     {
-        // std::cout << i << "/" << total << " ";
         clang_disposeTranslationUnit(pimpl->m_unit);
         pimpl->parse(f);
-        pimpl->find(f);
-        //     CXCursor present = pimpl->cursor(decl_filename, decl_line,
-        //     decl_column);
-        //     if(!clang_Cursor_isNull(present))
-        //     {
-        //       found = clang_getCursorDefinition(present);
-        //     }
-
-        //     if (clang_Cursor_isNull(found))
-        //     {
-        //         ++i;
-        //         continue;
-        //     }
-        //     return get_location(found);
+        pimpl->locate_definitions(f);
     }
 
     Location location;

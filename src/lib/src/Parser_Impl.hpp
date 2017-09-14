@@ -28,7 +28,7 @@ class Parser_Impl
                     const std::vector<std::string> &flags_to_ignore);
     void parse(const std::string &filename);
     std::vector<std::string> get_all_filenames();
-    CXCursor find(const std::string &usr);
+    CXCursor locate_definitions(const std::string &filename);
     CXTranslationUnit m_unit;
 
   private:

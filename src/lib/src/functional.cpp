@@ -64,5 +64,18 @@ location(const CXCursor &cursor)
     return std::make_tuple(_filename, line, column);
 }
 
+bool is_identifier(CXCursor & cursor)
+{
+  CXCursorKind kind = clang_getCursorKind(cursor);
+  return (CXCursor_CXXMethod == kind || CXCursor_FunctionDecl == kind);
+}
+
+bool is_declaration_locate_in_other_file(CXCursor & cursor)
+{
+  CXCursor ref = clang_getCanonicalCursor(clang_getCursorReferenced(cursor));
+  return std::get<0>(location(cursor)) != std::get<0>(location(ref));
+
+}
+
 } // namespace analyzer
 } // namespace code
