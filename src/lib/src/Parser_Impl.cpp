@@ -1,16 +1,11 @@
 #include "Parser_Impl.hpp"
 
 #include <algorithm>
-#include <experimental/filesystem>
 #include <iostream>
 #include <tuple>
 #include <unordered_set>
 
 #include "functional.hpp"
-
-namespace std {
-namespace filesystem = experimental::filesystem;
-}
 
 namespace {
 std::string to_string(const CXString &cx_str)
@@ -25,19 +20,6 @@ std::string to_string(const CXString &cx_str)
     std::string str(cstr);
     clang_disposeString(cx_str);
     return str;
-}
-
-bool is_header(const std::string &filename)
-{
-    const std::vector<std::string> exts{".hpp", ".h", ".hxx"};
-    auto                           found = std::find(std::begin(exts),
-                           std::end(exts),
-                           std::filesystem::path(filename).extension());
-    if (found != std::end(exts))
-    {
-        return true;
-    }
-    return false;
 }
 } // anonymous namespace
 
@@ -99,7 +81,7 @@ void Parser_Impl::parse(const std::string &filename)
     }
 }
 
-CXCursor Parser_Impl::find(const std::string &usr)
+CXCursor Parser_Impl::find(const std::string &filename)
 {
     // TODO investigate clang_findReferencesInFile() a Higher level API
     // functions
@@ -112,11 +94,7 @@ CXCursor Parser_Impl::find(const std::string &usr)
     // ignore the cursor which point to himself
     //
 
-    unsigned i = 0;
-    // will be populate by the cursor definition if found
-    using Data = std::tuple<std::string, CXCursor>;
-    // USR and CXCursor to pass to the visitor
-    Data _user_data{usr, clang_getNullCursor()};
+    std::string _filename = filename;
     clang_visitChildren(
         unit_cursor,
         // visitor
@@ -127,13 +105,15 @@ CXCursor Parser_Impl::find(const std::string &usr)
             // TODO do something
             // CXChildVisit_Continue
 
-            std::string str = to_string(clang_getCursorUSR(cursor_));
+            std::string *__filename = static_cast<std::string *>(client_data);
+            std::string  str      = to_string(clang_getCursorUSR(cursor_));
             if (!str.empty() && clang_isCursorDefinition(cursor_))
             {
-                std::cout << to_string(clang_getCursorSpelling(cursor_)) << " ";
+                // std::cout << to_string(clang_getCursorSpelling(cursor_)) << "
+                // ";
 
                 auto loc = location(cursor_);
-                if (!is_header(std::get<0>(loc)))
+                if (*__filename == std::get<0>(loc))
                 {
                     std::cout << std::get<0>(loc) << ":" << std::get<1>(loc)
                               << ":" << std::get<2>(loc) << std::endl;
@@ -154,9 +134,10 @@ CXCursor Parser_Impl::find(const std::string &usr)
 
             return CXChildVisit_Recurse;
         },
-        &m_unit /*_user_data*/);
+        &_filename);
 
-    return std::get<1>(_user_data);
+    CXCursor cursor;
+    return cursor;
 }
 
 void Parser_Impl::source_compile_flags(const CXCompileCommand &compile_command)
