@@ -15,6 +15,7 @@
 #include "Parser_Impl.hpp"
 #include "code-scanner/Params.hpp"
 #include "functional.hpp"
+#include "translation_unit_t.hpp"
 #include "utils.hpp"
 
 namespace code {
@@ -86,13 +87,11 @@ Location Parser::definition(const TextDocumentPositionParams &params)
         return get_location(found);
     }
 
-    auto              filenames = pimpl->get_all_filenames();
+    auto filenames = pimpl->get_all_filenames();
 
     for (auto f : filenames)
     {
-        clang_disposeTranslationUnit(pimpl->m_unit);
-        pimpl->parse(f);
-        pimpl->locate_definitions(f);
+        auto tu = translation_unit_t(f).retrieve_all_identifier_usr();
     }
 
     Location location;

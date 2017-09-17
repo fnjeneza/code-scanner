@@ -1,8 +1,11 @@
 #include "functional.hpp"
+#include <clang-c/CXCompilationDatabase.h>
 
 #include <tuple>
 
-namespace {
+namespace code {
+namespace analyzer {
+
 std::string to_string(const CXString &cx_str)
 {
     auto cstr = clang_getCString(cx_str);
@@ -16,10 +19,6 @@ std::string to_string(const CXString &cx_str)
     clang_disposeString(cx_str);
     return str;
 }
-} // anonymous namespace
-
-namespace code {
-namespace analyzer {
 
 CXCursor declaration(const CXCursor &cursor)
 {
@@ -64,17 +63,16 @@ location(const CXCursor &cursor)
     return std::make_tuple(_filename, line, column);
 }
 
-bool is_identifier(CXCursor & cursor)
+bool is_identifier(CXCursor &cursor)
 {
-  CXCursorKind kind = clang_getCursorKind(cursor);
-  return (CXCursor_CXXMethod == kind || CXCursor_FunctionDecl == kind);
+    CXCursorKind kind = clang_getCursorKind(cursor);
+    return (CXCursor_CXXMethod == kind || CXCursor_FunctionDecl == kind);
 }
 
-bool is_declaration_locate_in_other_file(CXCursor & cursor)
+bool is_declaration_locate_in_other_file(CXCursor &cursor)
 {
-  CXCursor ref = clang_getCanonicalCursor(clang_getCursorReferenced(cursor));
-  return std::get<0>(location(cursor)) != std::get<0>(location(ref));
-
+    CXCursor ref = clang_getCanonicalCursor(clang_getCursorReferenced(cursor));
+    return std::get<0>(location(cursor)) != std::get<0>(location(ref));
 }
 
 } // namespace analyzer

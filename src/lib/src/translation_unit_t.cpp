@@ -1,15 +1,15 @@
 #include "translation_unit_t.hpp"
+#include "compile_database_t.hpp"
+#include "functional.hpp"
 #include <iostream>
 #include <tuple>
-#include "functional.hpp"
 
-namespace code{
-namespace analyzer{
+namespace code {
+namespace analyzer {
 
-translation_unit_t::translation_unit_t(const std::string & filename, const std::vector<std::string> & compile_commands)
+translation_unit_t::translation_unit_t(const std::string &filename)
     : m_unit{nullptr}
     , m_filename{filename}
-    , m_compile_commands{compile_commands}
 {
 }
 
@@ -20,9 +20,10 @@ translation_unit_t::~translation_unit_t()
 
 void translation_unit_t::parse()
 {
+    auto __flags = compile_database_t::compile_commands(m_filename);
     // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
-    for (const auto &flag : m_compile_commands)
+    for (const auto &flag : __flags)
     {
         flags.push_back(flag.c_str());
     }
@@ -68,28 +69,27 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
     std::set<std::string> identifiers;
-    using data = std::tuple<const std::string&, std::set<std::string>&>;
-    data _data {m_filename, identifiers};
+    using data = std::tuple<const std::string &, std::set<std::string> &>;
+    data _data{m_filename, identifiers};
 
     clang_visitChildren(
         unit_cursor,
         // visitor
         [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
 
-            data *__data = static_cast<data*>(client_data);
+            data *__data = static_cast<data *>(client_data);
             // retrieve the filename
-            auto __filename  = std::get<0>(*__data);
-            std::string  str      = to_string(clang_getCursorUSR(cursor_));
-            if (!str.empty() &&
-                is_identifier(cursor_))
+            const auto &__filename    = std::get<0>(*__data);
+            auto &      __identifiers = std::get<1>(*__data);
+            std::string str           = to_string(clang_getCursorUSR(cursor_));
+            if (!str.empty() && is_identifier(cursor_))
             {
                 auto loc = location(cursor_);
-                if (__filename == std::get<0>(loc)
-                    && is_declaration_locate_in_other_file(cursor_))
+                if (__filename == std::get<0>(loc) &&
+                    is_declaration_locate_in_other_file(cursor_))
                 {
-                      std::cout << to_string(clang_getCursorSpelling(cursor_)) << " ";
-                      std::cout << std::get<0>(loc) << ":" << std::get<1>(loc)
-                                << ":" << std::get<2>(loc) << std::endl;
+                    // append the USR
+                    __identifiers.emplace(str);
                 }
             }
 
@@ -98,5 +98,5 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
         &_data);
     return identifiers;
 }
-
-}}
+}
+}

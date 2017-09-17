@@ -5,6 +5,7 @@
 #include <tuple>
 #include <unordered_set>
 
+#include "config.hpp"
 #include "functional.hpp"
 
 namespace {
@@ -93,17 +94,17 @@ CXCursor Parser_Impl::locate_definitions(const std::string &filename)
         [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
 
             std::string *__filename = static_cast<std::string *>(client_data);
-            std::string  str      = to_string(clang_getCursorUSR(cursor_));
-            if (!str.empty() &&
-                is_identifier(cursor_))
+            std::string  str        = to_string(clang_getCursorUSR(cursor_));
+            if (!str.empty() && is_identifier(cursor_))
             {
                 auto loc = location(cursor_);
-                if (*__filename == std::get<0>(loc)
-                    && is_declaration_locate_in_other_file(cursor_))
+                if (*__filename == std::get<0>(loc) &&
+                    is_declaration_locate_in_other_file(cursor_))
                 {
-                      std::cout << to_string(clang_getCursorSpelling(cursor_)) << " ";
-                      std::cout << std::get<0>(loc) << ":" << std::get<1>(loc)
-                                << ":" << std::get<2>(loc) << std::endl;
+                    std::cout << to_string(clang_getCursorSpelling(cursor_))
+                              << " ";
+                    std::cout << std::get<0>(loc) << ":" << std::get<1>(loc)
+                              << ":" << std::get<2>(loc) << std::endl;
                 }
             }
 
@@ -178,6 +179,8 @@ void Parser_Impl::initialize(const std::string &             root_uri,
     m_root_uri        = root_uri;
     m_flags           = compile_commands;
     m_flags_to_ignore = flags_to_ignore;
+
+    config::builder(root_uri, compile_commands, flags_to_ignore);
 
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
     m_db =
