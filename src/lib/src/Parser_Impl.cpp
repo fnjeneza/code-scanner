@@ -8,30 +8,11 @@
 #include "config.hpp"
 #include "functional.hpp"
 
-namespace {
-std::string to_string(const CXString &cx_str)
-{
-    auto cstr = clang_getCString(cx_str);
-
-    if (cstr == NULL)
-    {
-        return std::string();
-    }
-
-    std::string str(cstr);
-    clang_disposeString(cx_str);
-    return str;
-}
-} // anonymous namespace
-
 namespace code {
 namespace analyzer {
 
 Parser_Impl::Parser_Impl()
-    : m_root_uri{}
-    , m_flags{}
-    , m_flags_to_ignore{}
-    , m_index{clang_createIndex(1, 1)}
+    : m_flags{}
     , m_unit{nullptr}
     , m_db{nullptr}
 {
@@ -40,7 +21,6 @@ Parser_Impl::Parser_Impl()
 Parser_Impl::~Parser_Impl()
 {
     clang_disposeTranslationUnit(m_unit);
-    clang_disposeIndex(m_index);
     clang_CompilationDatabase_dispose(m_db);
 }
 
@@ -54,9 +34,10 @@ void Parser_Impl::parse(const std::string &filename)
     {
         flags.push_back(flag.c_str());
     }
+    auto index = clang_createIndex(1, 1);
 
     auto error = clang_parseTranslationUnit2FullArgv(
-        m_index,
+        index,
         filename.c_str(),
         &flags[0],
         static_cast<int>(flags.size()),
@@ -80,6 +61,7 @@ void Parser_Impl::parse(const std::string &filename)
         std::cout << "Error default\n";
         break;
     }
+    clang_disposeIndex(index);
 }
 
 CXCursor Parser_Impl::locate_definitions(const std::string &filename)
@@ -166,7 +148,7 @@ void Parser_Impl::set_flags(const std::string &filename)
     }
 
     // remove flags that can lead to an ASTRead Error
-    for (const auto &value : m_flags_to_ignore)
+    for (const auto &value : config::flags_to_ignore())
     {
         std::remove(std::begin(m_flags), std::end(m_flags), value);
     }
@@ -176,15 +158,11 @@ void Parser_Impl::initialize(const std::string &             root_uri,
                              const std::vector<std::string> &compile_commands,
                              const std::vector<std::string> &flags_to_ignore)
 {
-    m_root_uri        = root_uri;
-    m_flags           = compile_commands;
-    m_flags_to_ignore = flags_to_ignore;
-
     config::builder(root_uri, compile_commands, flags_to_ignore);
+    m_flags = config::compile_commands();
 
     CXCompilationDatabase_Error c_error = CXCompilationDatabase_NoError;
-    m_db =
-        clang_CompilationDatabase_fromDirectory(m_root_uri.c_str(), &c_error);
+    m_db = clang_CompilationDatabase_fromDirectory(root_uri.c_str(), &c_error);
 
     if (c_error == CXCompilationDatabase_CanNotLoadDatabase)
     {
