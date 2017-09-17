@@ -1,4 +1,5 @@
 #include "functional.hpp"
+#include <iostream>
 #include <clang-c/CXCompilationDatabase.h>
 
 #include <tuple>
@@ -51,16 +52,37 @@ std::string type(const CXCursor &cursor)
 std::tuple<std::string, unsigned int, unsigned int>
 location(const CXCursor &cursor)
 {
+
     CXSourceLocation location = clang_getCursorLocation(cursor);
 
     CXFile   file;
-    unsigned line;
-    unsigned column;
+    unsigned line   = 0;
+    unsigned column = 0;
     clang_getSpellingLocation(location, &file, &line, &column, nullptr);
 
     // filename
     std::string _filename = to_string(clang_getFileName(file));
     return std::make_tuple(_filename, line, column);
+}
+
+Location get_location(const CXCursor &cursor)
+{
+
+    if (clang_Cursor_isNull(cursor))
+    {
+        return Location();
+    }
+
+    CXSourceLocation location = clang_getCursorLocation(cursor);
+
+    CXFile   file;
+    unsigned line   = 0;
+    unsigned column = 0;
+    clang_getSpellingLocation(location, &file, &line, &column, nullptr);
+
+    // filename
+    std::string _filename = to_string(clang_getFileName(file));
+    return Location(_filename, line, column);
 }
 
 bool is_identifier(CXCursor &cursor)

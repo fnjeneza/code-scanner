@@ -1,5 +1,6 @@
 #pragma once
 
+#include "code-scanner/Location.hpp"
 #include <clang-c/Index.h>
 
 #include <string>
@@ -24,6 +25,8 @@ std::string type(const CXCursor &cursor);
 // Retrieve the location as file, line, column
 std::tuple<std::string, unsigned int, unsigned int>
 location(const CXCursor &cursor);
+
+Location get_location(const CXCursor &cursor);
 
 bool is_identifier(CXCursor &cursor);
 

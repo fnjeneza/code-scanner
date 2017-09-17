@@ -7,6 +7,20 @@
 namespace code {
 namespace analyzer {
 
+namespace {
+CXTranslationUnit_Flags option(const translation_unit_flag &flag)
+{
+    switch (flag)
+    {
+    case translation_unit_flag::skip_function_bodies:
+        return CXTranslationUnit_SkipFunctionBodies;
+    case translation_unit_flag::none:
+    default:
+        return CXTranslationUnit_SkipFunctionBodies;
+    }
+}
+}
+
 translation_unit_t::translation_unit_t(const std::string &filename)
     : m_unit{nullptr}
     , m_filename{filename}
@@ -18,7 +32,7 @@ translation_unit_t::~translation_unit_t()
     clang_disposeTranslationUnit(m_unit);
 }
 
-void translation_unit_t::parse()
+void translation_unit_t::parse(const translation_unit_flag &opt)
 {
     auto __flags = compile_database_t::compile_commands(m_filename);
     // convert to "const char *" understable by parseTranslationUnit
@@ -31,15 +45,15 @@ void translation_unit_t::parse()
     // create index
     auto index = clang_createIndex(1, 1);
 
-    auto error = clang_parseTranslationUnit2FullArgv(
-        index,
-        m_filename.c_str(),
-        &flags[0],
-        static_cast<int>(flags.size()),
-        nullptr,
-        0,
-        CXTranslationUnit_SkipFunctionBodies,
-        &m_unit);
+    auto error =
+        clang_parseTranslationUnit2FullArgv(index,
+                                            m_filename.c_str(),
+                                            &flags[0],
+                                            static_cast<int>(flags.size()),
+                                            nullptr,
+                                            0,
+                                            option(opt),
+                                            &m_unit);
 
     switch (error)
     {
@@ -61,9 +75,24 @@ void translation_unit_t::parse()
     clang_disposeIndex(index);
 }
 
-std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
+Location translation_unit_t::definition(const Position &position)
 {
     parse();
+    auto _cursor = cursor(position);
+    // search for definition
+    return get_location(clang_getCursorDefinition(_cursor));
+}
+
+Location translation_unit_t::reference(const Position& position)
+{
+    parse();
+    auto _cursor = cursor(position);
+    return get_location(clang_getCursorReferenced(_cursor));
+}
+
+std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
+{
+    parse(translation_unit_flag::skip_function_bodies);
 
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
@@ -97,6 +126,19 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
         },
         &_data);
     return identifiers;
+}
+
+CXCursor translation_unit_t::cursor(const Position& position)
+{
+    CXFile file = clang_getFile(m_unit, m_filename.c_str());
+    if (file == nullptr)
+    {
+        return clang_getNullCursor();
+    }
+    CXSourceLocation __location =
+        clang_getLocation(m_unit, file, position.line, position.character);
+    return clang_getCursor(m_unit, __location);
+
 }
 }
 }

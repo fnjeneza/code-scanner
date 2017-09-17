@@ -7,6 +7,7 @@
 
 #include "config.hpp"
 #include "functional.hpp"
+#include "translation_unit_t.hpp"
 
 namespace code {
 namespace analyzer {
@@ -170,6 +171,13 @@ void Parser_Impl::initialize(const std::string &             root_uri,
         std::cout << "compilation database can not be loaded" << std::endl;
         return;
     }
+}
+
+Location Parser_Impl::definition(const TextDocumentPositionParams &params)
+{
+    Location location =
+        translation_unit_t(params.textDocument.uri).definition(params.position);
+    return location;
 }
 
 // Retrieve a cursor from a file/line/column

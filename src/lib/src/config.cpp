@@ -17,6 +17,7 @@ void config::builder(const std::string &root_uri,
     __compile_commands = compile_commands;
     __flags_to_ignore  = flags_to_ignore;
 }
+
 flags config::flags_to_ignore() { return __flags_to_ignore; }
 
 flags config::compile_commands() { return __compile_commands; }

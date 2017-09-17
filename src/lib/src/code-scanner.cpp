@@ -1,20 +1,13 @@
 #include "code-scanner/code-scanner.hpp"
 
-#include <algorithm>
 #include <iostream>
 #include <string>
-#include <tuple>
-#include <unordered_set>
 #include <vector>
 
 #include <json.hpp>
 
-#include <clang-c/CXCompilationDatabase.h>
-#include <clang-c/Index.h>
-
 #include "Parser_Impl.hpp"
 #include "code-scanner/Params.hpp"
-#include "functional.hpp"
 #include "translation_unit_t.hpp"
 #include "utils.hpp"
 
@@ -56,69 +49,21 @@ void Parser::initialize(const InitializeParams &params)
 
 Location Parser::definition(const TextDocumentPositionParams &params)
 {
-    pimpl->parse(params.textDocument.uri);
-    auto cursor = pimpl->cursor(params.textDocument.uri,
-                                params.position.line,
-                                params.position.character);
-    CXCursor found = code::analyzer::definition(cursor);
+    return pimpl->definition(params);
 
-    // retrieve location from CXCursor
-    auto get_location = [](CXCursor &_cursor) {
+    // auto filenames = pimpl->get_all_filenames();
 
-        auto loc = location(_cursor);
-
-        Position position;
-        position.line      = std::get<1>(loc);
-        position.character = std::get<2>(loc);
-
-        Range range;
-        range.start = position;
-        range.end   = position;
-
-        Location _location;
-        _location.uri   = std::get<0>(loc);
-        _location.range = range;
-        return _location;
-    };
-
-    // if a cursor has been found
-    if (!clang_Cursor_isNull(found))
-    {
-        return get_location(found);
-    }
-
-    auto filenames = pimpl->get_all_filenames();
-
-    for (auto f : filenames)
-    {
-        auto tu = translation_unit_t(f).retrieve_all_identifier_usr();
-    }
-
-    Location location;
-    return location;
+    // for (auto f : filenames)
+    // {
+    //     auto tu = translation_unit_t(f).retrieve_all_identifier_usr();
+    // }
 }
 
 Location Parser::references(const ReferenceParams &params)
 {
-    pimpl->parse(params.textDocument.uri);
-    auto cursor = pimpl->cursor(params.textDocument.uri,
-                                params.position.line,
-                                params.position.character);
-    cursor   = code::analyzer::reference(cursor);
-    auto loc = location(cursor);
-
-    Position position;
-    position.line      = std::get<1>(loc);
-    position.character = std::get<2>(loc);
-
-    Range range;
-    range.start = position;
-    range.end   = position;
-
-    Location _location;
-    _location.uri   = std::get<0>(loc);
-    _location.range = range;
-    return _location;
+    Location location =
+        translation_unit_t(params.textDocument.uri).reference(params.position);
+    return location;
 }
 
 } // namespace analyzer

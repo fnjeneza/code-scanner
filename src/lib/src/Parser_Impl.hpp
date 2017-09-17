@@ -6,6 +6,9 @@
 #include <clang-c/CXCompilationDatabase.h>
 #include <clang-c/Index.h>
 
+#include "code-scanner/Location.hpp"
+#include "code-scanner/Params.hpp"
+
 namespace code {
 namespace analyzer {
 
@@ -29,6 +32,8 @@ class Parser_Impl
     void parse(const std::string &filename);
     std::vector<std::string> get_all_filenames();
     CXCursor locate_definitions(const std::string &filename);
+
+    Location definition(const TextDocumentPositionParams &params);
 
   private:
     void source_compile_flags(const CXCompileCommands &compile_commands);
