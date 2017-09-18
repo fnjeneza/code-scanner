@@ -83,7 +83,7 @@ Location translation_unit_t::definition(const Position &position)
     return get_location(clang_getCursorDefinition(_cursor));
 }
 
-Location translation_unit_t::reference(const Position& position)
+Location translation_unit_t::reference(const Position &position)
 {
     parse();
     auto _cursor = cursor(position);
@@ -128,7 +128,7 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
     return identifiers;
 }
 
-CXCursor translation_unit_t::cursor(const Position& position)
+CXCursor translation_unit_t::cursor(const Position &position)
 {
     CXFile file = clang_getFile(m_unit, m_filename.c_str());
     if (file == nullptr)

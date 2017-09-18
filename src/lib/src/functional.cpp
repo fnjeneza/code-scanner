@@ -1,6 +1,6 @@
 #include "functional.hpp"
-#include <iostream>
 #include <clang-c/CXCompilationDatabase.h>
+#include <iostream>
 
 #include <tuple>
 
