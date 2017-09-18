@@ -21,6 +21,11 @@ struct Location
         range = Range(Position(_line, _column), Position(_line, _column));
     }
 
+    inline bool is_valid()
+    {
+      return uri.empty();
+    }
+
     DocumentUri uri;
     Range       range;
 };

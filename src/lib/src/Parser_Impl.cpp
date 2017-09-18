@@ -177,6 +177,11 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
     Location location =
         translation_unit_t(params.textDocument.uri).definition(params.position);
+    if(location.is_valid())
+    {
+      std::cout << "no definition found"<< std::endl;
+      // search in repository
+    }
     return location;
 }
 
