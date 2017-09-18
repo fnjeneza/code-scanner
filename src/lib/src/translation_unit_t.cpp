@@ -16,7 +16,7 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
         return CXTranslationUnit_SkipFunctionBodies;
     case translation_unit_flag::none:
     default:
-        return CXTranslationUnit_SkipFunctionBodies;
+        return CXTranslationUnit_None;
     }
 }
 }
@@ -138,7 +138,6 @@ CXCursor translation_unit_t::cursor(const Position& position)
     CXSourceLocation __location =
         clang_getLocation(m_unit, file, position.line, position.character);
     return clang_getCursor(m_unit, __location);
-
 }
 }
 }

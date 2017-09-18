@@ -180,6 +180,13 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
     return location;
 }
 
+Location Parser_Impl::reference(const TextDocumentPositionParams &params)
+{
+    Location location =
+        translation_unit_t(params.textDocument.uri).reference(params.position);
+    return location;
+}
+
 // Retrieve a cursor from a file/line/column
 CXCursor Parser_Impl::cursor(const std::string & filename,
                              const unsigned int &line,

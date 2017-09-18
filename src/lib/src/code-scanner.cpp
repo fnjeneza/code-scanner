@@ -8,7 +8,6 @@
 
 #include "Parser_Impl.hpp"
 #include "code-scanner/Params.hpp"
-#include "translation_unit_t.hpp"
 #include "utils.hpp"
 
 namespace code {
@@ -61,9 +60,7 @@ Location Parser::definition(const TextDocumentPositionParams &params)
 
 Location Parser::references(const ReferenceParams &params)
 {
-    Location location =
-        translation_unit_t(params.textDocument.uri).reference(params.position);
-    return location;
+    return pimpl->reference(params);
 }
 
 } // namespace analyzer

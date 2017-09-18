@@ -34,6 +34,7 @@ class Parser_Impl
     CXCursor locate_definitions(const std::string &filename);
 
     Location definition(const TextDocumentPositionParams &params);
+    Location reference(const TextDocumentPositionParams &params);
 
   private:
     void source_compile_flags(const CXCompileCommands &compile_commands);
