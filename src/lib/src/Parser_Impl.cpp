@@ -8,6 +8,7 @@
 #include "config.hpp"
 #include "functional.hpp"
 #include "translation_unit_t.hpp"
+#include "compile_database_t.hpp"
 
 namespace code {
 namespace analyzer {
@@ -170,6 +171,19 @@ void Parser_Impl::initialize(const std::string &             root_uri,
         // TODO Handle errors in ctor
         std::cout << "compilation database can not be loaded" << std::endl;
         return;
+    }
+
+    // if repository database not exist scan all files
+    {
+        for(const auto & f: compile_database_t::source_filenames())
+        {
+            auto usrs = translation_unit_t(f).retrieve_all_identifier_usr();
+            for(const auto & usr : usrs)
+            {
+                //TODO call here the save to repository; pair(filename, usrs)
+                std::cout<< usr << std::endl;
+            }
+        }
     }
 }
 
