@@ -23,7 +23,7 @@ class translation_unit_t
     ~translation_unit_t();
 
     Location definition(const Position &position);
-    Location definition(const std::string & usr);
+    Location definition(const std::string &usr);
     Location reference(const Position &position);
 
     std::string usr(const Position &position);

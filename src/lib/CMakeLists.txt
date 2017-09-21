@@ -29,7 +29,6 @@ add_library(code-scanner src/code-scanner.cpp)
 target_sources(code-scanner
     PRIVATE src/utils.cpp
     PRIVATE src/Parser_Impl.cpp
-    PRIVATE src/functional.cpp
     PRIVATE src/translation_unit_t.cpp
     PRIVATE src/compile_database_t.cpp
     PRIVATE src/config.cpp

@@ -49,13 +49,6 @@ void Parser::initialize(const InitializeParams &params)
 Location Parser::definition(const TextDocumentPositionParams &params)
 {
     return pimpl->definition(params);
-
-    // auto filenames = pimpl->get_all_filenames();
-
-    // for (auto f : filenames)
-    // {
-    //     auto tu = translation_unit_t(f).retrieve_all_identifier_usr();
-    // }
 }
 
 Location Parser::references(const ReferenceParams &params)

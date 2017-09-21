@@ -1,6 +1,6 @@
 #include "translation_unit_t.hpp"
 #include "compile_database_t.hpp"
-#include "functional.hpp"
+#include "utils.hpp"
 #include <iostream>
 #include <tuple>
 
@@ -80,7 +80,7 @@ Location translation_unit_t::definition(const Position &position)
     parse();
     auto _cursor = cursor(position);
     // search for definition
-    return get_location(clang_getCursorDefinition(_cursor));
+    return utils::location(clang_getCursorDefinition(_cursor));
 }
 
 Location translation_unit_t::definition(const std::string &usr)
@@ -88,9 +88,9 @@ Location translation_unit_t::definition(const std::string &usr)
     parse();
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
-    using Data = std::tuple<const std::string&, Location&>;
+    using Data           = std::tuple<const std::string &, Location &>;
     Location location;
-    Data data {usr, location};
+    Data     data{usr, location};
 
     // search definition
     clang_visitChildren(
@@ -98,14 +98,16 @@ Location translation_unit_t::definition(const std::string &usr)
         // visitor
         [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
 
-        auto __data = static_cast<Data *>(client_data);
-        auto & __usr = std::get<0>(*__data);
-            std::string current_cursor_usr           = to_string(clang_getCursorUSR(cursor_));
-            if(current_cursor_usr == __usr)
+            auto        __data = static_cast<Data *>(client_data);
+            auto &      __usr  = std::get<0>(*__data);
+            std::string current_cursor_usr =
+                utils::to_string(clang_getCursorUSR(cursor_));
+            if (current_cursor_usr == __usr)
             {
-            auto & __location = std::get<1>(*__data);
-            __location = get_location(clang_getCursorDefinition(cursor_));
-            return CXChildVisit_Break;
+                auto &__location = std::get<1>(*__data);
+                __location =
+                    utils::location(clang_getCursorDefinition(cursor_));
+                return CXChildVisit_Break;
             }
             return CXChildVisit_Recurse;
         },
@@ -117,14 +119,15 @@ Location translation_unit_t::reference(const Position &position)
 {
     parse();
     auto _cursor = cursor(position);
-    return get_location(clang_getCursorReferenced(_cursor));
+    return utils::location(clang_getCursorReferenced(_cursor));
 }
 
-std::string translation_unit_t::usr(const Position & position)
+std::string translation_unit_t::usr(const Position &position)
 {
     parse();
     auto _cursor = cursor(position);
-    return to_string(clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
+    return utils::to_string(
+        clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
 }
 
 std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
@@ -147,12 +150,12 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
             // retrieve the filename
             const auto &__filename    = std::get<0>(*__data);
             auto &      __identifiers = std::get<1>(*__data);
-            std::string str           = to_string(clang_getCursorUSR(cursor_));
-            if (!str.empty() && is_identifier(cursor_))
+            std::string str = utils::to_string(clang_getCursorUSR(cursor_));
+            if (!str.empty() && utils::is_identifier(cursor_))
             {
-                auto loc = location(cursor_);
-                if (__filename == std::get<0>(loc) &&
-                    is_declaration_locate_in_other_file(cursor_))
+                auto __location = utils::location(cursor_);
+                if (__filename == __location.uri &&
+                    utils::is_declaration_locate_in_other_file(cursor_))
                 {
                     // append the USR
                     __identifiers.emplace(str);

@@ -7,6 +7,9 @@
 #include <fstream>
 
 #include <iostream>
+
+namespace code {
+namespace analyzer {
 namespace {
 using json = nlohmann::json;
 json database()
@@ -112,14 +115,15 @@ compile_database_t::compile_commands(const std::string &filename)
     return flags;
 }
 
-std::vector<std::string>
-compile_database_t::source_filenames()
+std::vector<std::string> compile_database_t::source_filenames()
 {
     std::vector<std::string> filenames;
-    auto parsed_db = database();
+    auto                     parsed_db = database();
     for (const auto &it : parsed_db)
     {
         filenames.push_back(it["file"]);
     }
     return filenames;
+}
+}
 }
