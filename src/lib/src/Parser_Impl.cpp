@@ -9,12 +9,14 @@
 #include "functional.hpp"
 #include "translation_unit_t.hpp"
 #include "compile_database_t.hpp"
+#include "repository.hpp"
 
 namespace code {
 namespace analyzer {
 
 Parser_Impl::Parser_Impl()
     : m_flags{}
+    , m_repository{}
     , m_unit{nullptr}
     , m_db{nullptr}
 {
@@ -178,22 +180,28 @@ void Parser_Impl::initialize(const std::string &             root_uri,
         for(const auto & f: compile_database_t::source_filenames())
         {
             auto usrs = translation_unit_t(f).retrieve_all_identifier_usr();
-            for(const auto & usr : usrs)
-            {
-                //TODO call here the save to repository; pair(filename, usrs)
-                std::cout<< usr << std::endl;
-            }
+            m_repository.save({f, usrs});
         }
     }
 }
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    Location location =
-        translation_unit_t(params.textDocument.uri).definition(params.position);
-    if (location.is_valid())
+    auto tu = translation_unit_t(params.textDocument.uri);
+    Location location = tu.definition(params.position);
+    if (!location.is_valid())
     {
-        std::cout << "no definition found" << std::endl;
+        auto usr = tu.usr(params.position);
+        auto defs = m_repository.usr_definitions(usr);
+
+        for(auto def : defs)
+        {
+            location = translation_unit_t(def).definition(usr);
+            if(location.is_valid())
+            {
+                return location;
+            }
+        }
         // search in repository
     }
     return location;

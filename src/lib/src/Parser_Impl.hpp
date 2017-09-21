@@ -8,6 +8,7 @@
 
 #include "code-scanner/Location.hpp"
 #include "code-scanner/Params.hpp"
+#include "repository.hpp"
 
 namespace code {
 namespace analyzer {
@@ -46,6 +47,7 @@ class Parser_Impl
 
   private:
     std::vector<std::string> m_flags;
+    repository<std::string> m_repository;
     CXTranslationUnit        m_unit;
     CXCompilationDatabase    m_db;
 };

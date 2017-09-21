@@ -83,11 +83,48 @@ Location translation_unit_t::definition(const Position &position)
     return get_location(clang_getCursorDefinition(_cursor));
 }
 
+Location translation_unit_t::definition(const std::string &usr)
+{
+    parse();
+    // get translation unit cursor
+    CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
+    using Data = std::tuple<const std::string&, Location&>;
+    Location location;
+    Data data {usr, location};
+
+    // search definition
+    clang_visitChildren(
+        unit_cursor,
+        // visitor
+        [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
+
+        auto __data = static_cast<Data *>(client_data);
+        auto & __usr = std::get<0>(*__data);
+            std::string current_cursor_usr           = to_string(clang_getCursorUSR(cursor_));
+            if(current_cursor_usr == __usr)
+            {
+            auto & __location = std::get<1>(*__data);
+            __location = get_location(clang_getCursorDefinition(cursor_));
+            return CXChildVisit_Break;
+            }
+            return CXChildVisit_Recurse;
+        },
+        &data);
+    return location;
+}
+
 Location translation_unit_t::reference(const Position &position)
 {
     parse();
     auto _cursor = cursor(position);
     return get_location(clang_getCursorReferenced(_cursor));
+}
+
+std::string translation_unit_t::usr(const Position & position)
+{
+    parse();
+    auto _cursor = cursor(position);
+    return to_string(clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
 }
 
 std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
