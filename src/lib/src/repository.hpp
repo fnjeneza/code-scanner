@@ -3,26 +3,38 @@
 #include <set>
 #include <string>
 
+template <class T>
 struct usr_t
 {
-    std::string           m_name;
-    std::set<std::string> definitions;
+    T           name;
+    std::set<T> definitions;
 };
 
-template <class T> class Repository
+template <class T> class repository
 {
   public:
-    ~Repository() = default;
-    static void save(const T &data) {}
-    static std::set<T> usr_definitions(const std::string &key);
+    repository() = default;
+    ~repository() = default;
+    repository(const Repository &) = default;
+    repository(Repository &&) = default;
+    repository & operator=(const Respository &) = default;
+    repository & operator=(Respository &&) = default;
+
+    void save(const T &data)
+    {
+      auto value = data.name;
+      for(auto &e : data.definitions)
+      {
+        m_definititions[e].emplace(value);
+      }
+    }
+
+    std::set<T> usr_definitions(const std::string &key)
     {
         std::set<T> ret;
         return ret;
     }
 
   private:
-    Repository() = default;
-
-    Repository &m_instance;
-    std::set<T> m_definitions;
+    std::unordered_map<T, std::set<T>> m_definitions;
 };
