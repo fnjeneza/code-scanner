@@ -48,7 +48,7 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
     auto error =
         clang_parseTranslationUnit2FullArgv(index,
                                             m_filename.c_str(),
-                                            &flags[0],
+                                            flags.data(),
                                             static_cast<int>(flags.size()),
                                             nullptr,
                                             0,
