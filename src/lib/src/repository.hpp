@@ -3,7 +3,7 @@
 #include <set>
 #include <unordered_map>
 
-template <class T> class repository
+template <class T, class Container=std::set<T>> class repository
 {
   public:
     repository()                   = default;
@@ -13,26 +13,28 @@ template <class T> class repository
     repository &operator=(const repository &) = default;
     repository &operator=(repository &&) = default;
 
-    void save(const T & filename, const std::set<T> &definitions)
+    // Save definitions in the repository database
+    void save(const T & filename, const Container & definitions)
     {
         for (auto &e : definitions)
         {
-            m_definitions[e].emplace(filename);
+            m_database[e].emplace(filename);
         }
     }
 
-    std::set<T> usr_definitions(const T &key)
+    // retrieve all filenames in which key is defined
+    Container definitions(const T &key)
     {
-        auto it = m_definitions.find(key);
-        if (it != std::end(m_definitions))
+        auto it = m_database.find(key);
+        if (it != std::end(m_database))
         {
             return it->second;
         }
 
-        std::set<T> ret;
+        Container ret;
         return ret;
     }
 
   private:
-    std::unordered_map<T, std::set<T>> m_definitions;
+    std::unordered_map<T, Container> m_database;
 };

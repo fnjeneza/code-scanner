@@ -23,6 +23,7 @@ void Parser_Impl::initialize(const std::string &             root_uri,
     {
         for (const auto &f : compile_database_t::source_filenames())
         {
+            // USR defined in the file
             auto usrs = translation_unit_t(f).retrieve_all_identifier_usr();
             m_repository.save(f, usrs);
         }
@@ -37,7 +38,7 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
     {
         auto usr = tu.usr(params.position);
         // search in repository
-        auto defs = m_repository.usr_definitions(usr);
+        auto defs = m_repository.definitions(usr);
 
         for (auto def : defs)
         {
