@@ -3,6 +3,8 @@
 #include <set>
 #include <unordered_map>
 
+namespace code::analyzer
+{
 template <class T, class Container=std::set<T>> class repository
 {
   public:
@@ -39,3 +41,4 @@ template <class T, class Container=std::set<T>> class repository
     // stores [usr string, set of filenames]
     std::unordered_map<T, Container> m_database;
 };
+}

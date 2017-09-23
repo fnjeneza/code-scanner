@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.7)
 project("code-scanner")
 
 add_compile_options(
+    "-std=c++1z"
     "-fdiagnostics-color=always;-Wall;-Wpedantic;-Wextra"
     "-Winline;-Wshadow;-Wuseless-cast;-Wsign-conversion;-Wctor-dtor-privacy"
     "-Wmissing-include-dirs;-Wduplicated-cond;-Wfloat-equal;-Wlogical-op"
