@@ -24,7 +24,7 @@ void Parser_Impl::initialize(const std::string &             root_uri,
         for (const auto &f : compile_database_t::source_filenames())
         {
             auto usrs = translation_unit_t(f).retrieve_all_identifier_usr();
-            m_repository.save({f, usrs});
+            m_repository.save(f, usrs);
         }
     }
 }

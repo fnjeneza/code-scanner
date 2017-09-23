@@ -3,12 +3,6 @@
 #include <set>
 #include <unordered_map>
 
-template <class T> struct usr_t
-{
-    T           name;
-    std::set<T> definitions;
-};
-
 template <class T> class repository
 {
   public:
@@ -19,12 +13,11 @@ template <class T> class repository
     repository &operator=(const repository &) = default;
     repository &operator=(repository &&) = default;
 
-    void save(const usr_t<T> &data)
+    void save(const T & filename, const std::set<T> &definitions)
     {
-        auto value = data.name;
-        for (auto &e : data.definitions)
+        for (auto &e : definitions)
         {
-            m_definitions[e].emplace(value);
+            m_definitions[e].emplace(filename);
         }
     }
 
