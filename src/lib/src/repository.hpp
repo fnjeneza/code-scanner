@@ -31,10 +31,11 @@ template <class T, class Container=std::set<T>> class repository
             return it->second;
         }
 
-        Container ret;
-        return ret;
+        // empty container
+        return Container();
     }
 
   private:
+    // stores [usr string, set of filenames]
     std::unordered_map<T, Container> m_database;
 };
