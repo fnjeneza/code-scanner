@@ -7,3 +7,6 @@
 [submodule "3rd-party/json"]
 	path = 3rd-party/json
 	url = https://github.com/nlohmann/json.git
+[submodule "3rd-party/flatbuffers"]
+	path = 3rd-party/flatbuffers
+	url = https://github.com/google/flatbuffers.git
