@@ -25,7 +25,7 @@ void Parser_Impl::initialize(const std::string &             root_uri,
         {
             // USR defined in the file
             auto usrs = translation_unit_t(f).retrieve_all_identifier_usr();
-            m_repository.save(f, usrs);
+            m_repository.emplace(f, usrs);
         }
     }
 }

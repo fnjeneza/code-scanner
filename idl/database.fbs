@@ -1,0 +1,17 @@
+namespace code.analyzer;
+
+table USR {
+    name:string;
+    definitions:[string];
+}
+
+table usr_sequence {
+    usrs:[USR];
+}
+
+table File {
+    id:ushort;
+    name:string;
+}
+
+root_type usr_sequence;

@@ -1,22 +1,24 @@
 #pragma once
 
+#include <fstream>
 #include <set>
 #include <unordered_map>
 
-namespace code::analyzer
-{
-template <class T, class Container=std::set<T>> class repository
+#include "serializer.hpp"
+
+namespace code::analyzer {
+template <class T, class Container = std::set<T>> class repository
 {
   public:
-    repository()                   = default;
-    ~repository()                  = default;
+    repository() { deserialize(); };
+    ~repository() { serialize(); };
     repository(const repository &) = default;
     repository(repository &&)      = default;
     repository &operator=(const repository &) = default;
     repository &operator=(repository &&) = default;
 
-    // Save definitions in the repository database
-    void save(const T & filename, const Container & definitions)
+    // emplace definitions in the repository database
+    void emplace(const T &filename, const Container &definitions)
     {
         for (auto &e : definitions)
         {
@@ -37,8 +39,15 @@ template <class T, class Container=std::set<T>> class repository
         return Container();
     }
 
+    // serialize the database to a file
+    void serialize() { m_serializer.serialize(m_database); }
+
+    // deserialize the database from a file
+    void deserialize() { m_serializer.deserialize(m_database); }
+
   private:
     // stores [usr string, set of filenames]
-    std::unordered_map<T, Container> m_database;
+    std::unordered_map<T, Container> m_database{};
+    serializer m_serializer{};
 };
 }
