@@ -14,18 +14,37 @@ else()
     )
     set(LLVM_DIR "${CMAKE_BINARY_DIR}/clang-build/lib/cmake/llvm")
 endif()
+
+find_program(FLATC NAMES flatc)
+if(NOT FLATC)
+  message(FATAL_ERROR "flatc not found")
+endif()
+
+# generate the flatbuffers
+add_custom_command(
+  OUTPUT generate_idl
+  COMMAND ${FLATC} --cpp ${CMAKE_CURRENT_SOURCE_DIR}/idl/database.fbs
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+get_filename_component(FLATBUFFERS_INCLUDE_DIR ${FLATC}/../../include ABSOLUTE)
+
 # directory to search for ClangConfig.cmake
+# used by find_package
 set(Clang_DIR "${LLVM_DIR}/../clang")
 find_package(Clang REQUIRED)
 
 include_directories(SYSTEM
     ${LLVM_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/3rd-party/json/src
-    ${CMAKE_SOURCE_DIR}/3rd-party/flatbuffers/include
+    ${FLATBUFFERS_INCLUDE_DIR}
 )
 
 # code scanner library
-add_library(code-scanner src/code-scanner.cpp)
+add_library(code-scanner
+  src/code-scanner.cpp
+  generate_idl # generate file
+)
 
 target_sources(code-scanner
     PRIVATE src/utils.cpp
@@ -37,6 +56,7 @@ target_sources(code-scanner
 
 target_include_directories(code-scanner
     PUBLIC include
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(code-scanner
