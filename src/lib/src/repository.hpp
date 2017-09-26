@@ -1,9 +1,9 @@
 #pragma once
 
 #include <fstream>
+#include <mutex>
 #include <set>
 #include <unordered_map>
-#include <mutex>
 
 #include "serializer.hpp"
 
@@ -52,9 +52,8 @@ template <class T, class Container = std::set<T>> class repository
     // Check if a file has been processed based on its timestamp.
     // If timestamp is less than the current given in argument  or timestamp
     // not present add it to the returned container
-    std::vector<filename> check_file_timestamp(const std::vector<filename> & file);
-
-
+    std::vector<filename>
+    check_file_timestamp(const std::vector<filename> &file);
 
   private:
     // stores [usr string, set of filenames]

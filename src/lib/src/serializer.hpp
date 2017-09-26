@@ -38,34 +38,31 @@ class serializer
 
     template <class T> void deserialize(T &data)
     {
-        try
+        std::ifstream in(database_file, std::ios::binary | std::ios::ate);
+        auto          size = in.tellg();
+        if (size <= 0)
         {
-            std::ifstream in(database_file, std::ios::binary | std::ios::ate);
-            auto          size = in.tellg();
-            in.seekg(0);
-            std::vector<uint8_t> __dest(size, '\0');
-            in.read(reinterpret_cast<char *>(__dest.data()), size);
-            auto __usr_seq = Getusr_sequence(__dest.data());
-
-            // TODO need optimization
-            for (auto v : *__usr_seq->usrs())
-            {
-                std::set<std::string> defs;
-                for (auto def : *v->definitions())
-                {
-                    defs.emplace(def->c_str());
-                }
-
-                data.emplace(v->name()->c_str(), defs);
-            }
+            return;
         }
-        catch (const std::bad_alloc &)
+        in.seekg(0);
+        std::vector<uint8_t> __dest(static_cast<std::size_t>(size), '\0');
+        in.read(reinterpret_cast<char *>(__dest.data()), size);
+        auto __usr_seq = Getusr_sequence(__dest.data());
+
+        // TODO need optimization
+        for (auto v : *__usr_seq->usrs())
         {
-            // TODO log here
+            std::set<std::string> defs;
+            for (auto def : *v->definitions())
+            {
+                defs.emplace(def->c_str());
+            }
+
+            data.emplace(v->name()->c_str(), defs);
         }
     }
 
   private:
-    const std::string database_file{"code-scanner.dbs"};
+    const std::string database_file{"code-scanner.db"};
 };
 }
