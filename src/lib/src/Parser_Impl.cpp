@@ -19,7 +19,10 @@ void Parser_Impl::initialize(const std::string &             root_uri,
 {
     config::builder(root_uri, compile_commands, flags_to_ignore);
 
-    // if repository database not exist scan all files
+    // if there are files that has expired timestamp
+    // rescan them
+    // TODO remove the constant whic force the scan
+    if(/*repository.check_file_timestamp().size()*/ 1 != 0)
     {
         for (const auto &f : compile_database_t::source_filenames())
         {

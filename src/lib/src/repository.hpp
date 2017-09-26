@@ -45,6 +45,15 @@ template <class T, class Container = std::set<T>> class repository
     // deserialize the database from a file
     void deserialize() { m_serializer.deserialize(m_database); }
 
+    using filename = std::string;
+    using timestamp = std::size_t;
+    // Check if a file has been processed based on its timestamp.
+    // If timestamp is less than the current given in argument  or timestamp
+    // not present add it to the returned container
+    std::vector<filename> check_file_timestamp(const std::vector<filename, timestamp> & file_timestamp);
+
+
+
   private:
     // stores [usr string, set of filenames]
     std::unordered_map<T, Container> m_database{};
