@@ -3,6 +3,7 @@
 #include <fstream>
 #include <set>
 #include <unordered_map>
+#include <mutex>
 
 #include "serializer.hpp"
 
@@ -22,6 +23,8 @@ template <class T, class Container = std::set<T>> class repository
     {
         for (auto &e : definitions)
         {
+            // lock in case of multithreaded access
+            std::unique_lock<std::mutex> lock(m_mutex);
             m_database[e].emplace(filename);
         }
     }
@@ -46,11 +49,10 @@ template <class T, class Container = std::set<T>> class repository
     void deserialize() { m_serializer.deserialize(m_database); }
 
     using filename = std::string;
-    using timestamp = std::size_t;
     // Check if a file has been processed based on its timestamp.
     // If timestamp is less than the current given in argument  or timestamp
     // not present add it to the returned container
-    std::vector<filename> check_file_timestamp(const std::vector<filename, timestamp> & file_timestamp);
+    std::vector<filename> check_file_timestamp(const std::vector<filename> & file);
 
 
 
@@ -58,5 +60,6 @@ template <class T, class Container = std::set<T>> class repository
     // stores [usr string, set of filenames]
     std::unordered_map<T, Container> m_database{};
     serializer m_serializer{};
+    std::mutex m_mutex;
 };
 }
