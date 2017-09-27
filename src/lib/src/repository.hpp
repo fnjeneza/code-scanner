@@ -1,11 +1,13 @@
 #pragma once
 
+#include <algorithm>
 #include <fstream>
 #include <mutex>
 #include <set>
 #include <unordered_map>
 
 #include "serializer.hpp"
+#include "file.hpp"
 
 namespace code::analyzer {
 template <class T, class Container = std::set<T>> class repository
@@ -23,9 +25,17 @@ template <class T, class Container = std::set<T>> class repository
     {
         for (auto &e : definitions)
         {
-            // lock in case of multithreaded access
+            {
+                // lock in case of multithreaded access
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_database[e].emplace(filename);
+            }
+        }
+
+        utils::File file(filename);
+        {
             std::unique_lock<std::mutex> lock(m_mutex);
-            m_database[e].emplace(filename);
+            m_files.emplace_back(file);
         }
     }
 
@@ -48,16 +58,39 @@ template <class T, class Container = std::set<T>> class repository
     // deserialize the database from a file
     void deserialize() { m_serializer.deserialize(m_database); }
 
-    using filename = std::string;
     // Check if a file has been processed based on its timestamp.
     // If timestamp is less than the current given in argument  or timestamp
     // not present add it to the returned container
-    std::vector<filename>
-    check_file_timestamp(const std::vector<filename> &file);
+    std::vector<std::string>
+    check_file_timestamp(const std::vector<std::string> &filenames )
+    {
+        // compare each filename from filenames within the filename stored in
+        // m_files. If timestamp is different add the filename in the vector to
+        // return
+        std::vector<std::string> __ret;
+        for(auto & file: filenames)
+        {
+            utils::File __current(file);
+            auto it = std::find_if(std::begin(m_files), std::end(m_files),
+                    [&](auto & __stored){
+                    return __stored.path() == file;
+                    });
+            if(it != std::end(m_files))
+            {
+                if(it->timestamp() < __current.timestamp())
+                {
+                        __ret.emplace_back(file);
+                }
+            }
+        }
+        return __ret;
+    }
 
   private:
     // stores [usr string, set of filenames]
     std::unordered_map<T, Container> m_database{};
+    // stores file and timestamp
+    std::vector<utils::File> m_files;
     serializer m_serializer{};
     std::mutex m_mutex;
 };
