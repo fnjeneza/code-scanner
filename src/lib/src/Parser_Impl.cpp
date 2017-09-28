@@ -26,9 +26,11 @@ void Parser_Impl::initialize(const std::string &             root_uri,
     {
         auto all_filenames = compile_database_t::source_filenames();
         auto filenames = m_repository.check_file_timestamp(all_filenames);
+        std::cout << filenames.size() << std::endl;
 
         for(auto & file: filenames)
         {
+            std::cout << file << std::endl;
                 auto usrs = translation_unit_t(file).retrieve_all_identifier_usr();
                 m_repository.emplace(file, usrs);
         }

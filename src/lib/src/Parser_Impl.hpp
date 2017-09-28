@@ -9,8 +9,7 @@
 #include "code-scanner/Params.hpp"
 #include "repository.hpp"
 
-namespace code {
-namespace analyzer {
+namespace code::analyzer {
 
 class Parser_Impl
 {
@@ -29,5 +28,4 @@ class Parser_Impl
     repository<std::string> m_repository;
 };
 
-} // namespace analyzer
-} // namespace code
+} // namespace code::analyzer

@@ -53,10 +53,10 @@ template <class T, class Container = std::set<T>> class repository
     }
 
     // serialize the database to a file
-    void serialize() { m_serializer.serialize(m_database); }
+    void serialize() { m_serializer.serialize(m_database, m_files); }
 
     // deserialize the database from a file
-    void deserialize() { m_serializer.deserialize(m_database); }
+    void deserialize() { m_serializer.deserialize(m_database, m_files); }
 
     // Check if a file has been processed based on its timestamp.
     // If timestamp is less than the current given in argument  or timestamp
@@ -79,8 +79,15 @@ template <class T, class Container = std::set<T>> class repository
             {
                 if(it->timestamp() < __current.timestamp())
                 {
+                    // if the stored parse date is older than the current one,
+                    // add it to return container in order to be parsed
                         __ret.emplace_back(file);
                 }
+            }
+            else{
+                // if the file is not found in the container, add it in the
+                // container to return in order to be parsed
+                        __ret.emplace_back(file);
             }
         }
         return __ret;
@@ -90,7 +97,7 @@ template <class T, class Container = std::set<T>> class repository
     // stores [usr string, set of filenames]
     std::unordered_map<T, Container> m_database{};
     // stores file and timestamp
-    std::vector<utils::File> m_files;
+    std::vector<utils::File> m_files{};
     serializer m_serializer{};
     std::mutex m_mutex;
 };

@@ -6,10 +6,7 @@
 
 #include <fstream>
 
-#include <iostream>
-
-namespace code {
-namespace analyzer {
+namespace code:: analyzer {
 namespace {
 using json = nlohmann::json;
 json database()
@@ -124,6 +121,5 @@ std::vector<std::string> compile_database_t::source_filenames()
         filenames.push_back(it["file"]);
     }
     return filenames;
-}
 }
 }

@@ -5,13 +5,14 @@ table USR {
     definitions:[string];
 }
 
-table usr_sequence {
-    usrs:[USR];
+table File {
+    path:string;
+    timestamp:long;
 }
 
-table File {
-    id:ushort;
-    name:string;
+table usr_sequence {
+    usrs:[USR];
+    files:[File];
 }
 
 root_type usr_sequence;

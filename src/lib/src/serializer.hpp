@@ -1,6 +1,7 @@
 #pragma once
 
 #include "database_generated.h"
+#include "file.hpp"
 
 namespace code::analyzer {
 class serializer
@@ -9,25 +10,14 @@ class serializer
     serializer()  = default;
     ~serializer() = default;
 
-    template <class T> void serialize(const T &data)
+    template <class T, class F> void serialize(const T &data, const F &files)
     {
         flatbuffers::FlatBufferBuilder        builder(1024);
-        std::vector<flatbuffers::Offset<USR>> sequence;
-        for (auto &d : data)
-        {
-            auto key = builder.CreateString(d.first);
-            std::vector<flatbuffers::Offset<flatbuffers::String>> definitions;
-            for (auto &v : d.second)
-            {
-                auto value = builder.CreateString(v);
-                definitions.push_back(value);
-            }
-            auto defs = builder.CreateVector(definitions);
-            auto usr  = CreateUSR(builder, key, defs);
-            sequence.push_back(usr);
-        }
-        auto __seq     = builder.CreateVector(sequence);
-        auto __usr_seq = Createusr_sequence(builder, __seq);
+        auto sequence = usrs_to_flatbuffers_vector(builder, data);
+        auto __files = files_to_flatbuffers_vector(builder, files);
+        auto __usrs_list     = builder.CreateVector(sequence);
+        auto __files_list     = builder.CreateVector(__files);
+        auto __usr_seq = Createusr_sequence(builder, __usrs_list, __files_list);
         builder.Finish(__usr_seq);
 
         // write file
@@ -36,7 +26,7 @@ class serializer
                   builder.GetSize());
     }
 
-    template <class T> void deserialize(T &data)
+    template <class T, class F> void deserialize(T &data, F &files)
     {
         std::ifstream in(database_file, std::ios::binary | std::ios::ate);
         auto          size = in.tellg();
@@ -60,8 +50,47 @@ class serializer
 
             data.emplace(v->name()->c_str(), defs);
         }
+
+        for(auto f: *__usr_seq->files())
+        {
+            utils::File __file(f->path()->c_str(), f->timestamp());
+            files.emplace_back(__file);
+        }
     }
 
+  private:
+    template<class T>
+    std::vector<flatbuffers::Offset<USR>>  usrs_to_flatbuffers_vector(flatbuffers::FlatBufferBuilder & builder,const T & data)
+    {
+        std::vector<flatbuffers::Offset<USR>> sequence;
+        for (auto &d : data)
+        {
+            auto key = builder.CreateString(d.first);
+            std::vector<flatbuffers::Offset<flatbuffers::String>> definitions;
+            for (auto &v : d.second)
+            {
+                auto value = builder.CreateString(v);
+                definitions.push_back(value);
+            }
+            auto defs = builder.CreateVector(definitions);
+            auto usr  = CreateUSR(builder, key, defs);
+            sequence.push_back(usr);
+        }
+        return sequence;
+    }
+
+    template<class T>
+    std::vector<flatbuffers::Offset<File>>  files_to_flatbuffers_vector(flatbuffers::FlatBufferBuilder & builder,const T & files)
+    {
+        std::vector<flatbuffers::Offset<File>> sequence;
+        for (auto &f : files)
+        {
+            auto __path = builder.CreateString(f.path());
+            auto usr  = CreateFile(builder, __path, f.timestamp());
+            sequence.push_back(usr);
+        }
+        return sequence;
+    }
   private:
     const std::string database_file{"code-scanner.db"};
 };

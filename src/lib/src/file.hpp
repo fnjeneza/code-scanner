@@ -11,27 +11,35 @@ namespace filesystem = std::experimental::filesystem;
 namespace code::analyzer::utils
 {
 
-struct File{
+class File{
+    public:
     File() = default;
     ~File() = default;
 
     explicit File(const std::string & path)
+        : m_path{path}
     {
-        m_path = path;
         auto time = std::filesystem::last_write_time(path);
         m_timestamp = decltype(time)::clock::to_time_t(time);
     }
 
-    std::string path()
+    explicit File(const std::string & path, const long int & timestamp)
+        : m_path{path}
+        , m_timestamp{timestamp}
+    {
+    }
+
+    std::string path() const
     {
         return m_path;
     }
 
-    long int timestamp()
+    long int timestamp() const
     {
         return m_timestamp;
     }
 
+    private:
     std::string m_path;
     long int m_timestamp;
 };
