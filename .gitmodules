@@ -10,3 +10,6 @@
 [submodule "3rd-party/flatbuffers"]
 	path = 3rd-party/flatbuffers
 	url = https://github.com/google/flatbuffers.git
+[submodule "3rd-party/task_system"]
+	path = 3rd-party/task_system
+	url = https://github.com/fnjeneza/task_system.git

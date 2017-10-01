@@ -37,6 +37,7 @@ find_package(Clang REQUIRED)
 include_directories(SYSTEM
     ${LLVM_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/3rd-party/json/src
+    ${CMAKE_SOURCE_DIR}/3rd-party/task_system
     ${FLATBUFFERS_INCLUDE_DIR}
 )
 
@@ -62,4 +63,5 @@ target_include_directories(code-scanner
 target_link_libraries(code-scanner
     PRIVATE libclang
     PRIVATE "stdc++fs"
+    PRIVATE pthread
 )
