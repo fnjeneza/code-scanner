@@ -12,11 +12,11 @@ class serializer
 
     template <class T, class F> void serialize(const T &data, const F &files)
     {
-        flatbuffers::FlatBufferBuilder        builder(1024);
-        auto sequence = usrs_to_flatbuffers_vector(builder, data);
-        auto __files = files_to_flatbuffers_vector(builder, files);
-        auto __usrs_list     = builder.CreateVector(sequence);
-        auto __files_list     = builder.CreateVector(__files);
+        flatbuffers::FlatBufferBuilder builder(1024);
+        auto sequence     = usrs_to_flatbuffers_vector(builder, data);
+        auto __files      = files_to_flatbuffers_vector(builder, files);
+        auto __usrs_list  = builder.CreateVector(sequence);
+        auto __files_list = builder.CreateVector(__files);
         auto __usr_seq = Createusr_sequence(builder, __usrs_list, __files_list);
         builder.Finish(__usr_seq);
 
@@ -51,16 +51,18 @@ class serializer
             data.emplace(v->name()->c_str(), defs);
         }
 
-        for(auto f: *__usr_seq->files())
+        for (auto f : *__usr_seq->files())
         {
             utils::File __file(f->path()->c_str(), f->timestamp());
-            files.emplace_back(__file);
+            files.emplace(__file);
         }
     }
 
   private:
-    template<class T>
-    std::vector<flatbuffers::Offset<USR>>  usrs_to_flatbuffers_vector(flatbuffers::FlatBufferBuilder & builder,const T & data)
+    template <class T>
+    std::vector<flatbuffers::Offset<USR>>
+    usrs_to_flatbuffers_vector(flatbuffers::FlatBufferBuilder &builder,
+                               const T &                       data)
     {
         std::vector<flatbuffers::Offset<USR>> sequence;
         for (auto &d : data)
@@ -79,18 +81,21 @@ class serializer
         return sequence;
     }
 
-    template<class T>
-    std::vector<flatbuffers::Offset<File>>  files_to_flatbuffers_vector(flatbuffers::FlatBufferBuilder & builder,const T & files)
+    template <class T>
+    std::vector<flatbuffers::Offset<File>>
+    files_to_flatbuffers_vector(flatbuffers::FlatBufferBuilder &builder,
+                                const T &                       files)
     {
         std::vector<flatbuffers::Offset<File>> sequence;
         for (auto &f : files)
         {
             auto __path = builder.CreateString(f.path());
-            auto usr  = CreateFile(builder, __path, f.timestamp());
+            auto usr    = CreateFile(builder, __path, f.timestamp());
             sequence.push_back(usr);
         }
         return sequence;
     }
+
   private:
     const std::string database_file{"code-scanner.db"};
 };

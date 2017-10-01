@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-namespace code:: analyzer {
+namespace code::analyzer {
 namespace {
 using json = nlohmann::json;
 json database()

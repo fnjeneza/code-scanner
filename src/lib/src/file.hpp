@@ -1,49 +1,49 @@
-#ifndef FILE_HPP
-#define FILE_HPP
+#pragma once
 
 #include <experimental/filesystem>
+#include <functional>
 #include <string>
 
-namespace std{
+namespace std {
 namespace filesystem = std::experimental::filesystem;
 }
 
-namespace code::analyzer::utils
+namespace code::analyzer::utils {
+
+class File
 {
+  public:
+    File()             = default;
+    File(const File &) = default;
+    File(File &&)      = default;
+    ~File()            = default;
 
-class File{
-    public:
-    File() = default;
-    ~File() = default;
-
-    explicit File(const std::string & path)
+    explicit File(const std::string &path)
         : m_path{path}
     {
-        auto time = std::filesystem::last_write_time(path);
+        auto time   = std::filesystem::last_write_time(path);
         m_timestamp = decltype(time)::clock::to_time_t(time);
     }
 
-    explicit File(const std::string & path, const long int & timestamp)
+    explicit File(const std::string &path, const long int &timestamp)
         : m_path{path}
         , m_timestamp{timestamp}
     {
     }
 
-    std::string path() const
-    {
-        return m_path;
-    }
+    File &operator=(const File &) = default;
+    File &operator=(File &&) = default;
 
-    long int timestamp() const
-    {
-        return m_timestamp;
-    }
+    bool operator<(const File &file) const { return m_path < file.m_path; }
 
-    private:
-    std::string m_path;
-    long int m_timestamp;
+    std::string path() const noexcept { return m_path; }
+
+    long int timestamp() const noexcept { return m_timestamp; }
+
+    void set_timestamp(long int timestamp) const { m_timestamp = timestamp; }
+
+  private:
+    std::string      m_path{};
+    mutable long int m_timestamp = 0;
 };
 }
-
-
-#endif /* FILE_HPP */
