@@ -4,6 +4,7 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+AlwaysBreakTemplateDeclarations: true
 BreakConstructorInitializersBeforeComma: true
 BreakBeforeBraces: Custom
 BraceWrapping:

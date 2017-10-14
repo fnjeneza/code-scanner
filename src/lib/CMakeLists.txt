@@ -42,7 +42,7 @@ include_directories(SYSTEM
 )
 
 # code scanner library
-add_library(code-scanner
+add_library(code-scanner SHARED
   src/code-scanner.cpp
   generate_idl # generate file
 )
