@@ -46,6 +46,11 @@ void split_command(const std::string &command, std::vector<std::string> &flags)
         {
             continue;
         }
+        if(__command.substr(0,2) == "-I")
+        {
+            // use absolute path
+            __command = "-I"+config::root_uri()+"/"+__command.substr(2);
+        }
         if (__command == "-o" || __command == "-c")
         {
             ++i;
