@@ -23,11 +23,24 @@ struct TextDocumentPositionParams
 
 struct ReferenceContext
 {
-    bool includeDeclaration;
+    bool includeDeclaration{true};
 };
 
 struct ReferenceParams : public TextDocumentPositionParams
 {
+    ReferenceParams() = default;
+    ~ReferenceParams() = default;
+    ReferenceParams(const TextDocumentPositionParams & params)
+    {
+        textDocument = params.textDocument;
+        position = params.position;
+    }
+    ReferenceParams(TextDocumentPositionParams && params)
+    {
+        textDocument = std::move(params.textDocument);
+        position = std::move(params.position);
+    }
+
     ReferenceContext context;
 };
 
