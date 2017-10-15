@@ -34,7 +34,9 @@ void Parser::initialize(const InitializeParams &params)
         return;
     }
 
-    json conf             = json::parse(params.initializationOptions);
+    json conf;
+    std::ifstream in(params.initializationOptions);
+    in >> conf;
     auto compile_commands = conf["compile_commands"];
 
     if (!compile_commands.empty())

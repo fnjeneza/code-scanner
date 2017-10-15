@@ -78,13 +78,9 @@ int main(int argc, char **argv)
     // Initialize parameters
     code::analyzer::InitializeParams initialize_params;
     initialize_params.rootUri = build_path;
-    std::ifstream in(configuration_file);
-    std::string   current_line;
-    while (std::getline(in, current_line))
-    {
-        // retrieve initialization options. The config json content
-        initialize_params.initializationOptions += current_line;
-    }
+
+    // The config file where options are specified
+    initialize_params.initializationOptions = configuration_file;
 
     code::analyzer::Parser parser;
     parser.initialize(initialize_params);
