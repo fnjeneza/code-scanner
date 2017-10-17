@@ -36,6 +36,11 @@ void Parser::initialize(const InitializeParams &params)
 
     json conf;
     std::ifstream in(params.initializationOptions);
+    if(!in)
+    {
+      std::cerr << "can not open " << params.initializationOptions << std::endl;
+      return;
+    }
     in >> conf;
     auto compile_commands = conf["compile_commands"];
 
