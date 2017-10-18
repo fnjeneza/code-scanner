@@ -20,16 +20,14 @@ Parser::Parser()
 
 Parser::~Parser() = default;
 
-void Parser::initialize(const InitializeParams &params)
+std::string Parser::initialize(const InitializeParams &params)
 {
     // compile arguments from initializationOptions
     std::vector<std::string> compile_arguments;
 
     if (params.initializationOptions.empty())
     {
-        std::cerr << "Missing initialization options" << std::endl;
-        // TODO return error code
-        return;
+        return "Missing initialization options";
     }
 
     using json = nlohmann::json;
@@ -37,14 +35,12 @@ void Parser::initialize(const InitializeParams &params)
     std::ifstream in(params.initializationOptions);
     if (!in)
     {
-        std::cerr << "can not open " << params.initializationOptions
-                  << std::endl;
-        return;
+        return "can not open " + params.initializationOptions;
     }
     in >> conf;
     try
     {
-        auto build_dir        = conf.at("build_dir");
+        auto build_uri        = conf.at("build_uri");
         auto compile_commands = conf.at("compile_commands");
 
         if (!compile_commands.empty())
@@ -53,14 +49,13 @@ void Parser::initialize(const InitializeParams &params)
         }
 
         auto flags_to_ignore = conf.at("ignore_flags");
-        pimpl->initialize(build_dir, compile_arguments, flags_to_ignore);
+        pimpl->initialize(build_uri, compile_arguments, flags_to_ignore);
     }
     catch (const std::exception &e)
     {
-        std::cout << e.what() << std::endl;
-        // TODO return error here
-        return;
+        return e.what();
     }
+    return std::string();
 }
 
 Location Parser::definition(const TextDocumentPositionParams &params)

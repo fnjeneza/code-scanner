@@ -83,7 +83,13 @@ int main(int argc, char **argv)
     initialize_params.initializationOptions = configuration_file;
 
     code::analyzer::Parser parser;
-    parser.initialize(initialize_params);
+    auto                   error = parser.initialize(initialize_params);
+    if (!error.empty())
+    {
+        std::cout << error << std::endl;
+        std::cout << "server not initialized" << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
     // code::analyzer::Parser parser(build_path, filename, compile_arguments);
     // auto cursor = parser.cursor(line, column);
