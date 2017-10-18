@@ -4,7 +4,13 @@
 #include <algorithm>
 #include <json.hpp>
 
+#include <experimental/filesystem>
 #include <fstream>
+#include <iostream>
+
+namespace std {
+namespace filesystem = std::experimental::filesystem;
+}
 
 namespace code::analyzer {
 namespace {
@@ -14,7 +20,7 @@ json database()
 
     json parsed_db;
     // compile_commands.json file
-    std::string   source = config::root_uri() + "/compile_commands.json";
+    std::string   source = config::build_uri() + "/compile_commands.json";
     std::ifstream db_file(source.c_str());
     db_file >> parsed_db;
     return parsed_db;
@@ -36,7 +42,9 @@ std::string read_compile_commands(const std::string &filename)
 
 void split_command(const std::string &command, std::vector<std::string> &flags)
 {
-    auto commands = utils::split(command);
+    auto build_dir           = std::filesystem::path(config::build_uri());
+    bool absolutize_argument = false;
+    auto commands            = utils::split(command);
     // remove the compiler binary name
     commands.erase(std::begin(commands));
     for (std::size_t i = 0; i < commands.size(); ++i)
@@ -46,10 +54,32 @@ void split_command(const std::string &command, std::vector<std::string> &flags)
         {
             continue;
         }
-        if(__command.substr(0,2) == "-I")
+        if (__command.substr(0, 2) == "-I")
         {
+            auto path = std::filesystem::path(__command.substr(2));
+            if (path.is_relative())
+            {
+                // create an absolute path
+                path = build_dir / path;
+            }
             // use absolute path
-            __command = "-I"+config::root_uri()+"/"+__command.substr(2);
+            __command = "-I" + std::string(path);
+        }
+        if (absolutize_argument)
+        {
+            auto path = std::filesystem::path(__command);
+            if (path.is_relative())
+            {
+                // create an absolute path
+                __command = build_dir / path;
+                std::cout << __command << std::endl;
+            }
+            absolutize_argument = false;
+        }
+        if (__command.substr(0, 8) == "-isystem")
+        {
+            // used to make absolute next argument
+            absolutize_argument = true;
         }
         if (__command == "-o" || __command == "-c")
         {

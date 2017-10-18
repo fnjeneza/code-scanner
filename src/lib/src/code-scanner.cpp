@@ -22,11 +22,9 @@ Parser::~Parser() = default;
 
 void Parser::initialize(const InitializeParams &params)
 {
-    const std::string root_uri = params.rootUri;
     // compile arguments from initializationOptions
     std::vector<std::string> compile_arguments;
 
-    using json = nlohmann::json;
     if (params.initializationOptions.empty())
     {
         std::cerr << "Missing initialization options" << std::endl;
@@ -34,23 +32,35 @@ void Parser::initialize(const InitializeParams &params)
         return;
     }
 
-    json conf;
+    using json = nlohmann::json;
+    json          conf;
     std::ifstream in(params.initializationOptions);
-    if(!in)
+    if (!in)
     {
-      std::cerr << "can not open " << params.initializationOptions << std::endl;
-      return;
+        std::cerr << "can not open " << params.initializationOptions
+                  << std::endl;
+        return;
     }
     in >> conf;
-    auto compile_commands = conf["compile_commands"];
-
-    if (!compile_commands.empty())
+    try
     {
-        compile_arguments = utils::split(compile_commands);
-    }
+        auto build_dir        = conf.at("build_dir");
+        auto compile_commands = conf.at("compile_commands");
 
-    auto flags_to_ignore = conf["ignore_flags"];
-    pimpl->initialize(root_uri, compile_arguments, flags_to_ignore);
+        if (!compile_commands.empty())
+        {
+            compile_arguments = utils::split(compile_commands);
+        }
+
+        auto flags_to_ignore = conf.at("ignore_flags");
+        pimpl->initialize(build_dir, compile_arguments, flags_to_ignore);
+    }
+    catch (const std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        // TODO return error here
+        return;
+    }
 }
 
 Location Parser::definition(const TextDocumentPositionParams &params)

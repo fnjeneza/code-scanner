@@ -17,7 +17,7 @@ class Parser_Impl
     Parser_Impl()  = default;
     ~Parser_Impl() = default;
 
-    void initialize(const std::string &             root_uri,
+    void initialize(const std::string &             build_uri,
                     const std::vector<std::string> &compile_arguments,
                     const std::vector<std::string> &flags_to_ignore);
 

@@ -28,17 +28,17 @@ struct ReferenceContext
 
 struct ReferenceParams : public TextDocumentPositionParams
 {
-    ReferenceParams() = default;
+    ReferenceParams()  = default;
     ~ReferenceParams() = default;
-    ReferenceParams(const TextDocumentPositionParams & params)
+    ReferenceParams(const TextDocumentPositionParams &params)
     {
         textDocument = params.textDocument;
-        position = params.position;
+        position     = params.position;
     }
-    ReferenceParams(TextDocumentPositionParams && params)
+    ReferenceParams(TextDocumentPositionParams &&params)
     {
         textDocument = std::move(params.textDocument);
-        position = std::move(params.position);
+        position     = std::move(params.position);
     }
 
     ReferenceContext context;

@@ -10,7 +10,8 @@
 #include "serializer.hpp"
 
 namespace code::analyzer {
-template <class T, class Container = std::set<T>> class repository
+template <class T, class Container = std::set<T>>
+class repository
 {
   public:
     repository() { deserialize(); };

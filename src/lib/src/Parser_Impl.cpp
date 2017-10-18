@@ -10,11 +10,11 @@
 
 namespace code::analyzer {
 
-void Parser_Impl::initialize(const std::string &             root_uri,
+void Parser_Impl::initialize(const std::string &             build_uri,
                              const std::vector<std::string> &compile_commands,
                              const std::vector<std::string> &flags_to_ignore)
 {
-    config::builder(root_uri, compile_commands, flags_to_ignore);
+    config::builder(build_uri, compile_commands, flags_to_ignore);
     task_system task;
 
     // if there are files that timestamp has expired rescan them

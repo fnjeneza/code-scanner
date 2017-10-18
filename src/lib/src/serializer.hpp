@@ -10,7 +10,8 @@ class serializer
     serializer()  = default;
     ~serializer() = default;
 
-    template <class T, class F> void serialize(const T &data, const F &files)
+    template <class T, class F>
+    void serialize(const T &data, const F &files)
     {
         flatbuffers::FlatBufferBuilder builder(1024);
         auto sequence     = usrs_to_flatbuffers_vector(builder, data);
@@ -26,7 +27,8 @@ class serializer
                   builder.GetSize());
     }
 
-    template <class T, class F> void deserialize(T &data, F &files)
+    template <class T, class F>
+    void deserialize(T &data, F &files)
     {
         std::ifstream in(database_file, std::ios::binary | std::ios::ate);
         auto          size = in.tellg();
