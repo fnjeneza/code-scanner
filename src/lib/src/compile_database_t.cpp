@@ -20,8 +20,14 @@ json database()
 
     json parsed_db;
     // compile_commands.json file
-    std::string   source = config::build_uri() + "/compile_commands.json";
+    std::string source =
+        std::filesystem::path(config::build_uri()) / "compile_commands.json";
     std::ifstream db_file(source.c_str());
+    if (!db_file)
+    {
+        std::cout << "can not read " << source << std::endl;
+        return json();
+    }
     db_file >> parsed_db;
     return parsed_db;
 }
@@ -29,6 +35,10 @@ json database()
 std::string read_compile_commands(const std::string &filename)
 {
     auto parsed_db = database();
+    if (parsed_db.empty())
+    {
+        return std::string();
+    }
     // search compile commands associated to the filename
     for (const auto &it : parsed_db)
     {
@@ -151,6 +161,11 @@ std::vector<std::string> compile_database_t::source_filenames()
 {
     std::vector<std::string> filenames;
     auto                     parsed_db = database();
+    if (parsed_db.empty())
+    {
+        // empty vector
+        return std::vector<std::string>();
+    }
     for (const auto &it : parsed_db)
     {
         filenames.push_back(it["file"]);

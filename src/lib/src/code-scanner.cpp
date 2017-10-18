@@ -48,7 +48,8 @@ std::string Parser::initialize(const InitializeParams &params)
             compile_arguments = utils::split(compile_commands);
         }
 
-        auto flags_to_ignore = conf.at("ignore_flags");
+        using flags          = std::vector<std::string>;
+        auto flags_to_ignore = conf.at("ignore_flags").get<flags>();
         pimpl->initialize(build_uri, compile_arguments, flags_to_ignore);
     }
     catch (const std::exception &e)
