@@ -7,6 +7,7 @@
 #include <json.hpp>
 
 #include "Parser_Impl.hpp"
+#include "code-scanner/ErrorCodes.hpp"
 #include "code-scanner/Params.hpp"
 #include "utils.hpp"
 
@@ -20,14 +21,16 @@ Parser::Parser()
 
 Parser::~Parser() = default;
 
-std::string Parser::initialize(const InitializeParams &params)
+std::optional<std::error_code>
+Parser::initialize(const InitializeParams &params)
 {
     // compile arguments from initializationOptions
     std::vector<std::string> compile_arguments;
 
     if (params.initializationOptions.empty())
     {
-        return "Missing initialization options";
+        // "Missing initialization options";
+        return ErrorCodes::InvalidParams;
     }
 
     using json = nlohmann::json;
@@ -35,7 +38,8 @@ std::string Parser::initialize(const InitializeParams &params)
     std::ifstream in(params.initializationOptions);
     if (!in)
     {
-        return "can not open " + params.initializationOptions;
+        // "can not open " + params.initializationOptions;
+        return ErrorCodes::InvalidParams;
     }
     in >> conf;
     try
@@ -54,9 +58,10 @@ std::string Parser::initialize(const InitializeParams &params)
     }
     catch (const std::exception &e)
     {
-        return e.what();
+        // e.what();
+        return ErrorCodes::ParserError;
     }
-    return std::string();
+    return std::nullopt;
 }
 
 Location Parser::definition(const TextDocumentPositionParams &params)

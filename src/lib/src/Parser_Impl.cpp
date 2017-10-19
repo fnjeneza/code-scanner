@@ -10,9 +10,10 @@
 
 namespace code::analyzer {
 
-void Parser_Impl::initialize(const std::string &             build_uri,
-                             const std::vector<std::string> &compile_commands,
-                             const std::vector<std::string> &flags_to_ignore)
+std::optional<std::error_code>
+Parser_Impl::initialize(const std::string &             build_uri,
+                        const std::vector<std::string> &compile_commands,
+                        const std::vector<std::string> &flags_to_ignore)
 {
     config::builder(build_uri, compile_commands, flags_to_ignore);
     task_system task;
@@ -33,6 +34,8 @@ void Parser_Impl::initialize(const std::string &             build_uri,
             });
         }
     }
+
+    return std::nullopt;
 }
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)

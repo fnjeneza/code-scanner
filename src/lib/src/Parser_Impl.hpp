@@ -1,6 +1,8 @@
 #pragma once
 
+#include <optional>
 #include <string>
+#include <system_error>
 #include <vector>
 
 #include <clang-c/Index.h>
@@ -17,9 +19,10 @@ class Parser_Impl
     Parser_Impl()  = default;
     ~Parser_Impl() = default;
 
-    void initialize(const std::string &             build_uri,
-                    const std::vector<std::string> &compile_arguments,
-                    const std::vector<std::string> &flags_to_ignore);
+    std::optional<std::error_code>
+    initialize(const std::string &             build_uri,
+               const std::vector<std::string> &compile_arguments,
+               const std::vector<std::string> &flags_to_ignore);
 
     Location definition(const TextDocumentPositionParams &params);
     Location reference(const TextDocumentPositionParams &params);
