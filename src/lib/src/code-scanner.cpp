@@ -29,8 +29,7 @@ Parser::initialize(const InitializeParams &params)
 
     if (params.initializationOptions.empty())
     {
-        // "Missing initialization options";
-        return ErrorCodes::InvalidParams;
+        return error("Missing initialization options");
     }
 
     using json = nlohmann::json;
@@ -38,8 +37,7 @@ Parser::initialize(const InitializeParams &params)
     std::ifstream in(params.initializationOptions);
     if (!in)
     {
-        // "can not open " + params.initializationOptions;
-        return ErrorCodes::InvalidParams;
+        return error("can not open " + params.initializationOptions);
     }
     in >> conf;
     try
@@ -58,8 +56,7 @@ Parser::initialize(const InitializeParams &params)
     }
     catch (const std::exception &e)
     {
-        // e.what();
-        return ErrorCodes::ParserError;
+        return error(e.what());
     }
     return std::nullopt;
 }

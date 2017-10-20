@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     auto                   error = parser.initialize(initialize_params);
     if (error.has_value())
     {
-        std::cout << *error << std::endl;
+        std::cout << (*error).message() << std::endl;
         std::cout << "server not initialized" << std::endl;
         std::exit(EXIT_FAILURE);
     }

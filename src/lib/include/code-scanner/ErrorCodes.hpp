@@ -16,6 +16,9 @@ enum class ErrorCodes
     RequestCancelled     = -32800,
 };
 
+// Give to the user the ability to pass a custom message
+std::error_code error(const std::string & message);
+
 namespace std {
 template <>
 struct is_error_code_enum<ErrorCodes> : true_type
@@ -23,3 +26,4 @@ struct is_error_code_enum<ErrorCodes> : true_type
 };
 }
 std::error_code make_error_code(ErrorCodes);
+
