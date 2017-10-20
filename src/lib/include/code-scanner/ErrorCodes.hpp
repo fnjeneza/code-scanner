@@ -17,7 +17,10 @@ enum class ErrorCodes
 };
 
 // Give to the user the ability to pass a custom message
+std::error_code error(const ErrorCodes & e, const std::string & message);
+
 std::error_code error(const std::string & message);
+
 
 namespace std {
 template <>

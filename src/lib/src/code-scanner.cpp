@@ -56,7 +56,7 @@ Parser::initialize(const InitializeParams &params)
     }
     catch (const std::exception &e)
     {
-        return error(e.what());
+        return error(ErrorCodes::ParserError, e.what());
     }
     return std::nullopt;
 }
