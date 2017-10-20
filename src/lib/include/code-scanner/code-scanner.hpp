@@ -29,6 +29,8 @@ class Parser
     Location references(const ReferenceParams &params);
 
   private:
+    // True if the parser is well initialized
+    bool                         m_initialized{false};
     std::unique_ptr<Parser_Impl> pimpl;
 };
 

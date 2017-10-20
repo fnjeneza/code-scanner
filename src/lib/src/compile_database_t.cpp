@@ -164,7 +164,7 @@ std::vector<std::string> compile_database_t::source_filenames()
     if (parsed_db.empty())
     {
         // empty vector
-        return std::vector<std::string>();
+        return filenames;
     }
     for (const auto &it : parsed_db)
     {

@@ -1,5 +1,6 @@
 #include "code-scanner/code-scanner.hpp"
 
+#include <experimental/filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -10,6 +11,10 @@
 #include "code-scanner/ErrorCodes.hpp"
 #include "code-scanner/Params.hpp"
 #include "utils.hpp"
+
+namespace std {
+namespace filesystem = std::experimental::filesystem;
+}
 
 namespace code {
 namespace analyzer {
@@ -42,7 +47,18 @@ Parser::initialize(const InitializeParams &params)
     in >> conf;
     try
     {
-        auto build_uri        = conf.at("build_uri");
+        auto build_uri = conf.at("build_uri").get<std::string>();
+
+        {
+            // check that compile_commands.json exists
+            auto __path =
+                std::filesystem::path(build_uri) / "compile_commands.json";
+            if (!std::filesystem::exists(__path))
+            {
+                return error(std::string(__path) + " file not exists");
+            }
+        }
+
         auto compile_commands = conf.at("compile_commands");
 
         if (!compile_commands.empty())
@@ -58,16 +74,26 @@ Parser::initialize(const InitializeParams &params)
     {
         return error(ErrorCodes::ParserError, e.what());
     }
+    // set initialized
+    m_initialized = true;
     return std::nullopt;
 }
 
 Location Parser::definition(const TextDocumentPositionParams &params)
 {
+    if (!m_initialized)
+    {
+        Location();
+    }
     return pimpl->definition(params);
 }
 
 Location Parser::references(const ReferenceParams &params)
 {
+    if (!m_initialized)
+    {
+        Location();
+    }
     return pimpl->reference(params);
 }
 

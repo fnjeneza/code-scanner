@@ -17,12 +17,12 @@ const char *ErrorCodesCategory::name() const noexcept
 std::string ErrorCodesCategory::message(int ev) const noexcept
 {
     // if any details is provided return it by default
-    if(!details.empty())
+    if (!details.empty())
     {
         auto __details = details;
         // clear details to avoid eventual misusage
         details.clear();
-      return __details;
+        return __details;
     }
 
     // return default message
@@ -60,7 +60,7 @@ std::error_code make_error_code(ErrorCodes e)
     return {static_cast<int>(e), error_codes_category};
 }
 
-std::error_code error(const ErrorCodes & e, const std::string & message)
+std::error_code error(const ErrorCodes &e, const std::string &message)
 {
     error_codes_category.details = message;
     // create and copy the error code
@@ -68,7 +68,7 @@ std::error_code error(const ErrorCodes & e, const std::string & message)
     return ec;
 }
 
-std::error_code error(const std::string & message)
+std::error_code error(const std::string &message)
 {
     return error(ErrorCodes::UnknownErrorCode, message);
 }
