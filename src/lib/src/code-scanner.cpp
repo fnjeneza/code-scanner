@@ -1,6 +1,5 @@
 #include "code-scanner/code-scanner.hpp"
 
-#include <experimental/filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,10 +10,6 @@
 #include "code-scanner/ErrorCodes.hpp"
 #include "code-scanner/Params.hpp"
 #include "utils.hpp"
-
-namespace std {
-namespace filesystem = std::experimental::filesystem;
-}
 
 namespace code {
 namespace analyzer {
@@ -47,18 +42,7 @@ Parser::initialize(const InitializeParams &params)
     in >> conf;
     try
     {
-        auto build_uri = conf.at("build_uri").get<std::string>();
-
-        {
-            // check that compile_commands.json exists
-            auto __path =
-                std::filesystem::path(build_uri) / "compile_commands.json";
-            if (!std::filesystem::exists(__path))
-            {
-                return error(std::string(__path) + " file not exists");
-            }
-        }
-
+        auto build_uri        = conf.at("build_uri").get<std::string>();
         auto compile_commands = conf.at("compile_commands");
 
         if (!compile_commands.empty())
@@ -68,7 +52,12 @@ Parser::initialize(const InitializeParams &params)
 
         using flags          = std::vector<std::string>;
         auto flags_to_ignore = conf.at("ignore_flags").get<flags>();
-        pimpl->initialize(build_uri, compile_arguments, flags_to_ignore);
+        auto ec =
+            pimpl->initialize(build_uri, compile_arguments, flags_to_ignore);
+        if (ec.has_value())
+        {
+            return ec;
+        }
     }
     catch (const std::exception &e)
     {
