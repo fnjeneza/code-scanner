@@ -21,7 +21,7 @@ Parser::Parser()
 
 Parser::~Parser() = default;
 
-std::optional<std::error_code>
+std::experimental::optional<std::error_code>
 Parser::initialize(const InitializeParams &params)
 {
     // compile arguments from initializationOptions
@@ -54,7 +54,7 @@ Parser::initialize(const InitializeParams &params)
         auto flags_to_ignore = conf.at("ignore_flags").get<flags>();
         auto ec =
             pimpl->initialize(build_uri, compile_arguments, flags_to_ignore);
-        if (ec.has_value())
+        if (ec)
         {
             return ec;
         }
@@ -65,7 +65,7 @@ Parser::initialize(const InitializeParams &params)
     }
     // set initialized
     m_initialized = true;
-    return std::nullopt;
+    return std::experimental::nullopt;
 }
 
 Location Parser::definition(const TextDocumentPositionParams &params)

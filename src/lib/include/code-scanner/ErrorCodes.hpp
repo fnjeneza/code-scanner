@@ -26,5 +26,5 @@ template <>
 struct is_error_code_enum<ErrorCodes> : true_type
 {
 };
-}
+} // namespace std
 std::error_code make_error_code(ErrorCodes);

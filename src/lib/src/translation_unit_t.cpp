@@ -19,7 +19,7 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
         return CXTranslationUnit_None;
     }
 }
-}
+} // namespace
 
 translation_unit_t::translation_unit_t(const std::string &filename)
     : m_unit{nullptr}
@@ -179,5 +179,5 @@ CXCursor translation_unit_t::cursor(const Position &position)
         clang_getLocation(m_unit, file, position.line, position.character);
     return clang_getCursor(m_unit, __location);
 }
-}
-}
+} // namespace analyzer
+} // namespace code

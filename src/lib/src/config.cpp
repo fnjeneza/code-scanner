@@ -12,11 +12,12 @@ namespace {
 static std::string __build_uri;
 static flags       __compile_commands;
 static flags       __flags_to_ignore;
-}
+} // namespace
 
-std::optional<std::error_code> config::builder(const std::string &build_uri,
-                                               const flags &compile_commands,
-                                               const flags &flags_to_ignore)
+std::experimental::optional<std::error_code>
+config::builder(const std::string &build_uri,
+                const flags &      compile_commands,
+                const flags &      flags_to_ignore)
 {
     __build_uri = build_uri;
     {
@@ -30,7 +31,7 @@ std::optional<std::error_code> config::builder(const std::string &build_uri,
     }
     __compile_commands = compile_commands;
     __flags_to_ignore  = flags_to_ignore;
-    return std::nullopt;
+    return std::experimental::nullopt;
 }
 
 flags config::flags_to_ignore() { return __flags_to_ignore; }

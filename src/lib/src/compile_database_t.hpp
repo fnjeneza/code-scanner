@@ -10,5 +10,5 @@ struct compile_database_t
 
     static std::vector<std::string> source_filenames();
 };
-}
-}
+} // namespace analyzer
+} // namespace code

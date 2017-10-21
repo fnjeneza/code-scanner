@@ -101,4 +101,4 @@ class serializer
   private:
     const std::string database_file{"code-scanner.db"};
 };
-}
+} // namespace code::analyzer

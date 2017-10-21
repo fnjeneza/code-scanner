@@ -32,12 +32,12 @@ class translation_unit_t
 
   private:
     void
-    parse(const translation_unit_flag &option = translation_unit_flag::none);
+             parse(const translation_unit_flag &option = translation_unit_flag::none);
     CXCursor cursor(const Position &position);
 
   private:
     CXTranslationUnit m_unit;
     std::string       m_filename;
 };
-}
-}
+} // namespace analyzer
+} // namespace code

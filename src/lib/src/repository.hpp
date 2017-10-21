@@ -109,4 +109,4 @@ class repository
     serializer            m_serializer{};
     std::mutex            m_mutex;
 };
-}
+} // namespace code::analyzer

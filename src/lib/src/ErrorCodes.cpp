@@ -51,7 +51,7 @@ std::string ErrorCodesCategory::message(int ev) const noexcept
         return "Unknown error code";
     }
 }
-}
+} // namespace
 
 ErrorCodesCategory error_codes_category{};
 

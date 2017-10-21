@@ -46,4 +46,4 @@ class File
     std::string      m_path{};
     mutable long int m_timestamp = 0;
 };
-}
+} // namespace code::analyzer::utils

@@ -10,13 +10,13 @@
 
 namespace code::analyzer {
 
-std::optional<std::error_code>
+std::experimental::optional<std::error_code>
 Parser_Impl::initialize(const std::string &             build_uri,
                         const std::vector<std::string> &compile_commands,
                         const std::vector<std::string> &flags_to_ignore)
 {
     auto ec = config::builder(build_uri, compile_commands, flags_to_ignore);
-    if (ec.has_value())
+    if (ec)
     {
         return ec;
     }
@@ -37,7 +37,7 @@ Parser_Impl::initialize(const std::string &             build_uri,
         }
     }
 
-    return std::nullopt;
+    return std::experimental::nullopt;
 }
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)

@@ -66,6 +66,6 @@ bool is_declaration_locate_in_other_file(CXCursor &cursor)
     CXCursor ref = clang_getCanonicalCursor(clang_getCursorReferenced(cursor));
     return location(cursor).uri != location(ref).uri;
 }
-}
-}
-}
+} // namespace utils
+} // namespace analyzer
+} // namespace code

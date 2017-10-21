@@ -1,12 +1,13 @@
 #include "compile_database_t.hpp"
 #include "config.hpp"
 #include "utils.hpp"
-#include <algorithm>
-#include <json.hpp>
 
+#include <algorithm>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
+
+#include <json.hpp>
 
 namespace std {
 namespace filesystem = std::experimental::filesystem;
@@ -132,7 +133,7 @@ bool is_source(const std::string &filename)
     }
     return false;
 }
-}
+} // namespace
 
 std::vector<std::string>
 compile_database_t::compile_commands(const std::string &filename)
@@ -171,4 +172,4 @@ std::vector<std::string> compile_database_t::source_filenames()
     }
     return filenames;
 }
-}
+} // namespace code::analyzer

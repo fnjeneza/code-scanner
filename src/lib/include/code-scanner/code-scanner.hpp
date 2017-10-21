@@ -1,7 +1,7 @@
 #pragma once
 
+#include <experimental/optional>
 #include <memory>
-#include <optional>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -24,7 +24,8 @@ class Parser
     // The initialize request is sent as the first request from the client to
     // the server
     // @return empty string if no error, error message otherwise
-    std::optional<std::error_code> initialize(const InitializeParams &params);
+    std::experimental::optional<std::error_code>
+             initialize(const InitializeParams &params);
     Location definition(const TextDocumentPositionParams &params);
     Location references(const ReferenceParams &params);
 

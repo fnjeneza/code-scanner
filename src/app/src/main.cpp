@@ -84,10 +84,10 @@ int main(int argc, char **argv)
 
     code::analyzer::Parser parser;
     auto                   error = parser.initialize(initialize_params);
-    if (error.has_value())
+    if (error)
     {
         std::cout << (*error).message() << std::endl;
-        std::cout << "server not initialized" << std::endl;
+        std::cout << "Code-analyzer not initialized" << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
