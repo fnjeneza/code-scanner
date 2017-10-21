@@ -82,7 +82,6 @@ void split_command(const std::string &command, std::vector<std::string> &flags)
             {
                 // create an absolute path
                 __command = build_dir / path;
-                std::cout << __command << std::endl;
             }
             absolutize_argument = false;
         }

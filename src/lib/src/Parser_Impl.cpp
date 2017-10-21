@@ -23,9 +23,6 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
     task_system task;
 
-    // if there are files that timestamp has expired rescan them
-    // TODO remove the constant whic force the scan
-    if (/*repository.check_file_timestamp().size()*/ 1 != 0)
     {
         auto all_filenames = compile_database_t::source_filenames();
         auto filenames     = m_repository.check_file_timestamp(all_filenames);

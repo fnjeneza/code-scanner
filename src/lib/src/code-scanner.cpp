@@ -32,13 +32,13 @@ Parser::initialize(const InitializeParams &params)
         return error("Missing initialization options");
     }
 
-    using json = nlohmann::json;
-    json          conf;
     std::ifstream in(params.initializationOptions);
     if (!in)
     {
         return error("can not open " + params.initializationOptions);
     }
+    using json = nlohmann::json;
+    json conf;
     in >> conf;
     try
     {
@@ -72,7 +72,7 @@ Location Parser::definition(const TextDocumentPositionParams &params)
 {
     if (!m_initialized)
     {
-        Location();
+        return Location();
     }
     return pimpl->definition(params);
 }
@@ -81,7 +81,7 @@ Location Parser::references(const ReferenceParams &params)
 {
     if (!m_initialized)
     {
-        Location();
+        return Location();
     }
     return pimpl->reference(params);
 }
