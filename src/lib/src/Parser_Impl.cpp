@@ -37,6 +37,9 @@ Parser_Impl::initialize(const std::string &             build_uri,
         }
     }
 
+    // serialize the ezpository
+    m_repository.serialize();
+
     return std::experimental::nullopt;
 }
 
