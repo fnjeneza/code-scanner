@@ -39,7 +39,7 @@ class translation_unit_t
     parse(const translation_unit_flag &option = translation_unit_flag::none);
 
   private:
-    std::unique_ptr<CXTranslationUnit> m_unit;
+    CXTranslationUnit m_unit;
     std::string       m_filename;
 };
 } // namespace analyzer
