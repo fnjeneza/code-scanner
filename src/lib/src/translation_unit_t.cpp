@@ -21,10 +21,18 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
 }
 } // namespace
 
-translation_unit_t::translation_unit_t(const std::string &filename)
+translation_unit_t::translation_unit_t(const std::string &filename, const bool skip_function_bodies)
     : m_unit{nullptr}
     , m_filename{filename}
 {
+    if(!skip_function_bodies)
+    {
+        parse();
+    }
+    else
+    {
+        parse(translation_unit_flag::skip_function_bodies);
+    }
 }
 
 translation_unit_t::~translation_unit_t()
@@ -77,7 +85,6 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
 
 Location translation_unit_t::definition(const Position &position)
 {
-    parse();
     auto _cursor = cursor(position);
     // search for definition
     return utils::location(clang_getCursorDefinition(_cursor));
@@ -85,7 +92,6 @@ Location translation_unit_t::definition(const Position &position)
 
 Location translation_unit_t::definition(const std::string &usr)
 {
-    parse();
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
     using Data           = std::tuple<const std::string &, Location &>;
@@ -117,14 +123,12 @@ Location translation_unit_t::definition(const std::string &usr)
 
 Location translation_unit_t::reference(const Position &position)
 {
-    parse();
     auto _cursor = cursor(position);
     return utils::location(clang_getCursorReferenced(_cursor));
 }
 
 std::string translation_unit_t::usr(const Position &position)
 {
-    parse();
     auto _cursor = cursor(position);
     return utils::to_string(
         clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
@@ -132,8 +136,6 @@ std::string translation_unit_t::usr(const Position &position)
 
 std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
 {
-    parse(translation_unit_flag::skip_function_bodies);
-
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 

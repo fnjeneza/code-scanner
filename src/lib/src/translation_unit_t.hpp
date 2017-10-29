@@ -19,7 +19,7 @@ enum class translation_unit_flag
 class translation_unit_t
 {
   public:
-    translation_unit_t(const std::string &filename);
+    translation_unit_t(const std::string &filename, const bool skip_function_bodies=false);
     ~translation_unit_t();
 
     Location definition(const Position &position);
