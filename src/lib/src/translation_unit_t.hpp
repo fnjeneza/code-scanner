@@ -1,14 +1,14 @@
 #pragma once
 
+#include <memory>
 #include <set>
 #include <string>
-#include <memory>
 
 #include "code-scanner/Location.hpp"
 #include "code-scanner/Position.hpp"
 
 struct CXTranslationUnitImpl;
-using CXTranslationUnit = CXTranslationUnitImpl*;
+using CXTranslationUnit = CXTranslationUnitImpl *;
 
 namespace code {
 namespace analyzer {
@@ -26,13 +26,13 @@ class translation_unit_t
                        const bool         skip_function_bodies = false);
     ~translation_unit_t();
 
-    Location definition(const Position &position);
-    Location definition(const std::string &usr);
-    Location reference(const Position &position);
+    Location definition(const Position &position) const;
+    Location definition(const std::string &usr) const;
+    Location reference(const Position &position) const;
 
-    std::string usr(const Position &position);
+    std::string usr(const Position &position) const;
 
-    std::set<std::string> retrieve_all_identifier_usr();
+    std::set<std::string> retrieve_all_identifier_usr() const;
 
   private:
     void

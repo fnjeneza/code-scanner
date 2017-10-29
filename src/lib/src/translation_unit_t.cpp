@@ -23,8 +23,8 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
 }
 
 CXCursor cursor(const CXTranslationUnit &unit,
-                const std::string_view &filename,
-                const Position &   position)
+                const std::string_view & filename,
+                const Position &         position)
 {
     CXFile file = clang_getFile(unit, filename.data());
     if (file == nullptr)
@@ -100,14 +100,14 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
     clang_disposeIndex(index);
 }
 
-Location translation_unit_t::definition(const Position &position)
+Location translation_unit_t::definition(const Position &position) const
 {
     auto _cursor = cursor(m_unit, m_filename, position);
     // search for definition
     return utils::location(clang_getCursorDefinition(_cursor));
 }
 
-Location translation_unit_t::definition(const std::string &usr)
+Location translation_unit_t::definition(const std::string &usr) const
 {
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
@@ -138,20 +138,20 @@ Location translation_unit_t::definition(const std::string &usr)
     return location;
 }
 
-Location translation_unit_t::reference(const Position &position)
+Location translation_unit_t::reference(const Position &position) const
 {
     auto _cursor = cursor(m_unit, m_filename, position);
     return utils::location(clang_getCursorReferenced(_cursor));
 }
 
-std::string translation_unit_t::usr(const Position &position)
+std::string translation_unit_t::usr(const Position &position) const
 {
     auto _cursor = cursor(m_unit, m_filename, position);
     return utils::to_string(
         clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
 }
 
-std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
+std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
 {
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
