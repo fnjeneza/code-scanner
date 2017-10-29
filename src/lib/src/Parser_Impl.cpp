@@ -30,8 +30,8 @@ Parser_Impl::initialize(const std::string &             build_uri,
         for (auto &file : filenames)
         {
             task.async([file, this]() {
-                auto usrs =
-                    translation_unit_t(file, true).retrieve_all_identifier_usr();
+                auto usrs = translation_unit_t(file, true)
+                                .retrieve_all_identifier_usr();
                 m_repository.emplace(file, usrs);
             });
         }

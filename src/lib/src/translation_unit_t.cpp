@@ -21,11 +21,12 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
 }
 } // namespace
 
-translation_unit_t::translation_unit_t(const std::string &filename, const bool skip_function_bodies)
+translation_unit_t::translation_unit_t(const std::string &filename,
+                                       const bool         skip_function_bodies)
     : m_unit{nullptr}
     , m_filename{filename}
 {
-    if(!skip_function_bodies)
+    if (!skip_function_bodies)
     {
         parse();
     }

@@ -159,7 +159,7 @@ compile_database_t::compile_commands(const std::string &filename)
     {
         flags = source_file_commands(filename);
     }
-    else if(is_header(filename))
+    else if (is_header(filename))
     {
         flags = header_file_commands();
     }
