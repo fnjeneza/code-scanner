@@ -1,11 +1,14 @@
 #pragma once
 
-#include <clang-c/Index.h>
 #include <set>
 #include <string>
+#include <memory>
 
 #include "code-scanner/Location.hpp"
 #include "code-scanner/Position.hpp"
+
+struct CXTranslationUnitImpl;
+using CXTranslationUnit = CXTranslationUnitImpl*;
 
 namespace code {
 namespace analyzer {
@@ -33,11 +36,10 @@ class translation_unit_t
 
   private:
     void
-             parse(const translation_unit_flag &option = translation_unit_flag::none);
-    CXCursor cursor(const Position &position);
+    parse(const translation_unit_flag &option = translation_unit_flag::none);
 
   private:
-    CXTranslationUnit m_unit;
+    std::unique_ptr<CXTranslationUnit> m_unit;
     std::string       m_filename;
 };
 } // namespace analyzer
