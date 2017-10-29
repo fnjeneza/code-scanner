@@ -133,6 +133,21 @@ bool is_source(const std::string &filename)
     }
     return false;
 }
+
+bool is_header(const std::string &filename)
+{
+    auto index = filename.rfind('.');
+    if (index == std::string::npos)
+    {
+        return false;
+    }
+    auto ext = filename.substr(index);
+    if (ext == ".hpp" || ext == ".hxx" || ext == ".hh" || ext == ".h")
+    {
+        return true;
+    }
+    return false;
+}
 } // namespace
 
 std::vector<std::string>
@@ -144,7 +159,7 @@ compile_database_t::compile_commands(const std::string &filename)
     {
         flags = source_file_commands(filename);
     }
-    else
+    else if(is_header(filename))
     {
         flags = header_file_commands();
     }
