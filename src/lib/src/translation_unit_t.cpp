@@ -4,6 +4,8 @@
 #include <iostream>
 #include <tuple>
 
+#include <clang-c/Index.h>
+
 namespace code {
 namespace analyzer {
 
@@ -18,6 +20,20 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
     default:
         return CXTranslationUnit_None;
     }
+}
+
+CXCursor cursor(const CXTranslationUnit &unit,
+                const std::string_view &filename,
+                const Position &   position)
+{
+    CXFile file = clang_getFile(unit, filename.data());
+    if (file == nullptr)
+    {
+        return clang_getNullCursor();
+    }
+    CXSourceLocation __location =
+        clang_getLocation(unit, file, position.line, position.character);
+    return clang_getCursor(unit, __location);
 }
 } // namespace
 
@@ -86,7 +102,7 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
 
 Location translation_unit_t::definition(const Position &position)
 {
-    auto _cursor = cursor(position);
+    auto _cursor = cursor(m_unit, m_filename, position);
     // search for definition
     return utils::location(clang_getCursorDefinition(_cursor));
 }
@@ -124,13 +140,13 @@ Location translation_unit_t::definition(const std::string &usr)
 
 Location translation_unit_t::reference(const Position &position)
 {
-    auto _cursor = cursor(position);
+    auto _cursor = cursor(m_unit, m_filename, position);
     return utils::location(clang_getCursorReferenced(_cursor));
 }
 
 std::string translation_unit_t::usr(const Position &position)
 {
-    auto _cursor = cursor(position);
+    auto _cursor = cursor(m_unit, m_filename, position);
     return utils::to_string(
         clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
 }
@@ -171,16 +187,5 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr()
     return identifiers;
 }
 
-CXCursor translation_unit_t::cursor(const Position &position)
-{
-    CXFile file = clang_getFile(m_unit, m_filename.c_str());
-    if (file == nullptr)
-    {
-        return clang_getNullCursor();
-    }
-    CXSourceLocation __location =
-        clang_getLocation(m_unit, file, position.line, position.character);
-    return clang_getCursor(m_unit, __location);
-}
 } // namespace analyzer
 } // namespace code
