@@ -5,13 +5,14 @@
 #include <string>
 
 #include "code-scanner/Location.hpp"
-#include "code-scanner/Position.hpp"
 
 struct CXTranslationUnitImpl;
 using CXTranslationUnit = CXTranslationUnitImpl *;
 
 namespace code {
 namespace analyzer {
+
+struct Position;
 
 enum class translation_unit_flag
 {
@@ -22,9 +23,12 @@ enum class translation_unit_flag
 class translation_unit_t
 {
   public:
+    translation_unit_t() = default;
     translation_unit_t(const std::string &filename,
                        const bool         skip_function_bodies = false);
     ~translation_unit_t();
+
+    void filename(const std::string_view &filename);
 
     Location definition(const Position &position) const;
     Location definition(const std::string &usr) const;
@@ -39,7 +43,7 @@ class translation_unit_t
     parse(const translation_unit_flag &option = translation_unit_flag::none);
 
   private:
-    CXTranslationUnit m_unit;
+    CXTranslationUnit m_unit = nullptr;
     std::string       m_filename;
 };
 } // namespace analyzer

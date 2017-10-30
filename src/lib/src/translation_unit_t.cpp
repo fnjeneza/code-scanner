@@ -1,4 +1,5 @@
 #include "translation_unit_t.hpp"
+#include "code-scanner/Position.hpp"
 #include "compile_database_t.hpp"
 #include "utils.hpp"
 #include <iostream>
@@ -39,8 +40,7 @@ CXCursor cursor(const CXTranslationUnit &unit,
 
 translation_unit_t::translation_unit_t(const std::string &filename,
                                        const bool         skip_function_bodies)
-    : m_unit{nullptr}
-    , m_filename{filename}
+    : m_filename{filename}
 {
     if (!skip_function_bodies)
     {
@@ -55,6 +55,15 @@ translation_unit_t::translation_unit_t(const std::string &filename,
 translation_unit_t::~translation_unit_t()
 {
     clang_disposeTranslationUnit(m_unit);
+}
+
+void translation_unit_t::filename(const std::string_view &filename)
+{
+    if (m_filename != filename)
+    {
+        m_filename = filename;
+        parse();
+    }
 }
 
 void translation_unit_t::parse(const translation_unit_flag &opt)

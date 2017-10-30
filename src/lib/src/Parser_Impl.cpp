@@ -37,7 +37,7 @@ Parser_Impl::initialize(const std::string &             build_uri,
         }
     }
 
-    // serialize the ezpository
+    // serialize the repository
     m_repository.serialize();
 
     return std::experimental::nullopt;
@@ -45,11 +45,11 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    auto     tu       = translation_unit_t(params.textDocument.uri);
-    Location location = tu.definition(params.position);
+    m_tu.filename(params.textDocument.uri);
+    Location location = m_tu.definition(params.position);
     if (!location.is_valid())
     {
-        auto usr = tu.usr(params.position);
+        auto usr = m_tu.usr(params.position);
         // search in repository
         auto defs = m_repository.definitions(usr);
 
@@ -67,8 +67,8 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 
 Location Parser_Impl::reference(const TextDocumentPositionParams &params)
 {
-    Location location =
-        translation_unit_t(params.textDocument.uri).reference(params.position);
+    m_tu.filename(params.textDocument.uri);
+    Location location = m_tu.reference(params.position);
     return location;
 }
 

@@ -55,13 +55,13 @@ Location location(const CXCursor &cursor)
     return Location(_filename, line, column);
 }
 
-bool is_identifier(CXCursor &cursor)
+bool is_identifier(const CXCursor &cursor)
 {
     CXCursorKind kind = clang_getCursorKind(cursor);
     return (CXCursor_CXXMethod == kind || CXCursor_FunctionDecl == kind);
 }
 
-bool is_declaration_locate_in_other_file(CXCursor &cursor)
+bool is_declaration_locate_in_other_file(const CXCursor &cursor)
 {
     CXCursor ref = clang_getCanonicalCursor(clang_getCursorReferenced(cursor));
     return location(cursor).uri != location(ref).uri;

@@ -5,11 +5,10 @@
 #include <system_error>
 #include <vector>
 
-#include <clang-c/Index.h>
-
 #include "code-scanner/Location.hpp"
 #include "code-scanner/Params.hpp"
 #include "repository.hpp"
+#include "translation_unit_t.hpp"
 
 namespace code::analyzer {
 
@@ -29,6 +28,7 @@ class Parser_Impl
 
   private:
     repository<std::string> m_repository;
+    translation_unit_t      m_tu;
 };
 
 } // namespace code::analyzer
