@@ -33,7 +33,7 @@ json database()
     return parsed_db;
 }
 
-std::string read_compile_commands(const std::string &filename)
+std::string read_compile_commands(const std::string_view &filename)
 {
     auto parsed_db = database();
     if (parsed_db.empty())
@@ -43,7 +43,7 @@ std::string read_compile_commands(const std::string &filename)
     // search compile commands associated to the filename
     for (const auto &it : parsed_db)
     {
-        if (it["file"] == filename)
+        if (it["file"] == filename.data())
         {
             return it["command"];
         }
@@ -100,7 +100,7 @@ void split_command(const std::string &command, std::vector<std::string> &flags)
     }
 }
 
-std::vector<std::string> source_file_commands(const std::string &filename)
+std::vector<std::string> source_file_commands(const std::string_view &filename)
 {
     std::vector<std::string> flags = config::compile_commands();
     split_command(read_compile_commands(filename), flags);
@@ -119,14 +119,10 @@ std::vector<std::string> header_file_commands()
     return flags;
 }
 
-bool is_source(const std::string &filename)
+bool is_source(const std::string_view &filename)
 {
-    auto index = filename.rfind('.');
-    if (index == std::string::npos)
-    {
-        return false;
-    }
-    auto ext = filename.substr(index);
+
+    auto ext = std::experimental::filesystem::path(filename).extension();
     if (ext == ".cpp" || ext == ".cxx" || ext == ".cc" || ext == ".c")
     {
         return true;
@@ -134,14 +130,9 @@ bool is_source(const std::string &filename)
     return false;
 }
 
-bool is_header(const std::string &filename)
+bool is_header(const std::string_view &filename)
 {
-    auto index = filename.rfind('.');
-    if (index == std::string::npos)
-    {
-        return false;
-    }
-    auto ext = filename.substr(index);
+    auto ext = std::experimental::filesystem::path(filename).extension();
     if (ext == ".hpp" || ext == ".hxx" || ext == ".hh" || ext == ".h")
     {
         return true;
@@ -151,7 +142,7 @@ bool is_header(const std::string &filename)
 } // namespace
 
 std::vector<std::string>
-compile_database_t::compile_commands(const std::string &filename)
+compile_database_t::compile_commands(const std::string_view &filename)
 {
     std::vector<std::string> flags;
 
