@@ -1,17 +1,13 @@
 #include "compile_database_t.hpp"
 #include "config.hpp"
+#include "filesystem.hpp"
 #include "utils.hpp"
 
 #include <algorithm>
-#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
 
 #include <json.hpp>
-
-namespace std {
-namespace filesystem = std::experimental::filesystem;
-}
 
 namespace code::analyzer {
 namespace {
@@ -21,7 +17,7 @@ json database()
 
     json parsed_db;
     // compile_commands.json file
-    std::string source =
+    const std::string source =
         std::filesystem::path(config::build_uri()) / "compile_commands.json";
     std::ifstream db_file(source.c_str());
     if (!db_file)
@@ -139,7 +135,78 @@ bool is_header(const std::string_view &filename)
     }
     return false;
 }
+
+// return the last write timestamp
+long int last_write_time(const std::string_view &filename)
+{
+    auto time = std::filesystem::last_write_time(filename);
+    return decltype(time)::clock::to_time_t(time);
+}
 } // namespace
+
+compile_database_t::compile_database_t(const std::string_view &directory)
+    : m_compile_commands_json_db{
+          std::string(std::filesystem::path(std::string(directory)) /
+                      "compile_commands.json")}
+{
+    if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
+        m_timestamp != current_timestamp)
+    {
+        // (re)parse the compile commands file
+        parse_compile_commands();
+        m_timestamp = current_timestamp;
+    }
+}
+
+    std::vector<const Command_ptr>
+ compile_database_t::compile_commands2(const std::string_view &filename)
+{
+    if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
+        m_timestamp != current_timestamp)
+    {
+        // (re)parse the compile commands file
+        parse_compile_commands();
+        m_timestamp = current_timestamp;
+    }
+
+    auto _it = m_compile_commands.find(filename);
+
+    std::vector<const Command_ptr> ret;
+    if(_it!= std::end(m_compile_commands))
+    {
+        for(const auto & dir_command:_it->m_directory_commands)
+        {
+            ret.push_back(&dir_command.m_command);
+        }
+
+    }
+    return ret;
+}
+
+// parse the compile commands
+void compile_database_t::parse_compile_commands() noexcept
+{
+    auto parsed_db = database();
+    if (parsed_db.empty())
+    {
+        return;
+    }
+    for (const auto &it : parsed_db)
+    {
+        try
+        {
+            auto _command =
+                compile_command(it.at("directory").get<std::string>(),
+                                it.at("command").get<std::string>(),
+                                it.at("file").get<std::string>());
+            // add the compile commands for the file
+            m_compile_commands.emplace(_command);
+        }
+        catch (...)
+        {
+        }
+    }
+}
 
 std::vector<std::string>
 compile_database_t::compile_commands(const std::string_view &filename)

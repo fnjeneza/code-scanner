@@ -6,9 +6,12 @@
 #include "config.hpp"
 #include "repository.hpp"
 #include "task_system.hpp"
-#include "translation_unit_t.hpp"
+#include <iostream>
 
 namespace code::analyzer {
+
+Parser_Impl::Parser_Impl()  = default;
+Parser_Impl::~Parser_Impl() = default;
 
 std::experimental::optional<std::error_code>
 Parser_Impl::initialize(const std::string &             build_uri,
@@ -16,6 +19,7 @@ Parser_Impl::initialize(const std::string &             build_uri,
                         const std::vector<std::string> &flags_to_ignore)
 {
     auto ec = config::builder(build_uri, compile_commands, flags_to_ignore);
+    m_compile_db = std::make_unique<compile_database_t>(build_uri);
     if (ec)
     {
         return ec;
@@ -25,7 +29,20 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
     {
         auto all_filenames = compile_database_t::source_filenames();
-        auto filenames     = m_repository.check_file_timestamp(all_filenames);
+        // std::vector<std::string> _all_filenames;
+        // for (const auto &command : m_compile_db->m_compile_commands)
+        // {
+        //     std::cout << command.m_file << std::endl;
+        //     _all_filenames.push_back(command.m_file);
+        // }
+        // std::cout << "***********************\n";
+        // for(auto & file: all_filenames)
+        // {
+        //     std::cout << file << std::endl;
+        // }
+        // std::cout << all_filenames.size() << std::endl;
+        // std::cout << _all_filenames.size() << std::endl;
+        auto filenames = m_repository.check_file_timestamp(all_filenames);
 
         for (auto &file : filenames)
         {
@@ -45,6 +62,16 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
+    // {
+    //     compile_database_t cdb(config::build_uri());
+    //     auto               commands = cdb.compile_commands2(
+    //         "/tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp");
+    //     std::cout << commands.size() << std::endl;
+    //     for (auto &i : commands)
+    //     {
+    //         std::cout << i << std::endl;
+    //     }
+    // }
     m_tu.filename(params.textDocument.uri);
     Location location = m_tu.definition(params.position);
     if (!location.is_valid())
