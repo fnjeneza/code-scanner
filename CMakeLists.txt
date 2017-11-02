@@ -14,8 +14,3 @@ add_compile_options(
 
 add_subdirectory(src/lib)
 add_subdirectory(src/app)
-
-option(TEST "Run tests" off)
-if(TEST)
-    add_subdirectory(tests)
-endif()

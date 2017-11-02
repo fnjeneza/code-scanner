@@ -1,0 +1,229 @@
+[
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/src/code_generators.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/code_generators.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/code_generators.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/src/idl_parser.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/src/idl_gen_text.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/src/reflection.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/reflection.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/reflection.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/src/util.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/util.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/util.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/src/idl_gen_fbs.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_fbs.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_fbs.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++   -DFLATBUFFERS_DEBUG_VERIFICATION_FAILURE=1 -DFLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flattests.dir/tests/test.cpp.o -c /tmp/cpp-lsp/flatbuffers/tests/test.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/tests/test.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/code_generators.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/code_generators.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/code_generators.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_parser.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_text.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/reflection.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/reflection.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/reflection.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/util.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/util.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/util.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_cpp.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_cpp.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_cpp.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_general.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_general.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_general.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_go.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_go.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_go.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_js.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_js.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_js.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_php.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_php.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_php.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_python.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_python.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_python.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_fbs.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_fbs.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_fbs.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_grpc.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_grpc.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_grpc.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/idl_gen_json_schema.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_json_schema.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_json_schema.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/flatc.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/flatc.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/flatc.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/src/flatc_main.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/flatc_main.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/flatc_main.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/grpc/src/compiler/cpp_generator.cc.o -c /tmp/cpp-lsp/flatbuffers/grpc/src/compiler/cpp_generator.cc",
+  "file": "/tmp/cpp-lsp/flatbuffers/grpc/src/compiler/cpp_generator.cc"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatc.dir/grpc/src/compiler/go_generator.cc.o -c /tmp/cpp-lsp/flatbuffers/grpc/src/compiler/go_generator.cc",
+  "file": "/tmp/cpp-lsp/flatbuffers/grpc/src/compiler/go_generator.cc"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatbuffers.dir/src/code_generators.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/code_generators.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/code_generators.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatbuffers.dir/src/idl_parser.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatbuffers.dir/src/idl_gen_text.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatbuffers.dir/src/reflection.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/reflection.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/reflection.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatbuffers.dir/src/util.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/util.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/util.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsamplebinary.dir/samples/sample_binary.cpp.o -c /tmp/cpp-lsp/flatbuffers/samples/sample_binary.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/samples/sample_binary.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flathash.dir/src/flathash.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/flathash.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/flathash.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsampletext.dir/src/code_generators.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/code_generators.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/code_generators.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsampletext.dir/src/idl_parser.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsampletext.dir/src/idl_gen_text.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/idl_gen_text.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsampletext.dir/src/reflection.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/reflection.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/reflection.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsampletext.dir/src/util.cpp.o -c /tmp/cpp-lsp/flatbuffers/src/util.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/src/util.cpp"
+},
+
+{
+  "directory": "/tmp/cpp-lsp/flatbuffers/build",
+  "command": "/usr/bin/c++    -I../include -I../grpc -Itests -Isamples   -std=c++0x -Wall -pedantic -Werror -Wextra -Werror=shadow -fsigned-char   -o CMakeFiles/flatsampletext.dir/samples/sample_text.cpp.o -c /tmp/cpp-lsp/flatbuffers/samples/sample_text.cpp",
+  "file": "/tmp/cpp-lsp/flatbuffers/samples/sample_text.cpp"
+}
+]

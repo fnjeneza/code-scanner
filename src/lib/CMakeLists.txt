@@ -66,3 +66,8 @@ target_link_libraries(code-scanner
     PRIVATE "stdc++fs"
     PRIVATE pthread
 )
+
+option(TEST "Run tests" off)
+if(TEST)
+    add_subdirectory(test)
+endif()
