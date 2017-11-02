@@ -9,24 +9,24 @@
 #include "filesystem.hpp"
 
 namespace code::analyzer {
-using Command = std::vector<std::string>;
+using command_t = std::vector<std::string>;
 
 struct compile_command
 {
     compile_command(const std::string_view &file)
+        : m_file{std::string(std::filesystem::canonical(file))}
     {
-        m_file = std::filesystem::canonical(file);
     }
 
     compile_command(const std::string_view &directory,
                     const std::string_view &command,
                     const std::string_view &file)
+        : m_file{std::string(std::filesystem::canonical(file))}
+        , m_directory{std::string(std::filesystem::canonical(directory))}
     {
-        m_directory = std::filesystem::canonical(directory);
-        m_file      = std::filesystem::canonical(file);
-        m_command   = utils::split(command.data());
-        normalize_command();
+        m_command = utils::split(command);
     }
+
     ~compile_command() = default;
 
     // Normalizing command is the action by which all path are canonicalized
@@ -35,12 +35,13 @@ struct compile_command
         bool absolutize_argument = false;
         // remove the compiler binary name
         // m_command.erase(std::begin(m_command));
-        auto canonical = [this](const std::string_view &filename) {
+        auto canonical = [this](const std::string_view &filename,
+                                const std::string_view &directory) {
             auto _filename = std::filesystem::path(filename);
             if (_filename.is_relative())
             {
                 // create an absolute path
-                _filename = m_directory / _filename;
+                _filename = directory / _filename;
                 // ensure there is no link directory in the name by
                 // canonicalization
                 // TODO can throw
@@ -59,14 +60,14 @@ struct compile_command
             if (__command.substr(0, 2) == "-I")
             {
                 auto path = std::filesystem::path(__command.substr(2));
-                path      = canonical(path.c_str());
+                path      = canonical(path.c_str(), m_directory);
                 // use canonical path
                 __command = "-I" + std::string(path);
             }
             if (absolutize_argument)
             {
                 auto path           = std::filesystem::path(__command);
-                path                = canonical(path.c_str());
+                path                = canonical(path.c_str(), m_directory);
                 absolutize_argument = false;
             }
             if (__command.substr(0, 8) == "-isystem")
@@ -83,9 +84,11 @@ struct compile_command
         }
     }
 
-    std::string m_directory;
-    Command     m_command;
     std::string m_file;
+    // compile directory of the file
+    std::string m_directory;
+    // compile comand arguments
+    command_t m_command;
 };
 } // namespace code::analyzer
 

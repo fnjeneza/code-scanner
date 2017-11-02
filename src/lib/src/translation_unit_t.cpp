@@ -69,6 +69,7 @@ void translation_unit_t::filename(const std::string_view &filename)
 void translation_unit_t::parse(const translation_unit_flag &opt)
 {
     auto __flags = compile_database_t::compile_commands(m_filename);
+
     // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
     for (const auto &flag : __flags)

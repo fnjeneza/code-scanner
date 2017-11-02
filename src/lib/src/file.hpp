@@ -1,12 +1,9 @@
 #pragma once
 
-#include <experimental/filesystem>
 #include <functional>
 #include <string>
 
-namespace std {
-namespace filesystem = std::experimental::filesystem;
-}
+#include "filesystem.hpp"
 
 namespace code::analyzer::utils {
 

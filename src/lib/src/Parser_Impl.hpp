@@ -1,6 +1,7 @@
 #pragma once
 
 #include <experimental/optional>
+#include <memory>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -11,12 +12,13 @@
 #include "translation_unit_t.hpp"
 
 namespace code::analyzer {
+struct compile_database_t;
 
 class Parser_Impl
 {
   public:
-    Parser_Impl()  = default;
-    ~Parser_Impl() = default;
+    Parser_Impl();
+    ~Parser_Impl();
 
     std::experimental::optional<std::error_code>
     initialize(const std::string &             build_uri,
@@ -27,8 +29,9 @@ class Parser_Impl
     Location reference(const TextDocumentPositionParams &params);
 
   private:
-    repository<std::string> m_repository;
-    translation_unit_t      m_tu;
+    repository<std::string>             m_repository;
+    translation_unit_t                  m_tu;
+    std::unique_ptr<compile_database_t> m_compile_db;
 };
 
 } // namespace code::analyzer

@@ -9,7 +9,7 @@
 namespace code {
 namespace analyzer {
 namespace utils {
-std::vector<std::string> split(const std::string &argument);
+std::vector<std::string> split(const std::string_view &argument);
 std::string              to_string(const CXString &cx_str);
 Location                 location(const CXCursor &cursor);
 bool                     is_identifier(const CXCursor &cursor);

@@ -43,7 +43,7 @@ Parser::initialize(const InitializeParams &params)
     try
     {
         auto build_uri        = conf.at("build_uri").get<std::string>();
-        auto compile_commands = conf.at("compile_commands");
+        auto compile_commands = conf.at("compile_commands").get<std::string>();
 
         if (!compile_commands.empty())
         {
