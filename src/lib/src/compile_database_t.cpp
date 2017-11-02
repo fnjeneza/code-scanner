@@ -158,8 +158,8 @@ compile_database_t::compile_database_t(const std::string_view &directory)
     }
 }
 
-    std::vector<const Command_ptr>
- compile_database_t::compile_commands2(const std::string_view &filename)
+std::vector<command_t>
+compile_database_t::compile_commands2(const std::string_view &filename)
 {
     if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
         m_timestamp != current_timestamp)
@@ -169,17 +169,15 @@ compile_database_t::compile_database_t(const std::string_view &directory)
         m_timestamp = current_timestamp;
     }
 
-    auto _it = m_compile_commands.find(filename);
-
-    std::vector<const Command_ptr> ret;
-    if(_it!= std::end(m_compile_commands))
+    std::vector<command_t> ret;
+    for (const auto &cmd : m_compile_commands)
     {
-        for(const auto & dir_command:_it->m_directory_commands)
+        if (cmd.m_file == filename)
         {
-            ret.push_back(&dir_command.m_command);
+            ret.push_back(cmd.m_command);
         }
-
     }
+
     return ret;
 }
 
@@ -200,7 +198,7 @@ void compile_database_t::parse_compile_commands() noexcept
                                 it.at("command").get<std::string>(),
                                 it.at("file").get<std::string>());
             // add the compile commands for the file
-            m_compile_commands.emplace(_command);
+            m_compile_commands.push_back(_command);
         }
         catch (...)
         {

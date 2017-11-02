@@ -1,10 +1,10 @@
 #include "compile_command.hpp"
-#include <set>
 #include <string>
 #include <vector>
 
 namespace code::analyzer {
 
+using command_t = std::vector<std::string>;
 struct compile_database_t
 {
     compile_database_t() = delete;
@@ -17,13 +17,12 @@ struct compile_database_t
     static std::vector<std::string> source_filenames();
 
     // retrieve the compile commands for a given filename
-    std::vector<const Command_ptr>
-             compile_commands2(const std::string_view &filename);
-    void parse_compile_commands() noexcept;
+    std::vector<command_t> compile_commands2(const std::string_view &filename);
+    void                   parse_compile_commands() noexcept;
 
     // build dir filename
-    std::string               m_compile_commands_json_db;
-    long int                  m_timestamp = 0;
-    std::set<compile_command> m_compile_commands;
+    std::string                  m_compile_commands_json_db;
+    long int                     m_timestamp = 0;
+    std::vector<compile_command> m_compile_commands;
 };
 } // namespace code::analyzer
