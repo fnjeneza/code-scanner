@@ -68,21 +68,21 @@ class repository
     // Check if a file has been processed based on its timestamp.
     // If timestamp is less than the current given in argument  or timestamp
     // not present, add it to the returned container
-    using Filenames = std::vector<std::string>;
-    Filenames check_file_timestamp(const Filenames &filenames)
+    template<typename Sequence>
+    Sequence check_file_timestamp(const Sequence &filenames)
     {
         // compare each filename from filenames within the filename stored in
         // m_files. If timestamp is different add the filename in the vector to
         // return
-        Filenames __ret;
+        Sequence __ret;
         for (auto &file : filenames)
         {
             utils::File __current(file);
             auto        it = std::find_if(
-                std::begin(m_files), std::end(m_files), [&](auto &__stored) {
+                std::cbegin(m_files), std::cend(m_files), [&](auto &__stored) {
                     return __stored.path() == file;
                 });
-            if (it != std::end(m_files))
+            if (it != std::cend(m_files))
             {
                 if (it->timestamp() < __current.timestamp())
                 {

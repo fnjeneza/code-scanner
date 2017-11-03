@@ -39,13 +39,13 @@ struct less<T>
         else
         {
 
-        for (std::size_t i = 0; i < lhs.m_command.size(); ++i)
-        {
-            if (lhs.m_command[i] < rhs.m_command[i])
+            for (std::size_t i = 0; i < lhs.m_command.size(); ++i)
             {
-                return true;
+                if (lhs.m_command[i] < rhs.m_command[i])
+                {
+                    return true;
+                }
             }
-        }
         }
         return false;
     }

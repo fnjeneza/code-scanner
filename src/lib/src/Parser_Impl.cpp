@@ -29,19 +29,7 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
     {
         auto all_filenames = compile_database_t::source_filenames();
-        // std::vector<std::string> _all_filenames;
-        // for (const auto &command : m_compile_db->m_compile_commands)
-        // {
-        //     std::cout << command.m_file << std::endl;
-        //     _all_filenames.push_back(command.m_file);
-        // }
-        // std::cout << "***********************\n";
-        // for(auto & file: all_filenames)
-        // {
-        //     std::cout << file << std::endl;
-        // }
-        // std::cout << all_filenames.size() << std::endl;
-        // std::cout << _all_filenames.size() << std::endl;
+        // auto temp = m_compile_db.all_compile_commands();
         auto filenames = m_repository.check_file_timestamp(all_filenames);
 
         for (auto &file : filenames)

@@ -1,7 +1,9 @@
+#pragma once
+
 #include "compile_command.hpp"
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 namespace code::analyzer {
 
@@ -18,12 +20,21 @@ struct compile_database_t
     static std::vector<std::string> source_filenames();
 
     // retrieve the compile commands for a given filename
+    // a file can have multiple compile command
     std::vector<command_t> compile_commands2(const std::string_view &filename);
-    void                   parse_compile_commands() noexcept;
+
+    // return all compile command available
+    // One file can have multiple compile command
+    std::set<compile_command> all_compile_commands() const noexcept
+    {
+        return m_compile_commands;
+    }
+
+    void parse_compile_commands() noexcept;
 
     // build dir filename
-    std::string                  m_compile_commands_json_db;
-    long int                     m_timestamp = 0;
+    std::string               m_compile_commands_json_db;
+    long int                  m_timestamp = 0;
     std::set<compile_command> m_compile_commands;
 };
 } // namespace code::analyzer
