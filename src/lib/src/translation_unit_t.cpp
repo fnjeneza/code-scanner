@@ -38,9 +38,9 @@ CXCursor cursor(const CXTranslationUnit &unit,
 }
 } // namespace
 
-translation_unit_t::translation_unit_t(const std::string &filename,
-                                       const bool         skip_function_bodies)
-    : m_filename{filename}
+translation_unit_t::translation_unit_t(const compile_command &cmd,
+                                       const bool skip_function_bodies)
+    : m_compile_cmd{cmd}
 {
     if (!skip_function_bodies)
     {
@@ -57,18 +57,18 @@ translation_unit_t::~translation_unit_t()
     clang_disposeTranslationUnit(m_unit);
 }
 
-void translation_unit_t::filename(const std::string_view &filename)
+void translation_unit_t::compile_cmd(const compile_command &cmd)
 {
-    if (m_filename != filename)
+    if (m_compile_cmd != cmd)
     {
-        m_filename = filename;
+        m_compile_cmd = cmd;
         parse();
     }
 }
 
 void translation_unit_t::parse(const translation_unit_flag &opt)
 {
-    auto __flags = compile_database_t::compile_commands(m_filename);
+    auto &__flags = m_compile_cmd.m_command;
 
     // convert to "const char *" understable by parseTranslationUnit
     std::vector<const char *> flags;
@@ -82,7 +82,7 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
 
     auto error =
         clang_parseTranslationUnit2FullArgv(index,
-                                            m_filename.c_str(),
+                                            m_compile_cmd.m_file.c_str(),
                                             flags.data(),
                                             static_cast<int>(flags.size()),
                                             nullptr,
@@ -112,7 +112,7 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
 
 Location translation_unit_t::definition(const Position &position) const
 {
-    auto _cursor = cursor(m_unit, m_filename, position);
+    auto _cursor = cursor(m_unit, m_compile_cmd.m_file, position);
     // search for definition
     return utils::location(clang_getCursorDefinition(_cursor));
 }
@@ -150,13 +150,13 @@ Location translation_unit_t::definition(const std::string &usr) const
 
 Location translation_unit_t::reference(const Position &position) const
 {
-    auto _cursor = cursor(m_unit, m_filename, position);
+    auto _cursor = cursor(m_unit, m_compile_cmd.m_file, position);
     return utils::location(clang_getCursorReferenced(_cursor));
 }
 
 std::string translation_unit_t::usr(const Position &position) const
 {
-    auto _cursor = cursor(m_unit, m_filename, position);
+    auto _cursor = cursor(m_unit, m_compile_cmd.m_file, position);
     return utils::to_string(
         clang_getCursorUSR(clang_getCursorReferenced(_cursor)));
 }
@@ -168,7 +168,7 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
 
     std::set<std::string> identifiers;
     using data = std::tuple<const std::string &, std::set<std::string> &>;
-    data _data{m_filename, identifiers};
+    data _data{m_compile_cmd.m_file, identifiers};
 
     clang_visitChildren(
         unit_cursor,

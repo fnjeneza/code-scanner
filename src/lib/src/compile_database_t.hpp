@@ -1,9 +1,10 @@
 #pragma once
 
-#include "compile_command.hpp"
 #include <set>
 #include <string>
 #include <vector>
+
+#include "compile_command.hpp"
 
 namespace code::analyzer {
 
@@ -21,7 +22,8 @@ struct compile_database_t
 
     // retrieve the compile commands for a given filename
     // a file can have multiple compile command
-    std::vector<command_t> compile_commands2(const std::string_view &filename);
+    std::vector<compile_command>
+    compile_commands2(const std::string_view &filename);
 
     // return all compile command available
     // One file can have multiple compile command

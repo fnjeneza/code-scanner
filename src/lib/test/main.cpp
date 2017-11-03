@@ -35,7 +35,7 @@ TEST_CASE("no_empty_command", "[compile_command]")
 
     for (const auto &cmd : cmds)
     {
-        for (const auto &argument : cmd)
+        for (const auto &argument : cmd.m_command)
         {
             REQUIRE(argument.empty() == false);
         }

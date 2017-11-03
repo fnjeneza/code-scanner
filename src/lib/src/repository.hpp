@@ -68,19 +68,19 @@ class repository
     // Check if a file has been processed based on its timestamp.
     // If timestamp is less than the current given in argument  or timestamp
     // not present, add it to the returned container
-    template<typename Sequence>
-    Sequence check_file_timestamp(const Sequence &filenames)
+    template <typename Sequence>
+    Sequence check_file_timestamp(const Sequence &compile_cmd)
     {
         // compare each filename from filenames within the filename stored in
         // m_files. If timestamp is different add the filename in the vector to
         // return
         Sequence __ret;
-        for (auto &file : filenames)
+        for (auto &cmd : compile_cmd)
         {
-            utils::File __current(file);
+            utils::File __current(cmd.m_file);
             auto        it = std::find_if(
                 std::cbegin(m_files), std::cend(m_files), [&](auto &__stored) {
-                    return __stored.path() == file;
+                    return __stored.path() == cmd.m_file;
                 });
             if (it != std::cend(m_files))
             {
@@ -88,14 +88,14 @@ class repository
                 {
                     // if the stored parse date is older than the current one,
                     // add it to return container in order to be parsed
-                    __ret.emplace_back(file);
+                    __ret.emplace_back(cmd.m_file);
                 }
             }
             else
             {
                 // if the file is not found in the container, add it in the
                 // container to return in order to be parsed
-                __ret.emplace_back(file);
+                __ret.emplace_back(cmd.m_file);
             }
         }
         return __ret;

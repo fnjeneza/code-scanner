@@ -5,6 +5,7 @@
 #include <string>
 
 #include "code-scanner/Location.hpp"
+#include "compile_command.hpp"
 
 struct CXTranslationUnitImpl;
 using CXTranslationUnit = CXTranslationUnitImpl *;
@@ -24,11 +25,11 @@ class translation_unit_t
 {
   public:
     translation_unit_t() = default;
-    translation_unit_t(const std::string &filename,
-                       const bool         skip_function_bodies = false);
+    translation_unit_t(const compile_command &cmd,
+                       const bool             skip_function_bodies = false);
     ~translation_unit_t();
 
-    void filename(const std::string_view &filename);
+    void compile_cmd(const compile_command &compile_cmd);
 
     Location definition(const Position &position) const;
     Location definition(const std::string &usr) const;
@@ -44,7 +45,7 @@ class translation_unit_t
 
   private:
     CXTranslationUnit m_unit = nullptr;
-    std::string       m_filename;
+    compile_command   m_compile_cmd;
 };
 } // namespace analyzer
 } // namespace code

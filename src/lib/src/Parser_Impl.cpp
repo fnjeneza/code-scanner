@@ -28,16 +28,17 @@ Parser_Impl::initialize(const std::string &             build_uri,
     task_system task;
 
     {
-        auto all_filenames = compile_database_t::source_filenames();
-        // auto temp = m_compile_db.all_compile_commands();
-        auto filenames = m_repository.check_file_timestamp(all_filenames);
+        // auto all_filenames = compile_database_t::source_filenames();
+        auto all_filenames = m_compile_db->all_compile_commands();
+        // auto filenames = m_repository.check_file_timestamp(all_filenames);
 
-        for (auto &file : filenames)
+        // TODO call commands
+        for (auto &cmd : all_filenames)
         {
-            task.async([file, this]() {
-                auto usrs = translation_unit_t(file, true)
-                                .retrieve_all_identifier_usr();
-                m_repository.emplace(file, usrs);
+            task.async([cmd, this]() {
+                auto usrs =
+                    translation_unit_t(cmd, true).retrieve_all_identifier_usr();
+                m_repository.emplace(cmd.m_file, usrs);
             });
         }
     }
@@ -60,7 +61,10 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
     //         std::cout << i << std::endl;
     //     }
     // }
-    m_tu.filename(params.textDocument.uri);
+    auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
+
+    // TODO handle all compile cmds
+    m_tu.compile_cmd(cmds[0]);
     Location location = m_tu.definition(params.position);
     if (!location.is_valid())
     {
@@ -70,7 +74,8 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 
         for (auto def : defs)
         {
-            location = translation_unit_t(def).definition(usr);
+            // TODO handle multiple compile commands
+            location = translation_unit_t(cmds[0]).definition(usr);
             if (location.is_valid())
             {
                 return location;
@@ -82,7 +87,10 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 
 Location Parser_Impl::reference(const TextDocumentPositionParams &params)
 {
-    m_tu.filename(params.textDocument.uri);
+    auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
+
+    // TODO handle all compile cmds
+    m_tu.compile_cmd(cmds[0]);
     Location location = m_tu.reference(params.position);
     return location;
 }

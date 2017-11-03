@@ -7,6 +7,8 @@ namespace code::analyzer {
 using command_t = std::vector<std::string>;
 struct compile_command
 {
+    // TODO no need of default ctor
+    compile_command() = default;
     compile_command(const std::string_view &file);
 
     compile_command(const std::string_view &directory,
@@ -14,6 +16,14 @@ struct compile_command
                     const std::string_view &file);
 
     ~compile_command() = default;
+
+    bool operator==(const compile_command &cmd)
+    {
+        // TODO Compare vector too
+        return m_file == cmd.m_file && m_directory == cmd.m_directory;
+    }
+
+    bool operator!=(const compile_command &cmd) { return *this == cmd; }
 
     std::string m_file;
     // compile directory of the file
