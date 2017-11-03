@@ -31,7 +31,23 @@ struct less<T>
 {
     bool operator()(const T &lhs, const T &rhs) const
     {
-        return lhs.m_file < rhs.m_file;
+        if (lhs.m_file < rhs.m_file || lhs.m_directory < rhs.m_directory ||
+            lhs.m_command.size() != rhs.m_command.size())
+        {
+            return true;
+        }
+        else
+        {
+
+        for (std::size_t i = 0; i < lhs.m_command.size(); ++i)
+        {
+            if (lhs.m_command[i] < rhs.m_command[i])
+            {
+                return true;
+            }
+        }
+        }
+        return false;
     }
 };
 } // namespace std

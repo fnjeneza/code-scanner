@@ -198,7 +198,8 @@ void compile_database_t::parse_compile_commands() noexcept
                                 it.at("command").get<std::string>(),
                                 it.at("file").get<std::string>());
             // add the compile commands for the file
-            m_compile_commands.push_back(_command);
+            // m_compile_commands.push_back(_command);
+            m_compile_commands.emplace(_command);
         }
         catch (...)
         {

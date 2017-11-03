@@ -1,6 +1,7 @@
 #include "compile_command.hpp"
 #include <string>
 #include <vector>
+#include <set>
 
 namespace code::analyzer {
 
@@ -23,6 +24,6 @@ struct compile_database_t
     // build dir filename
     std::string                  m_compile_commands_json_db;
     long int                     m_timestamp = 0;
-    std::vector<compile_command> m_compile_commands;
+    std::set<compile_command> m_compile_commands;
 };
 } // namespace code::analyzer
