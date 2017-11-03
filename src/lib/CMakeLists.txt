@@ -54,6 +54,7 @@ target_sources(code-scanner
     PRIVATE src/compile_database_t.cpp
     PRIVATE src/config.cpp
     PRIVATE src/ErrorCodes.cpp
+    PRIVATE src/compile_command.cpp
 )
 
 target_include_directories(code-scanner
