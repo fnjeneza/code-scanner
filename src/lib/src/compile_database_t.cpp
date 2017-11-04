@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <regex>
 
 #include <json.hpp>
 
@@ -142,13 +143,26 @@ long int last_write_time(const std::string_view &filename)
     auto time = std::filesystem::last_write_time(filename);
     return decltype(time)::clock::to_time_t(time);
 }
+
 } // namespace
 
-compile_database_t::compile_database_t(const std::string_view &directory)
+compile_database_t::compile_database_t(const std::string_view &directory,
+                                       const command_t &       flags_to_ignore)
     : m_compile_commands_json_db{
           std::string(std::filesystem::path(std::string(directory)) /
                       "compile_commands.json")}
 {
+    for (const auto &flag : flags_to_ignore)
+    {
+        // concatenate all flags, with '|' as separation
+        m_flags_to_ignore += flag + "|";
+    }
+    if (!m_flags_to_ignore.empty())
+    {
+        // remove the last '|'
+        m_flags_to_ignore.pop_back();
+    }
+
     if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
         m_timestamp != current_timestamp)
     {
@@ -193,9 +207,14 @@ void compile_database_t::parse_compile_commands() noexcept
     {
         try
         {
+            // read the command from the json database
+            auto       cmd = it.at("command").get<std::string>();
+            std::regex flags{m_flags_to_ignore};
+            // remove all flags to ignore
+            cmd = std::regex_replace(cmd, flags, "");
             auto _command =
                 compile_command(it.at("directory").get<std::string>(),
-                                it.at("command").get<std::string>(),
+                                cmd,
                                 it.at("file").get<std::string>());
             // add the compile commands for the file
             m_compile_commands.emplace(_command);

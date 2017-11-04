@@ -40,3 +40,38 @@ TEST_CASE("no_empty_command", "[compile_database_t]")
         }
     }
 }
+
+TEST_CASE("flags_to_ignore", "[compile_database_t]")
+{
+    code::analyzer::compile_database_t db(".");
+    auto                               cmds = db.compile_commands2(
+        "/tmp/cpp-lsp/flatbuffers/grpc/src/compiler/cpp_generator.cc");
+    REQUIRE(cmds.size() == 1);
+
+    std::vector<std::string> flags_to_ignore{"-Wall", "-pedantic"};
+
+    auto it = std::find(std::cbegin(cmds[0].m_command),
+                        std::cend(cmds[0].m_command),
+                        flags_to_ignore[0]);
+    REQUIRE(it != std::cend(cmds[0].m_command));
+
+    auto it2 = std::find(std::cbegin(cmds[0].m_command),
+                         std::cend(cmds[0].m_command),
+                         flags_to_ignore[1]);
+    REQUIRE(it2 != std::cend(cmds[0].m_command));
+
+    code::analyzer::compile_database_t db2(".", flags_to_ignore);
+    auto                               cmds2 = db2.compile_commands2(
+        "/tmp/cpp-lsp/flatbuffers/grpc/src/compiler/cpp_generator.cc");
+    REQUIRE(cmds2.size() == 1);
+
+    auto it3 = std::find(std::cbegin(cmds2[0].m_command),
+                         std::cend(cmds2[0].m_command),
+                         flags_to_ignore[0]);
+    REQUIRE(it3 == std::cend(cmds2[0].m_command));
+
+    auto it4 = std::find(std::cbegin(cmds2[0].m_command),
+                         std::cend(cmds2[0].m_command),
+                         flags_to_ignore[1]);
+    REQUIRE(it4 == std::cend(cmds2[0].m_command));
+}

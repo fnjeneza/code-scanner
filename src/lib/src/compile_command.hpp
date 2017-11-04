@@ -1,8 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 namespace code::analyzer {
 using command_t = std::vector<std::string>;

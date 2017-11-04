@@ -12,7 +12,9 @@ using command_t = std::vector<std::string>;
 struct compile_database_t
 {
     compile_database_t() = delete;
-    compile_database_t(const std::string_view &directory);
+    compile_database_t(const std::string_view &directory,
+                       const command_t &       flags_to_ignore = command_t());
+
     ~compile_database_t() = default;
 
     static std::vector<std::string>
@@ -38,5 +40,6 @@ struct compile_database_t
     std::string               m_compile_commands_json_db;
     long int                  m_timestamp = 0;
     std::set<compile_command> m_compile_commands;
+    std::string               m_flags_to_ignore;
 };
 } // namespace code::analyzer
