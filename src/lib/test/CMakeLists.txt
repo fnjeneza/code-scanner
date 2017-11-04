@@ -1,7 +1,11 @@
 enable_testing()
 set(test_name "code_parser_test")
 
-add_executable(${test_name} main.cpp compile_command_test.cpp)
+add_executable(${test_name} main.cpp
+    compile_command_test.cpp
+    compile_database_test.cpp
+    )
+
 target_include_directories(${test_name}
     PRIVATE ${CMAKE_SOURCE_DIR}/3rd-party/Catch/single_include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src
