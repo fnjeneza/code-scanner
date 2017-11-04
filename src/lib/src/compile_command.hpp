@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace code::analyzer {
 using command_t = std::vector<std::string>;
@@ -17,13 +18,27 @@ struct compile_command
 
     ~compile_command() = default;
 
-    bool operator==(const compile_command &cmd)
+    bool operator==(const compile_command &cmd) const
     {
-        // TODO Compare vector too
-        return m_file == cmd.m_file && m_directory == cmd.m_directory;
+        return !(*this != cmd);
     }
 
-    bool operator!=(const compile_command &cmd) { return *this == cmd; }
+    bool operator!=(const compile_command &cmd) const
+    {
+        if (m_file != cmd.m_file || m_directory != cmd.m_directory)
+        {
+            return true;
+        }
+        auto equal = std::equal(std::cbegin(m_command),
+                                std::cend(m_command),
+                                std::cbegin(cmd.m_command),
+                                std::cend(cmd.m_command));
+        if (!equal)
+        {
+            return true;
+        }
+        return false;
+    }
 
     std::string m_file;
     // compile directory of the file
