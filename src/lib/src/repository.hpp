@@ -88,14 +88,14 @@ class repository
                 {
                     // if the stored parse date is older than the current one,
                     // add it to return container in order to be parsed
-                    __ret.emplace_back(cmd.m_file);
+                    __ret.emplace(cmd);
                 }
             }
             else
             {
                 // if the file is not found in the container, add it in the
                 // container to return in order to be parsed
-                __ret.emplace_back(cmd.m_file);
+                __ret.emplace(cmd);
             }
         }
         return __ret;

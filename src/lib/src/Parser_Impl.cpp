@@ -35,11 +35,11 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
     {
         // auto all_filenames = compile_database_t::source_filenames();
-        auto all_filenames = m_compile_db->all_compile_commands();
-        // auto filenames = m_repository.check_file_timestamp(all_filenames);
+        auto acc = m_compile_db->all_compile_commands();
+        acc = m_repository.check_file_timestamp(acc);
 
         // TODO call commands
-        for (auto &cmd : all_filenames)
+        for (auto &cmd : acc)
         {
             task.async([cmd, this]() {
                 auto usrs =

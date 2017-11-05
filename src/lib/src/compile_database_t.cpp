@@ -157,8 +157,11 @@ compile_database_t::compile_database_t(
 {
     for (const auto &flag : flags_to_ignore)
     {
-        // concatenate all flags, with '|' as separation
-        m_flags_to_ignore += " " + flag + " |";
+        if (!flag.empty())
+        {
+            // concatenate all flags, with '|' as separation
+            m_flags_to_ignore += " " + flag + " |";
+        }
     }
     if (!m_flags_to_ignore.empty())
     {
