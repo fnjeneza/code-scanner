@@ -18,10 +18,10 @@ struct compile_database_t
 
     ~compile_database_t() = default;
 
-    static std::vector<std::string>
-    compile_commands(const std::string_view &filename);
+    // static std::vector<std::string>
+    // compile_commands(const std::string_view &filename);
 
-    static std::vector<std::string> source_filenames();
+    // static std::vector<std::string> source_filenames();
 
     // retrieve the compile commands for a given filename
     // a file can have multiple compile command

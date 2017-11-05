@@ -57,16 +57,6 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    // {
-    //     compile_database_t cdb(config::build_uri());
-    //     auto               commands = cdb.compile_commands2(
-    //         "/tmp/cpp-lsp/flatbuffers/src/idl_parser.cpp");
-    //     std::cout << commands.size() << std::endl;
-    //     for (auto &i : commands)
-    //     {
-    //         std::cout << i << std::endl;
-    //     }
-    // }
     auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
 
     // TODO handle all compile cmds

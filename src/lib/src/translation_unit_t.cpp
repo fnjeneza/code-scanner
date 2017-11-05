@@ -77,11 +77,6 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
         flags.push_back(flag.c_str());
     }
 
-    // for(auto & flag: flags)
-    // {
-    //     std::cout << flag << std::endl;
-    // }
-
     // create index
     auto index = clang_createIndex(1, 1);
 
