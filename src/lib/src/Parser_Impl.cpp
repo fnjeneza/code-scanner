@@ -19,8 +19,13 @@ Parser_Impl::initialize(const std::string &             build_uri,
                         const std::vector<std::string> &flags_to_ignore)
 {
     auto ec = config::builder(build_uri, compile_commands, flags_to_ignore);
-    m_compile_db =
-        std::make_unique<compile_database_t>(build_uri, flags_to_ignore);
+    std::string prefix;
+    for (const auto &compile_command : compile_commands)
+    {
+        prefix += compile_command + " ";
+    }
+    m_compile_db = std::make_unique<compile_database_t>(
+        build_uri, prefix, flags_to_ignore);
     if (ec)
     {
         return ec;

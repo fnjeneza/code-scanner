@@ -146,16 +146,19 @@ long int last_write_time(const std::string_view &filename)
 
 } // namespace
 
-compile_database_t::compile_database_t(const std::string_view &directory,
-                                       const command_t &       flags_to_ignore)
-    : m_compile_commands_json_db{
-          std::string(std::filesystem::path(std::string(directory)) /
-                      "compile_commands.json")}
+compile_database_t::compile_database_t(
+    const std::string_view &directory,
+    const std::string_view &prefix_compile_command,
+    const command_t &       flags_to_ignore)
+    : m_compile_commands_json_db{std::string(
+          std::filesystem::path(std::string(directory)) /
+          "compile_commands.json")}
+    , m_prefix_compile_command{prefix_compile_command}
 {
     for (const auto &flag : flags_to_ignore)
     {
         // concatenate all flags, with '|' as separation
-        m_flags_to_ignore += flag + "|";
+        m_flags_to_ignore += " " + flag + " |";
     }
     if (!m_flags_to_ignore.empty())
     {
@@ -212,6 +215,11 @@ void compile_database_t::parse_compile_commands() noexcept
             std::regex flags{m_flags_to_ignore};
             // remove all flags to ignore
             cmd = std::regex_replace(cmd, flags, "");
+            // remove the binary compiler name
+            auto index = cmd.find(" ");
+            cmd        = cmd.substr(index);
+            // add prefix_compile_command
+            cmd = m_prefix_compile_command + " " + cmd;
             auto _command =
                 compile_command(it.at("directory").get<std::string>(),
                                 cmd,

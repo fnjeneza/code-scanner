@@ -13,6 +13,7 @@ struct compile_database_t
 {
     compile_database_t() = delete;
     compile_database_t(const std::string_view &directory,
+                       const std::string_view &prefix_compile_command = "",
                        const command_t &       flags_to_ignore = command_t());
 
     ~compile_database_t() = default;
@@ -41,5 +42,6 @@ struct compile_database_t
     long int                  m_timestamp = 0;
     std::set<compile_command> m_compile_commands;
     std::string               m_flags_to_ignore;
+    std::string               m_prefix_compile_command;
 };
 } // namespace code::analyzer
