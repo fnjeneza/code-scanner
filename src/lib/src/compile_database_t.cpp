@@ -169,25 +169,13 @@ compile_database_t::compile_database_t(
         m_flags_to_ignore.pop_back();
     }
 
-    if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
-        m_timestamp != current_timestamp)
-    {
-        // (re)parse the compile commands file
-        parse_compile_commands();
-        m_timestamp = current_timestamp;
-    }
+    update();
 }
 
 std::vector<compile_command>
 compile_database_t::compile_commands2(const std::string_view &filename)
 {
-    if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
-        m_timestamp != current_timestamp)
-    {
-        // (re)parse the compile commands file
-        parse_compile_commands();
-        m_timestamp = current_timestamp;
-    }
+    update();
 
     std::vector<compile_command> ret;
     for (const auto &cmd : m_compile_commands)
@@ -233,6 +221,58 @@ void compile_database_t::parse_compile_commands() noexcept
         catch (...)
         {
         }
+    }
+}
+
+void compile_database_t::extract_includes()
+{
+    // use set to have unique string
+    std::set<std::string> __all_includes;
+    for(const auto & cc: m_compile_commands)
+    {
+        bool next{false};
+        for(const auto & command: cc.m_command)
+        {
+            if(command.substr(0,2) == "-I")
+            {
+                __all_includes.emplace(command);
+            }
+            if(next)
+            {
+                __all_includes.emplace(command);
+                next = false;
+            }
+            if(command == "-isystem")
+            {
+                next = true;
+            }
+        }
+    }
+    for(auto & include: __all_includes)
+    {
+        if(include.substr(0,2) == "-I")
+        {
+            m_all_includes.push_back(std::move(include));
+        }
+        else
+        {
+            // if there is no -I means it a system header
+            m_all_includes.push_back("-isystem");
+            m_all_includes.push_back(std::move(include));
+        }
+    }
+}
+
+void compile_database_t::update()
+{
+    if (auto current_timestamp = last_write_time(m_compile_commands_json_db);
+        m_timestamp != current_timestamp)
+    {
+        // (re)parse the compile commands file
+        parse_compile_commands();
+        // once compile command is parsed, extract includes;
+        extract_includes();
+        m_timestamp = current_timestamp;
     }
 }
 

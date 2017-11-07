@@ -36,6 +36,8 @@ struct compile_database_t
     }
 
     void parse_compile_commands() noexcept;
+    void extract_includes();
+    void update();
 
     // build dir filename
     std::string               m_compile_commands_json_db;
@@ -43,5 +45,6 @@ struct compile_database_t
     std::set<compile_command> m_compile_commands;
     std::string               m_flags_to_ignore;
     std::string               m_prefix_compile_command;
+    std::vector<std::string> m_all_includes;
 };
 } // namespace code::analyzer
