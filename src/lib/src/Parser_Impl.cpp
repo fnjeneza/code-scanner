@@ -36,7 +36,7 @@ Parser_Impl::initialize(const std::string &             build_uri,
     {
         // auto all_filenames = compile_database_t::source_filenames();
         auto acc = m_compile_db->all_compile_commands();
-        acc = m_repository.check_file_timestamp(acc);
+        acc      = m_repository.check_file_timestamp(acc);
 
         // TODO call commands
         for (auto &cmd : acc)

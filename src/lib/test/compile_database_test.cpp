@@ -1,5 +1,7 @@
 #include <catch.hpp>
 
+#include <array>
+
 #include "compile_database_t.hpp"
 
 /// check that compile_commands file is checked  when ctor is invoked
@@ -88,4 +90,27 @@ TEST_CASE("prefix_compile_command", "[compile_database_t")
     auto it = std::find(
         std::cbegin(cmds[0].m_command), std::cend(cmds[0].m_command), flags[0]);
     REQUIRE(it != std::cend(cmds[0].m_command));
+}
+
+TEST_CASE("all_includes", "[compile_database_t")
+{
+    code::analyzer::compile_database_t db(
+        ".", "clang -x c++ -isystem /tmp/cpp-lsp/flatbuffers");
+    auto all_includes = db.all_includes();
+    REQUIRE(all_includes.size() == 6);
+
+    std::array<std::string, 6> values{
+        "-I/tmp/cpp-lsp/flatbuffers/build/../grpc",
+        "-I/tmp/cpp-lsp/flatbuffers/build/../include",
+        "-I/tmp/cpp-lsp/flatbuffers/build/samples",
+        "-I/tmp/cpp-lsp/flatbuffers/build/tests",
+        "-isystem",
+        "/tmp/cpp-lsp/flatbuffers"};
+
+    for (const auto &value : values)
+    {
+        auto it = std::find(
+            std::cbegin(all_includes), std::cend(all_includes), value);
+        REQUIRE(it != std::cend(all_includes));
+    }
 }

@@ -48,7 +48,8 @@ json database()
 //     return std::string();
 // }
 
-// void split_command(const std::string &command, std::vector<std::string> &flags)
+// void split_command(const std::string &command, std::vector<std::string>
+// &flags)
 // {
 //     auto build_dir           = std::filesystem::path(config::build_uri());
 //     bool absolutize_argument = false;
@@ -97,7 +98,8 @@ json database()
 //     }
 // }
 
-// std::vector<std::string> source_file_commands(const std::string_view &filename)
+// std::vector<std::string> source_file_commands(const std::string_view
+// &filename)
 // {
 //     std::vector<std::string> flags = config::compile_commands();
 //     split_command(read_compile_commands(filename), flags);
@@ -228,29 +230,29 @@ void compile_database_t::extract_includes()
 {
     // use set to have unique string
     std::set<std::string> __all_includes;
-    for(const auto & cc: m_compile_commands)
+    for (const auto &cc : m_compile_commands)
     {
         bool next{false};
-        for(const auto & command: cc.m_command)
+        for (const auto &command : cc.m_command)
         {
-            if(command.substr(0,2) == "-I")
+            if (command.substr(0, 2) == "-I")
             {
                 __all_includes.emplace(command);
             }
-            if(next)
+            if (next)
             {
                 __all_includes.emplace(command);
                 next = false;
             }
-            if(command == "-isystem")
+            if (command == "-isystem")
             {
                 next = true;
             }
         }
     }
-    for(auto & include: __all_includes)
+    for (auto &include : __all_includes)
     {
-        if(include.substr(0,2) == "-I")
+        if (include.substr(0, 2) == "-I")
         {
             m_all_includes.push_back(std::move(include));
         }

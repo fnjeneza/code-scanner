@@ -35,9 +35,13 @@ struct compile_database_t
         return m_compile_commands;
     }
 
-    void parse_compile_commands() noexcept;
-    void extract_includes();
-    void update();
+    void                            parse_compile_commands() noexcept;
+    void                            extract_includes();
+    void                            update();
+    const std::vector<std::string> &all_includes() const noexcept
+    {
+        return m_all_includes;
+    }
 
     // build dir filename
     std::string               m_compile_commands_json_db;
@@ -45,6 +49,6 @@ struct compile_database_t
     std::set<compile_command> m_compile_commands;
     std::string               m_flags_to_ignore;
     std::string               m_prefix_compile_command;
-    std::vector<std::string> m_all_includes;
+    std::vector<std::string>  m_all_includes;
 };
 } // namespace code::analyzer
