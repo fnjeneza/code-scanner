@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "filesystem.hpp"
 
 namespace code {
 namespace analyzer {
@@ -51,7 +52,8 @@ Location location(const CXCursor &cursor)
     clang_getSpellingLocation(location, &file, &line, &column, nullptr);
 
     // filename
-    std::string _filename = to_string(clang_getFileName(file));
+    std::string _filename =
+        std::filesystem::canonical(to_string(clang_getFileName(file)));
     return Location(_filename, line, column);
 }
 
