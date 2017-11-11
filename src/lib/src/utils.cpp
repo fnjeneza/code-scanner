@@ -52,9 +52,8 @@ Location location(const CXSourceRange &range)
                               &_location.range.end.character,
                               nullptr);
     // filename
-    std::string _filename =
+    _location.uri =
         std::filesystem::canonical(to_string(clang_getFileName(file)));
-    _location.uri = _filename;
     return _location;
 }
 
