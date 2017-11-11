@@ -196,6 +196,56 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
         &_data);
     return identifiers;
 }
+using T = std::unordered_set<symbol>;
+T translation_unit_t::index_symbols() const
+{
+    // get translation unit cursor
+    CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
+
+    T _data;
+
+    clang_visitChildren(
+        unit_cursor,
+        // visitor
+        [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
+
+            T *__data = static_cast<T *>(client_data);
+
+            // check if the location is in the system header. If so it will be
+            // ignored
+            CXSourceLocation _location = clang_getCursorLocation(cursor_);
+            if (clang_Location_isInSystemHeader(_location))
+            {
+                return CXChildVisit_Continue;
+            }
+
+            auto str = utils::to_string(clang_getCursorUSR(cursor_));
+            // ignore empty usr
+            if (!str.empty())
+            {
+                // check that it is a reference or a definition
+                auto kind = clang_getCursorKind(cursor_);
+                // process only declarations and references
+                if (clang_isDeclaration(kind) || clang_isReference(kind))
+                {
+                    auto location = utils::location(cursor_);
+                    // std::cout << str << std::endl;
+                    std::cout
+                        << utils::to_string(clang_getCursorSpelling(cursor_))
+                        << " " << location.uri << " "
+                        << location.range.start.line << " "
+                        << location.range.start.character << " "
+                        << location.range.end.line << " "
+                        << location.range.end.character << std::endl;
+                    __data->emplace(symbol(str, location, kind::definition));
+                }
+            }
+
+            return CXChildVisit_Recurse;
+        },
+        &_data);
+    return _data;
+}
 
 } // namespace analyzer
 } // namespace code

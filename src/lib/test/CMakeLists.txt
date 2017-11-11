@@ -4,6 +4,7 @@ set(test_name "code_parser_test")
 add_executable(${test_name} main.cpp
     compile_command_test.cpp
     compile_database_test.cpp
+    symbol_test.cpp
     )
 
 target_include_directories(${test_name}

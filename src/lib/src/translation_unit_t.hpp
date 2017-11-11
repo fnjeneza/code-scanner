@@ -3,9 +3,11 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_set>
 
 #include "code-scanner/Location.hpp"
 #include "compile_command.hpp"
+#include "symbol.hpp"
 
 struct CXTranslationUnitImpl;
 using CXTranslationUnit = CXTranslationUnitImpl *;
@@ -38,6 +40,7 @@ class translation_unit_t
     std::string usr(const Position &position) const;
 
     std::set<std::string> retrieve_all_identifier_usr() const;
+    std::unordered_set<symbol> index_symbols() const;
 
   private:
     void

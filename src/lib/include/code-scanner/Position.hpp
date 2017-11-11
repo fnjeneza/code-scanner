@@ -14,6 +14,11 @@ struct Position
         character = _character;
     }
 
+    friend bool operator==(const Position &lhs, const Position &rhs)
+    {
+        return lhs.line == rhs.line && lhs.character == rhs.character;
+    }
+
     unsigned int line      = 0;
     unsigned int character = 0;
 };

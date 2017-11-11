@@ -16,6 +16,11 @@ struct Range
         end   = _end;
     }
 
+    friend bool operator==(const Range &lhs, const Range &rhs)
+    {
+        return lhs.start == rhs.start && lhs.end == rhs.end;
+    }
+
     Position start;
     Position end;
 };
