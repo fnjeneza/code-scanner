@@ -36,6 +36,28 @@ std::string to_string(const CXString &cx_str)
     return str;
 }
 
+Location location(const CXSourceRange &range)
+{
+    CXFile   file;
+    Location _location;
+    clang_getSpellingLocation(clang_getRangeStart(range),
+                              &file,
+                              &_location.range.start.line,
+                              &_location.range.start.character,
+                              nullptr);
+
+    clang_getSpellingLocation(clang_getRangeEnd(range),
+                              nullptr, // we already retrieved the file
+                              &_location.range.end.line,
+                              &_location.range.end.character,
+                              nullptr);
+    // filename
+    std::string _filename =
+        std::filesystem::canonical(to_string(clang_getFileName(file)));
+    _location.uri = _filename;
+    return _location;
+}
+
 Location location(const CXCursor &cursor)
 {
 
@@ -44,17 +66,8 @@ Location location(const CXCursor &cursor)
         return Location();
     }
 
-    CXSourceLocation location = clang_getCursorLocation(cursor);
-
-    CXFile   file;
-    unsigned line   = 0;
-    unsigned column = 0;
-    clang_getSpellingLocation(location, &file, &line, &column, nullptr);
-
-    // filename
-    std::string _filename =
-        std::filesystem::canonical(to_string(clang_getFileName(file)));
-    return Location(_filename, line, column);
+    auto range = clang_getCursorExtent(cursor);
+    return location(range);
 }
 
 bool is_identifier(const CXCursor &cursor)

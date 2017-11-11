@@ -11,6 +11,7 @@ namespace analyzer {
 namespace utils {
 std::vector<std::string> split(const std::string_view &argument);
 std::string              to_string(const CXString &cx_str);
+Location                 location(const CXSourceRange &range);
 Location                 location(const CXCursor &cursor);
 bool                     is_identifier(const CXCursor &cursor);
 bool is_declaration_locate_in_other_file(const CXCursor &cursor);
