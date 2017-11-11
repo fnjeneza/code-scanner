@@ -226,18 +226,23 @@ T translation_unit_t::index_symbols() const
                 // check that it is a reference or a definition
                 auto kind = clang_getCursorKind(cursor_);
                 // process only declarations and references
-                if (clang_isDeclaration(kind) || clang_isReference(kind))
+                if (clang_isDeclaration(kind))
                 {
                     auto location = utils::location(cursor_);
                     // std::cout << str << std::endl;
-                    std::cout
-                        << utils::to_string(clang_getCursorSpelling(cursor_))
-                        << " " << location.uri << " "
-                        << location.range.start.line << " "
-                        << location.range.start.character << " "
-                        << location.range.end.line << " "
-                        << location.range.end.character << std::endl;
+                    // std::cout
+                    //     << utils::to_string(clang_getCursorSpelling(cursor_))
+                    //     << " " << location.uri << " "
+                    //     << location.range.start.line << " "
+                    //     << location.range.start.character << " "
+                    //     << location.range.end.line << " "
+                    //     << location.range.end.character << std::endl;
                     __data->emplace(symbol(str, location, kind::definition));
+                }
+                else if (clang_isReference(kind))
+                {
+                    auto location = utils::location(cursor_);
+                    __data->emplace(symbol(str, location, kind::reference));
                 }
             }
 
