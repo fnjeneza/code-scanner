@@ -54,4 +54,17 @@ struct hash<code::analyzer::symbol>
         return seed;
     }
 };
+
+template <>
+struct less<code::analyzer::symbol>
+{
+    using T = code::analyzer::symbol;
+    bool operator()(const T &lhs, const T &rhs)
+    {
+        return (
+            lhs.m_usr < rhs.m_usr || lhs.m_location.uri < rhs.m_location.uri ||
+            lhs.m_location.range.start.line < rhs.m_location.range.start.line ||
+            lhs.m_kind < rhs.m_kind);
+    }
+};
 } // namespace std
