@@ -196,7 +196,7 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
         &_data);
     return identifiers;
 }
-using T = std::unordered_set<symbol>;
+using T = std::set<symbol>;
 T translation_unit_t::index_symbols() const
 {
     // get translation unit cursor

@@ -22,6 +22,8 @@ struct symbol
         , m_kind{_kind}
     {
     }
+    symbol(symbol &&)      = default;
+    symbol(const symbol &) = default;
     ~symbol() = default;
 
     friend bool operator==(const symbol &lhs, const symbol &rhs)

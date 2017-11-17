@@ -32,31 +32,35 @@ Parser_Impl::initialize(const std::string &             build_uri,
     }
 
     task_system task;
-
     {
         // auto all_filenames = compile_database_t::source_filenames();
         auto acc = m_compile_db->all_compile_commands();
-        acc      = m_repository.check_file_timestamp(acc);
+        // acc      = m_repository.check_file_timestamp(acc);
 
         // TODO call commands
         for (auto &cmd : acc)
         {
             task.async([cmd, this]() {
-                auto usrs =
-                    translation_unit_t(cmd, true).retrieve_all_identifier_usr();
-                m_repository.emplace(cmd.m_file, usrs);
+                auto usrs = translation_unit_t(cmd).index_symbols();
+                // write the container to a file
+                std::unique_lock<std::mutex> lock(m_mutex);
+                for (auto &usr : usrs)
+                {
+                    m_symbols.emplace(std::move(usr));
+                }
+
+                // m_repository.emplace(usrs);
             });
         }
     }
-
-    // serialize the repository
-    m_repository.serialize();
 
     return std::experimental::nullopt;
 }
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
+    std::cout << m_symbols.size() << std::endl;
+    std::cout << params.textDocument.uri << std::endl;
     auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
 
     // TODO handle all compile cmds
@@ -64,19 +68,20 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
     Location location = m_tu.definition(params.position);
     if (!location.is_valid())
     {
-        auto usr = m_tu.usr(params.position);
-        // search in repository
-        auto defs = m_repository.definitions(usr);
+        std::cout << "location not valid" << std::endl;
+        // auto usr = m_tu.usr(params.position);
+        // // search in repository
+        // auto defs = m_repository.definitions(usr);
 
-        for (auto def : defs)
-        {
-            // TODO handle multiple compile commands
-            location = translation_unit_t(cmds[0]).definition(usr);
-            if (location.is_valid())
-            {
-                return location;
-            }
-        }
+        // for (auto def : defs)
+        // {
+        //     // TODO handle multiple compile commands
+        //     location = translation_unit_t(cmds[0]).definition(usr);
+        //     if (location.is_valid())
+        //     {
+        //         return location;
+        //     }
+        // }
     }
     return location;
 }

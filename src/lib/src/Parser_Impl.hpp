@@ -2,6 +2,8 @@
 
 #include <experimental/optional>
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -29,9 +31,12 @@ class Parser_Impl
     Location reference(const TextDocumentPositionParams &params);
 
   private:
-    repository<std::string>             m_repository;
+    // repository<std::string>             m_repository;
     translation_unit_t                  m_tu;
     std::unique_ptr<compile_database_t> m_compile_db;
+    // TODO use a database to store symbols
+    std::set<symbol>           m_symbols;
+    std::mutex                 m_mutex;
 };
 
 } // namespace code::analyzer

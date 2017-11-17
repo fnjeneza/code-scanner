@@ -40,7 +40,7 @@ class translation_unit_t
     std::string usr(const Position &position) const;
 
     std::set<std::string> retrieve_all_identifier_usr() const;
-    std::unordered_set<symbol> index_symbols() const;
+    std::set<symbol>      index_symbols() const;
 
   private:
     void
