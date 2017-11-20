@@ -80,15 +80,16 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
     // create index
     auto index = clang_createIndex(1, 1);
 
-    auto error =
-        clang_parseTranslationUnit2FullArgv(index,
-                                            m_compile_cmd.m_file.c_str(),
-                                            flags.data(),
-                                            static_cast<int>(flags.size()),
-                                            nullptr,
-                                            0,
-                                            option(opt),
-                                            &m_unit);
+    auto error = clang_parseTranslationUnit2FullArgv(
+        index,
+        m_compile_cmd.m_file.c_str(),
+        flags.data(),
+        static_cast<int>(flags.size()),
+        nullptr,
+        0,
+        CXTranslationUnit_DetailedPreprocessingRecord,
+        // option(opt),
+        &m_unit);
 
     switch (error)
     {
@@ -203,35 +204,49 @@ T translation_unit_t::index_symbols() const
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
     T _data;
+    std::cout << m_compile_cmd.m_file << "\n";
 
     clang_visitChildren(
         unit_cursor,
         // visitor
         [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
-
-            T *__data = static_cast<T *>(client_data);
-
-            // check if the location is in the system header. If so it will be
-            // ignored
+            // check if the location is in the system header. If so it will
+            // be ignored
             CXSourceLocation _location = clang_getCursorLocation(cursor_);
             if (clang_Location_isInSystemHeader(_location))
             {
                 return CXChildVisit_Continue;
             }
 
+            T *  __data = static_cast<T *>(client_data);
+            auto kind   = clang_getCursorKind(cursor_);
+            if (kind == CXCursor_InclusionDirective)
+            {
+                std::cout << "inclusion" << std::endl;
+                std::cout << utils::to_string(clang_getFileName(
+                                 clang_getIncludedFile(cursor_)))
+                          << std::endl;
+            }
+            // auto __location = utils::location(cursor_);
+
             auto str = utils::to_string(clang_getCursorUSR(cursor_));
             // ignore empty usr
-            if (!str.empty())
+            if (str.empty())
+            {
+                // return CXChildVisit_Continue;
+            }
+
+            // if (!str.empty())
             {
                 // check that it is a reference or a definition
-                auto kind = clang_getCursorKind(cursor_);
                 // process only declarations and references
-                if (clang_isDeclaration(kind))
+                if (clang_isCursorDefinition(cursor_))
                 {
                     auto location = utils::location(cursor_);
                     // std::cout << str << std::endl;
                     // std::cout
-                    //     << utils::to_string(clang_getCursorSpelling(cursor_))
+                    //     <<
+                    //     utils::to_string(clang_getCursorSpelling(cursor_))
                     //     << " " << location.uri << " "
                     //     << location.range.start.line << " "
                     //     << location.range.start.character << " "
@@ -239,16 +254,19 @@ T translation_unit_t::index_symbols() const
                     //     << location.range.end.character << std::endl;
                     __data->emplace(symbol(str, location, kind::definition));
                 }
-                else if (clang_isReference(kind))
-                {
-                    auto location = utils::location(cursor_);
-                    __data->emplace(symbol(str, location, kind::reference));
-                }
+                // else if (clang_isReference(kind) ||
+                // clang_isDeclaration(kind))
+                // {
+                //     auto location = utils::location(cursor_);
+                //     __data->emplace(symbol(str, location,
+                //     kind::reference));
+                // }
             }
 
             return CXChildVisit_Recurse;
         },
         &_data);
+    std::cout << _data.size() << std::endl;
     return _data;
 }
 
