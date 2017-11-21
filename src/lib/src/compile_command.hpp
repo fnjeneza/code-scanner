@@ -16,7 +16,20 @@ struct compile_command
                     const std::string_view &command,
                     const std::string_view &file);
 
+    compile_command(const compile_command &) = default;
+    compile_command(compile_command &&)      = default;
+
     ~compile_command() = default;
+
+    compile_command &operator=(const compile_command &cc)
+    {
+        if (*this != cc)
+        {
+            *this = cc;
+        }
+        // std::swap(cc);
+        return *this;
+    }
 
     bool operator==(const compile_command &cmd) const
     {
