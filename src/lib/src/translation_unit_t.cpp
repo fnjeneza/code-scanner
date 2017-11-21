@@ -88,8 +88,8 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
         static_cast<int>(flags.size()),
         nullptr,
         0,
-        // CXTranslationUnit_DetailedPreprocessingRecord,
-        option(opt),
+        CXTranslationUnit_DetailedPreprocessingRecord,
+        // option(opt),
         &m_unit);
 
     switch (error)
@@ -213,13 +213,6 @@ T translation_unit_t::index_symbols() const
     data_t _data;
     _data.compile_command_ref = m_compile_cmd;
 
-    // T                                                         _1;
-    // std::set<compile_command>                                 _2;
-    // compile_command                                           _3;
-    // std::tuple<T, std::set<compile_command>, compile_command> _data;
-    // _data = make_tuple(_1, _2, _3);
-    // std::cout << m_compile_cmd.m_file << "\n";
-
     clang_visitChildren(
         unit_cursor,
         // visitor
@@ -250,6 +243,7 @@ T translation_unit_t::index_symbols() const
                 // assign the directory path
                 header_compile_command.m_directory =
                     client->compile_command_ref.m_directory;
+                return CXChildVisit_Continue;
             }
             // TODO Build compile command for header
 
