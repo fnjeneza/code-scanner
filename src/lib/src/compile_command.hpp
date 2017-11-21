@@ -21,15 +21,7 @@ struct compile_command
 
     ~compile_command() = default;
 
-    compile_command &operator=(const compile_command &cc)
-    {
-        if (*this != cc)
-        {
-            *this = cc;
-        }
-        // std::swap(cc);
-        return *this;
-    }
+    compile_command &operator=(const compile_command &cc) = default;
 
     bool operator==(const compile_command &cmd) const
     {
