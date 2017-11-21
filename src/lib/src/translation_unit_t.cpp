@@ -17,6 +17,7 @@ CXTranslationUnit_Flags option(const translation_unit_flag &flag)
     {
     case translation_unit_flag::skip_function_bodies:
         return CXTranslationUnit_SkipFunctionBodies;
+        // CXTranslationUnit_DetailedPreprocessingRecord;
     case translation_unit_flag::none:
     default:
         return CXTranslationUnit_None;
@@ -87,8 +88,8 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
         static_cast<int>(flags.size()),
         nullptr,
         0,
-        CXTranslationUnit_DetailedPreprocessingRecord,
-        // option(opt),
+        // CXTranslationUnit_DetailedPreprocessingRecord,
+        option(opt),
         &m_unit);
 
     switch (error)
@@ -198,13 +199,26 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
     return identifiers;
 }
 using T = std::set<symbol>;
+struct data_t
+{
+    T               _symbols;
+    compile_command _compile_command;
+    compile_command compile_command_ref;
+};
 T translation_unit_t::index_symbols() const
 {
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
-    T _data;
-    std::cout << m_compile_cmd.m_file << "\n";
+    data_t _data;
+    _data.compile_command_ref = m_compile_cmd;
+
+    // T                                                         _1;
+    // std::set<compile_command>                                 _2;
+    // compile_command                                           _3;
+    // std::tuple<T, std::set<compile_command>, compile_command> _data;
+    // _data = make_tuple(_1, _2, _3);
+    // std::cout << m_compile_cmd.m_file << "\n";
 
     clang_visitChildren(
         unit_cursor,
@@ -218,15 +232,27 @@ T translation_unit_t::index_symbols() const
                 return CXChildVisit_Continue;
             }
 
-            T *  __data = static_cast<T *>(client_data);
-            auto kind   = clang_getCursorKind(cursor_);
+            data_t *client = static_cast<data_t *>(client_data);
+            T *             __data = &client->_symbols;
+            auto            kind   = clang_getCursorKind(cursor_);
+
+            // handle InclusionDirective
             if (kind == CXCursor_InclusionDirective)
             {
-                std::cout << "inclusion" << std::endl;
-                std::cout << utils::to_string(clang_getFileName(
-                                 clang_getIncludedFile(cursor_)))
-                          << std::endl;
+                // header file path
+                auto header_file = utils::to_string(
+                    clang_getFileName(clang_getIncludedFile(cursor_)));
+                // use ctor in order to have a canonical path
+                compile_command header_compile_command(header_file);
+                // assign the command
+                header_compile_command.m_command =
+                    client->compile_command_ref.m_command;
+                // assign the directory path
+                header_compile_command.m_directory =
+                    client->compile_command_ref.m_directory;
             }
+            // TODO Build compile command for header
+
             // auto __location = utils::location(cursor_);
 
             auto str = utils::to_string(clang_getCursorUSR(cursor_));
@@ -266,8 +292,7 @@ T translation_unit_t::index_symbols() const
             return CXChildVisit_Recurse;
         },
         &_data);
-    std::cout << _data.size() << std::endl;
-    return _data;
+    return _data._symbols;
 }
 
 } // namespace analyzer
