@@ -88,7 +88,8 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
         static_cast<int>(flags.size()),
         nullptr,
         0,
-        CXTranslationUnit_DetailedPreprocessingRecord,
+        CXTranslationUnit_DetailedPreprocessingRecord |
+            CXTranslationUnit_SkipFunctionBodies,
         // option(opt),
         &m_unit);
 
@@ -202,23 +203,26 @@ using T = std::set<symbol>;
 struct data_t
 {
     T               _symbols;
+    std::set<compile_command> *_headers;
     compile_command _compile_command;
     compile_command compile_command_ref;
 };
-T translation_unit_t::index_symbols() const
+T translation_unit_t::index_symbols(
+    std::set<compile_command> &headers_command) const
 {
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
     data_t _data;
     _data.compile_command_ref = m_compile_cmd;
+    _data._headers            = &headers_command;
 
     clang_visitChildren(
         unit_cursor,
         // visitor
         [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
-            // check if the location is in the system header. If so it will
-            // be ignored
+            // check if the location is in the system header. If so it
+            // will be ignored
             CXSourceLocation _location = clang_getCursorLocation(cursor_);
             if (clang_Location_isInSystemHeader(_location))
             {
@@ -226,8 +230,9 @@ T translation_unit_t::index_symbols() const
             }
 
             data_t *client = static_cast<data_t *>(client_data);
-            T *             __data = &client->_symbols;
-            auto            kind   = clang_getCursorKind(cursor_);
+            T *     __data = &client->_symbols;
+            std::set<compile_command> *__headers = client->_headers;
+            auto                       kind      = clang_getCursorKind(cursor_);
 
             // handle InclusionDirective
             if (kind == CXCursor_InclusionDirective)
@@ -243,6 +248,7 @@ T translation_unit_t::index_symbols() const
                 // assign the directory path
                 header_compile_command.m_directory =
                     client->compile_command_ref.m_directory;
+                __headers->emplace(header_compile_command);
                 return CXChildVisit_Continue;
             }
             // TODO Build compile command for header
@@ -272,7 +278,7 @@ T translation_unit_t::index_symbols() const
                     //     << location.range.start.character << " "
                     //     << location.range.end.line << " "
                     //     << location.range.end.character << std::endl;
-                    __data->emplace(symbol(str, location, kind::definition));
+                    // __data->emplace(symbol(str, location, kind::definition));
                 }
                 // else if (clang_isReference(kind) ||
                 // clang_isDeclaration(kind))
