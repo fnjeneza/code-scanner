@@ -32,7 +32,7 @@ struct symbol
                 lhs.m_kind == rhs.m_kind);
     }
 
-    std::string_view m_usr; // unified symbol resolution
+    std::string      m_usr; // unified symbol resolution
     Location         m_location;
     kind             m_kind = kind::reference;
 };
@@ -66,6 +66,8 @@ struct less<code::analyzer::symbol>
         return (
             lhs.m_usr < rhs.m_usr || lhs.m_location.uri < rhs.m_location.uri ||
             lhs.m_location.range.start.line < rhs.m_location.range.start.line ||
+            lhs.m_location.range.start.character <
+                rhs.m_location.range.start.character ||
             lhs.m_kind < rhs.m_kind);
     }
 };
