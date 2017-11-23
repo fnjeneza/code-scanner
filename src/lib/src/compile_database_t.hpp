@@ -42,6 +42,10 @@ struct compile_database_t
     {
         return m_all_includes;
     }
+    void merge(std::set<compile_command> &&commands)
+    {
+        m_compile_commands.merge(commands);
+    }
 
     // build dir filename
     std::string               m_compile_commands_json_db;

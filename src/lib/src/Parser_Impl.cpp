@@ -31,8 +31,11 @@ Parser_Impl::initialize(const std::string &             build_uri,
         return ec;
     }
 
-    task_system task;
+    std::set<compile_command> headers_command;
+    std::set<symbol>          index;
+
     {
+        task_system task;
         // auto all_filenames = compile_database_t::source_filenames();
         auto acc = m_compile_db->all_compile_commands();
         // acc      = m_repository.check_file_timestamp(acc);
@@ -40,16 +43,8 @@ Parser_Impl::initialize(const std::string &             build_uri,
         // TODO call commands
         for (auto &cmd : acc)
         {
-            task.async([cmd, this]() {
-                auto usrs = translation_unit_t(cmd).index_symbols();
-                // write the container to a file
-                std::unique_lock<std::mutex> lock(m_mutex);
-                for (auto &usr : usrs)
-                {
-                    m_symbols.emplace(std::move(usr));
-                }
-
-                // m_repository.emplace(usrs);
+            task.async([cmd, &index, &headers_command, this]() {
+                translation_unit_t(cmd).index_symbols(headers_command, index);
             });
         }
     }

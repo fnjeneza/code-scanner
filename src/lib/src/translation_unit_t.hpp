@@ -40,8 +40,8 @@ class translation_unit_t
     std::string usr(const Position &position) const;
 
     std::set<std::string> retrieve_all_identifier_usr() const;
-    std::set<symbol>
-    index_symbols(std::set<compile_command> &headers_command) const;
+    void index_symbols(std::set<compile_command> &headers_command,
+                       std::set<symbol> &         index) const;
 
   private:
     void

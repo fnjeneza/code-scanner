@@ -88,8 +88,8 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
         static_cast<int>(flags.size()),
         nullptr,
         0,
-        CXTranslationUnit_DetailedPreprocessingRecord |
-            CXTranslationUnit_SkipFunctionBodies,
+        CXTranslationUnit_DetailedPreprocessingRecord,
+        // CXTranslationUnit_SkipFunctionBodies,
         // option(opt),
         &m_unit);
 
@@ -202,18 +202,19 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
 using T = std::set<symbol>;
 struct data_t
 {
-    T               _symbols;
+    T *                        _symbols;
     std::set<compile_command> *_headers;
     compile_command _compile_command;
     compile_command compile_command_ref;
 };
-T translation_unit_t::index_symbols(
-    std::set<compile_command> &headers_command) const
+void translation_unit_t::index_symbols(
+    std::set<compile_command> &headers_command, std::set<symbol> &index) const
 {
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
     data_t _data;
+    _data._symbols            = &index;
     _data.compile_command_ref = m_compile_cmd;
     _data._headers            = &headers_command;
 
@@ -230,7 +231,7 @@ T translation_unit_t::index_symbols(
             }
 
             data_t *client = static_cast<data_t *>(client_data);
-            T *     __data = &client->_symbols;
+            T *                        __data    = client->_symbols;
             std::set<compile_command> *__headers = client->_headers;
             auto                       kind      = clang_getCursorKind(cursor_);
 
@@ -259,7 +260,7 @@ T translation_unit_t::index_symbols(
             // ignore empty usr
             if (str.empty())
             {
-                // return CXChildVisit_Continue;
+                return CXChildVisit_Continue;
             }
 
             // if (!str.empty())
@@ -278,7 +279,7 @@ T translation_unit_t::index_symbols(
                     //     << location.range.start.character << " "
                     //     << location.range.end.line << " "
                     //     << location.range.end.character << std::endl;
-                    // __data->emplace(symbol(str, location, kind::definition));
+                    __data->emplace(symbol(str, location, kind::definition));
                 }
                 // else if (clang_isReference(kind) ||
                 // clang_isDeclaration(kind))
@@ -292,7 +293,6 @@ T translation_unit_t::index_symbols(
             return CXChildVisit_Recurse;
         },
         &_data);
-    return _data._symbols;
 }
 
 } // namespace analyzer
