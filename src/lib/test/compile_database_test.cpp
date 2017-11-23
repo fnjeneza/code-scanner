@@ -11,7 +11,7 @@ TEST_CASE("compile_database_t", "[compile_database_t]")
     code::analyzer::compile_database_t db(".");
 
     // total compile command in the file
-    REQUIRE(db.m_compile_commands.size() == 28);
+    REQUIRE(db.all_compile_commands().size() == 28);
 }
 
 /// check that it is possible to retrieve all commands related to a file

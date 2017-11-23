@@ -42,11 +42,12 @@ struct compile_database_t
     {
         return m_all_includes;
     }
-    void merge(std::set<compile_command> &&commands)
+    void merge(std::set<compile_command> &&commands) noexcept
     {
         m_compile_commands.merge(commands);
     }
 
+  private:
     // build dir filename
     std::string               m_compile_commands_json_db;
     long int                  m_timestamp = 0;
