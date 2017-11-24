@@ -40,7 +40,6 @@ Parser_Impl::initialize(const std::string &             build_uri,
         auto acc = m_compile_db->all_compile_commands();
         // acc      = m_repository.check_file_timestamp(acc);
 
-        // TODO call commands
         for (auto &cmd : acc)
         {
             task.async([cmd, &index, &headers_command, this]() {
@@ -49,13 +48,13 @@ Parser_Impl::initialize(const std::string &             build_uri,
         }
     }
 
+    m_compile_db->merge(std::move(headers_command));
+
     return std::experimental::nullopt;
 }
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    std::cout << m_symbols.size() << std::endl;
-    std::cout << params.textDocument.uri << std::endl;
     auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
 
     // TODO handle all compile cmds

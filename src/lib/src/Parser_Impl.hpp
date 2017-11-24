@@ -35,7 +35,7 @@ class Parser_Impl
     translation_unit_t                  m_tu;
     std::unique_ptr<compile_database_t> m_compile_db;
     // TODO use a database to store symbols
-    std::set<symbol>           m_symbols;
+    std::set<symbol>           m_index;
     std::mutex                 m_mutex;
 };
 
