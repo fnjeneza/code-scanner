@@ -235,104 +235,188 @@ void translation_unit_t::index_symbols(
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
-    // range of the hole translation unit
-    auto range = clang_getCursorExtent(unit_cursor);
-    // container for tokens
-    CXToken *tokens = nullptr;
-    // number of tokens
-    unsigned size = 0;
-    // tokenize the translation unit
-    clang_tokenize(m_unit, range, &tokens, &size);
-    std::vector<CXCursor> cursors(size);
-    clang_annotateTokens(m_unit, tokens, size, cursors.data());
-    std::cout << size << std::endl;
+    // // range of the hole translation unit
+    // auto range = clang_getCursorExtent(unit_cursor);
+    // // container for tokens
+    // CXToken *tokens = nullptr;
+    // // number of tokens
+    // unsigned size = 0;
+    // // tokenize the translation unit
+    // clang_tokenize(m_unit, range, &tokens, &size);
+    // std::vector<CXCursor> cursors(size);
+    // clang_annotateTokens(m_unit, tokens, size, cursors.data());
+    // std::cout << size << std::endl;
 
-    for (unsigned i = 0; i < size; ++i)
+    // for (unsigned i = 0; i < size; ++i)
+    // {
+    //     auto kind = clang_getTokenKind(tokens[i]);
+    //     switch (kind)
+    //     {
+    //     // ignore all kind of tokens except Identifier
+    //     case CXToken_Identifier:
+    //         // add the symbol to the index
+    //         index.emplace(build_symbol(cursors[i]));
+    //         break;
+    //     case CXToken_Punctuation:
+    //     case CXToken_Keyword:
+    //     case CXToken_Literal:
+    //     case CXToken_Comment:
+    //     default:
+    //         break;
+    //     }
+    // }
+
+    // // free the tokens
+    // clang_disposeTokens(m_unit, tokens, size);
+
+    data_t _data;
+    _data._symbols            = &index;
+    _data.compile_command_ref = m_compile_cmd;
+    _data._headers            = &headers_command;
+
+    clang_visitChildren(
+        unit_cursor,
+        // visitor
+        [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
+            // check if the location is in the system header. If so it
+            // will be ignored
+            CXSourceLocation _location = clang_getCursorLocation(cursor_);
+            if (clang_Location_isInSystemHeader(_location))
+            {
+                return CXChildVisit_Continue;
+            }
+
+            data_t *client = static_cast<data_t *>(client_data);
+            T *     __data = client->_symbols;
+            std::set<compile_command> *__headers = client->_headers;
+            auto                       kind      = clang_getCursorKind(cursor_);
+
+            // handle InclusionDirective
+            if (kind == CXCursor_InclusionDirective)
+            {
+                // header file path
+                auto header_file = utils::to_string(
+                    clang_getFileName(clang_getIncludedFile(cursor_)));
+                // use ctor in order to have a canonical path
+                compile_command header_compile_command(header_file);
+                // assign the command
+                header_compile_command.m_command =
+                    client->compile_command_ref.m_command;
+                // assign the directory path
+                header_compile_command.m_directory =
+                    client->compile_command_ref.m_directory;
+                __headers->emplace(header_compile_command);
+                return CXChildVisit_Continue;
+            }
+
+            auto str = utils::to_string(clang_getCursorUSR(cursor_));
+            // ignore empty usr
+            if (!str.empty())
+            {
+                // check that it is a reference or a definition
+                // process only declarations and references
+                if (clang_isCursorDefinition(cursor_))
+                {
+                    auto location = utils::location(cursor_);
+                    // __data->emplace(symbol(str, location, kind::definition));
+                }
+                else
+                // if (clang_isReference(kind) || clang_isDeclaration(kind))
+                {
+                    auto location = utils::location(cursor_);
+                    // __data->emplace(symbol(str, location, kind::reference));
+                }
+            }
+
+            return CXChildVisit_Recurse;
+        },
+        &_data);
+}
+
+void indexDeclaration(CXClientData client_data, const CXIdxDeclInfo *decl)
+{
+    data_t *          client   = static_cast<data_t *>(client_data);
+    std::set<symbol> *__data   = client->_symbols;
+    auto location = utils::location(decl->cursor);
+    auto str      = utils::to_string(clang_getCursorUSR(decl->cursor));
+    if (str.empty())
     {
-        auto kind = clang_getTokenKind(tokens[i]);
-        switch (kind)
-        {
-        // ignore all kind of tokens except Identifier
-        case CXToken_Identifier:
-            // add the symbol to the index
-            index.emplace(build_symbol(cursors[i]));
-            break;
-        case CXToken_Punctuation:
-        case CXToken_Keyword:
-        case CXToken_Literal:
-        case CXToken_Comment:
-        default:
-            break;
-        }
+        return;
     }
+    // auto s = symbol(str, location, kind::definition);
+    // if (decl->isDefinition)
+    // {
+    //     __data->emplace(symbol(str, location, kind::definition));
+    //     std::cout << "def " << s.m_location.uri << " "
+    //               << s.m_location.range.start.line << std::endl;
+    //     return;
+    // }
+    // __data->emplace(symbol(str, location, kind::declaration));
+    // std::cout << "decl " << s.m_location.uri << " "
+    //           << s.m_location.range.start.line << std::endl;
+}
 
-    // free the tokens
-    clang_disposeTokens(m_unit, tokens, size);
+void indexEntityReference(CXClientData              client_data,
+                          const CXIdxEntityRefInfo *entity)
+{
+    // auto sp = utils::to_string(clang_getCursorSpelling(entity->cursor));
+    // {
+    //     std::cout << sp;
+    //     auto location = utils::location(entity->cursor);
+    //     auto str      = utils::to_string(clang_getCursorUSR(entity->cursor));
+    //     auto s        = symbol(str, location, kind::definition);
+    //     // if (sp == "InitParams")
+    //     std::cout << " " << s.m_location.uri << " "
+    //               << s.m_location.range.start.line << std::endl;
+    // }
+    // std::cout << "indexEntityRef" << std::endl;
+}
 
-    // data_t _data;
-    // _data._symbols            = &index;
-    // _data.compile_command_ref = m_compile_cmd;
-    // _data._headers            = &headers_command;
+int abortQuery(CXClientData client_data, void *reserved) { return 0; }
 
-    // clang_visitChildren(
-    //     unit_cursor,
-    //     // visitor
-    //     [](CXCursor cursor_, CXCursor /*parent*/, CXClientData client_data) {
-    //         // check if the location is in the system header. If so it
-    //         // will be ignored
-    //         CXSourceLocation _location = clang_getCursorLocation(cursor_);
-    //         if (clang_Location_isInSystemHeader(_location))
-    //         {
-    //             return CXChildVisit_Continue;
-    //         }
+void diagnostic(CXClientData client_data, CXDiagnosticSet, void *reserved) {}
 
-    //         data_t *client = static_cast<data_t *>(client_data);
-    //         T *                        __data    = client->_symbols;
-    //         std::set<compile_command> *__headers = client->_headers;
-    //         auto                       kind      =
-    //         clang_getCursorKind(cursor_);
+CXIdxClientFile
+enteredMainFile(CXClientData client_data, CXFile mainFile, void *reserved)
+{
+    return NULL;
+}
 
-    //         // handle InclusionDirective
-    //         if (kind == CXCursor_InclusionDirective)
-    //         {
-    //             // header file path
-    //             auto header_file = utils::to_string(
-    //                 clang_getFileName(clang_getIncludedFile(cursor_)));
-    //             // use ctor in order to have a canonical path
-    //             compile_command header_compile_command(header_file);
-    //             // assign the command
-    //             header_compile_command.m_command =
-    //                 client->compile_command_ref.m_command;
-    //             // assign the directory path
-    //             header_compile_command.m_directory =
-    //                 client->compile_command_ref.m_directory;
-    //             __headers->emplace(header_compile_command);
-    //             return CXChildVisit_Continue;
-    //         }
+CXIdxClientFile ppIncludedFile(CXClientData                 client_data,
+                               const CXIdxIncludedFileInfo *included_file)
+{
+    return NULL;
+}
+CXIdxClientASTFile importedASTFile(CXClientData                    client_data,
+                                   const CXIdxImportedASTFileInfo *imported_ast)
+{
+    return NULL;
+}
+CXIdxClientContainer startedTranslationUnit(CXClientData client_data,
+                                            void *       reserved)
+{
+    return NULL;
+}
+void translation_unit_t::index_source(std::set<symbol> &symbol_index)
+{
+    data_t _data;
+    _data._symbols                             = &symbol_index;
+    auto                          index        = clang_createIndex(1, 1);
+    auto             index_action = clang_IndexAction_create(index);
+    IndexerCallbacks cbk;
+    cbk.abortQuery             = abortQuery;
+    cbk.diagnostic             = diagnostic;
+    cbk.enteredMainFile        = enteredMainFile;
+    cbk.ppIncludedFile         = ppIncludedFile;
+    cbk.importedASTFile        = importedASTFile;
+    cbk.startedTranslationUnit = startedTranslationUnit;
+    cbk.indexDeclaration       = indexDeclaration;
+    cbk.indexEntityReference   = indexEntityReference;
+    clang_indexTranslationUnit(
+        index_action, &_data, &cbk, sizeof cbk, CXIndexOpt_None, m_unit);
 
-    //         auto str = utils::to_string(clang_getCursorUSR(cursor_));
-    //         // ignore empty usr
-    //         if (!str.empty())
-    //         {
-
-    //             // check that it is a reference or a definition
-    //             // process only declarations and references
-    //             if (clang_isCursorDefinition(cursor_))
-    //             {
-    //                 auto location = utils::location(cursor_);
-    //                 __data->emplace(symbol(str, location, kind::definition));
-    //             }
-    //             else if (clang_isReference(kind) ||
-    //             clang_isDeclaration(kind))
-    //             {
-    //                 auto location = utils::location(cursor_);
-    //                 __data->emplace(symbol(str, location, kind::reference));
-    //             }
-    //         }
-
-    //         return CXChildVisit_Recurse;
-    //     },
-    //     &_data);
+    clang_IndexAction_dispose(index_action);
+    clang_disposeIndex(index);
 }
 
 } // namespace analyzer
