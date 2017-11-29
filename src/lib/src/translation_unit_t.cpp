@@ -318,13 +318,13 @@ void translation_unit_t::index_symbols(
                 if (clang_isCursorDefinition(cursor_))
                 {
                     auto location = utils::location(cursor_);
-                    // __data->emplace(symbol(str, location, kind::definition));
+                    __data->emplace(symbol(str, location, kind::definition));
                 }
                 else
                 // if (clang_isReference(kind) || clang_isDeclaration(kind))
                 {
                     auto location = utils::location(cursor_);
-                    // __data->emplace(symbol(str, location, kind::reference));
+                    __data->emplace(symbol(str, location, kind::reference));
                 }
             }
 
@@ -343,33 +343,33 @@ void indexDeclaration(CXClientData client_data, const CXIdxDeclInfo *decl)
     {
         return;
     }
-    // auto s = symbol(str, location, kind::definition);
-    // if (decl->isDefinition)
-    // {
-    //     __data->emplace(symbol(str, location, kind::definition));
-    //     std::cout << "def " << s.m_location.uri << " "
-    //               << s.m_location.range.start.line << std::endl;
-    //     return;
-    // }
-    // __data->emplace(symbol(str, location, kind::declaration));
-    // std::cout << "decl " << s.m_location.uri << " "
-    //           << s.m_location.range.start.line << std::endl;
+    auto s = symbol(str, location, kind::definition);
+    if (decl->isDefinition)
+    {
+        __data->emplace(symbol(str, location, kind::definition));
+        std::cout << "def " << s.m_location.uri << " "
+                  << s.m_location.range.start.line << std::endl;
+        return;
+    }
+    __data->emplace(symbol(str, location, kind::declaration));
+    std::cout << "decl " << s.m_location.uri << " "
+              << s.m_location.range.start.line << std::endl;
 }
 
 void indexEntityReference(CXClientData              client_data,
                           const CXIdxEntityRefInfo *entity)
 {
-    // auto sp = utils::to_string(clang_getCursorSpelling(entity->cursor));
-    // {
-    //     std::cout << sp;
-    //     auto location = utils::location(entity->cursor);
-    //     auto str      = utils::to_string(clang_getCursorUSR(entity->cursor));
-    //     auto s        = symbol(str, location, kind::definition);
-    //     // if (sp == "InitParams")
-    //     std::cout << " " << s.m_location.uri << " "
-    //               << s.m_location.range.start.line << std::endl;
-    // }
-    // std::cout << "indexEntityRef" << std::endl;
+    auto sp = utils::to_string(clang_getCursorSpelling(entity->cursor));
+    {
+        std::cout << sp;
+        auto location = utils::location(entity->cursor);
+        auto str      = utils::to_string(clang_getCursorUSR(entity->cursor));
+        auto s        = symbol(str, location, kind::reference);
+        // if (sp == "InitParams")
+        std::cout << " ref " << s.m_location.uri << " "
+                  << s.m_location.range.start.line << std::endl;
+    }
+    std::cout << "indexEntityRef" << std::endl;
 }
 
 int abortQuery(CXClientData client_data, void *reserved) { return 0; }
