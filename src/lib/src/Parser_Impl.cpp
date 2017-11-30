@@ -32,7 +32,6 @@ Parser_Impl::initialize(const std::string &             build_uri,
     }
 
     std::set<compile_command> headers_command;
-    std::set<symbol>          index;
 
     {
         task_system task;
@@ -42,9 +41,10 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
         for (auto &cmd : acc)
         {
-            task.async([cmd, &index, &headers_command, this]() {
-                translation_unit_t(cmd).index_symbols(headers_command, index);
-            });
+                translation_unit_t(cmd).index_source(m_index);
+                // task.async([cmd, &headers_command, this]() {
+                //     translation_unit_t(cmd).index_source(m_index);
+                // });
         }
     }
 
@@ -55,6 +55,28 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
+    {
+        std::cout << m_index.size() << std::endl;
+        for (auto &s : m_index)
+        {
+
+            if (params.textDocument.uri == s.m_location.uri &&
+                params.position.line == s.m_location.range.start.line &&
+                // chek that the character is in the correct range
+                s.m_location.range.start.character <=
+                    params.position.character &&
+                params.position.character <= s.m_location.range.end.character)
+            {
+                std::cout << "found " << s.m_location.uri << " "
+                          << s.m_location.range.start.character
+                          << "<=" << params.position.character
+                          << "<=" << s.m_location.range.end.character
+                          << " line " << s.m_location.range.start.line
+                          << std::endl;
+            }
+        }
+    }
+
     auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
 
     // TODO handle all compile cmds

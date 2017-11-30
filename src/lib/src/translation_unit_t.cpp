@@ -11,6 +11,16 @@ namespace code {
 namespace analyzer {
 
 namespace {
+
+using T = std::set<symbol>;
+struct data_t
+{
+    T *                        _symbols;
+    std::set<compile_command> *_headers;
+    compile_command            _compile_command;
+    compile_command            compile_command_ref;
+};
+
 CXTranslationUnit_Flags option(const translation_unit_flag &flag)
 {
     switch (flag)
@@ -36,6 +46,79 @@ CXCursor cursor(const CXTranslationUnit &unit,
     CXSourceLocation __location =
         clang_getLocation(unit, file, position.line, position.character);
     return clang_getCursor(unit, __location);
+}
+
+void indexDeclaration(CXClientData client_data, const CXIdxDeclInfo *decl)
+{
+    data_t *          client   = static_cast<data_t *>(client_data);
+    std::set<symbol> *__data   = client->_symbols;
+    auto              location = utils::location(decl->cursor);
+    auto              str = utils::to_string(clang_getCursorUSR(decl->cursor));
+    if (str.empty())
+    {
+        return;
+    }
+    if (decl->isDefinition)
+    {
+        __data->emplace(symbol(str, location, kind::decl_definition));
+        return;
+    }
+    __data->emplace(symbol(str, location, kind::declaration));
+}
+
+void indexEntityReference(CXClientData              client_data,
+                          const CXIdxEntityRefInfo *entity)
+{
+    data_t *          client   = static_cast<data_t *>(client_data);
+    std::set<symbol> *__data   = client->_symbols;
+    auto              cursor   = entity->cursor;
+    auto              location = utils::location(cursor);
+    auto              str      = utils::to_string(clang_getCursorUSR(cursor));
+    if (str.empty())
+    {
+        return;
+    }
+    __data->emplace(symbol(str, location, kind::reference));
+}
+
+int abortQuery(CXClientData, void *) { return 0; }
+
+void diagnostic(CXClientData, CXDiagnosticSet, void *) {}
+
+CXIdxClientFile enteredMainFile(CXClientData, CXFile, void *) { return NULL; }
+
+CXIdxClientFile ppIncludedFile(CXClientData, const CXIdxIncludedFileInfo *)
+{
+    return NULL;
+}
+CXIdxClientASTFile importedASTFile(CXClientData,
+                                   const CXIdxImportedASTFileInfo *)
+{
+    return NULL;
+}
+CXIdxClientContainer startedTranslationUnit(CXClientData, void *)
+{
+    return NULL;
+}
+
+symbol build_symbol(const CXCursor &cursor_)
+{
+    auto str = utils::to_string(clang_getCursorUSR(cursor_));
+    // ignore empty usr
+    if (str.empty())
+    {
+        return symbol();
+    }
+    auto location = utils::location(cursor_);
+
+    // check that it is a reference or a definition
+    // process only declarations and references
+    if (clang_isCursorDefinition(cursor_))
+    {
+        return symbol(str, location, kind::decl_definition);
+    }
+    // if (clang_isReference(kind) || clang_isDeclaration(kind))
+    return symbol(str, location, kind::reference);
 }
 } // namespace
 
@@ -200,34 +283,7 @@ std::set<std::string> translation_unit_t::retrieve_all_identifier_usr() const
         &_data);
     return identifiers;
 }
-using T = std::set<symbol>;
-struct data_t
-{
-    T *                        _symbols;
-    std::set<compile_command> *_headers;
-    compile_command _compile_command;
-    compile_command compile_command_ref;
-};
 
-symbol build_symbol(const CXCursor &cursor_)
-{
-    auto str = utils::to_string(clang_getCursorUSR(cursor_));
-    // ignore empty usr
-    if (str.empty())
-    {
-        return symbol();
-    }
-    auto location = utils::location(cursor_);
-
-    // check that it is a reference or a definition
-    // process only declarations and references
-    if (clang_isCursorDefinition(cursor_))
-    {
-        return symbol(str, location, kind::decl_definition);
-    }
-    // if (clang_isReference(kind) || clang_isDeclaration(kind))
-    return symbol(str, location, kind::reference);
-}
 
 void translation_unit_t::index_symbols(
     std::set<compile_command> &headers_command, std::set<symbol> &index) const
@@ -300,58 +356,6 @@ void translation_unit_t::index_symbols(
         &_data);
 }
 
-void indexDeclaration(CXClientData client_data, const CXIdxDeclInfo *decl)
-{
-    data_t *          client   = static_cast<data_t *>(client_data);
-    std::set<symbol> *__data   = client->_symbols;
-    auto location = utils::location(decl->cursor);
-    auto str      = utils::to_string(clang_getCursorUSR(decl->cursor));
-    if (str.empty())
-    {
-        return;
-    }
-    if (decl->isDefinition)
-    {
-        __data->emplace(symbol(str, location, kind::decl_definition));
-        return;
-    }
-    __data->emplace(symbol(str, location, kind::declaration));
-}
-
-void indexEntityReference(CXClientData              client_data,
-                          const CXIdxEntityRefInfo *entity)
-{
-    data_t *          client   = static_cast<data_t *>(client_data);
-    std::set<symbol> *__data   = client->_symbols;
-    auto              cursor   = entity->cursor;
-    auto              location = utils::location(cursor);
-    auto              str      = utils::to_string(clang_getCursorUSR(cursor));
-    if (str.empty())
-    {
-        return;
-    }
-    __data->emplace(symbol(str, location, kind::reference));
-}
-
-int abortQuery(CXClientData, void *) { return 0; }
-
-void diagnostic(CXClientData, CXDiagnosticSet, void *) {}
-
-CXIdxClientFile enteredMainFile(CXClientData, CXFile, void *) { return NULL; }
-
-CXIdxClientFile ppIncludedFile(CXClientData, const CXIdxIncludedFileInfo *)
-{
-    return NULL;
-}
-CXIdxClientASTFile importedASTFile(CXClientData,
-                                   const CXIdxImportedASTFileInfo *)
-{
-    return NULL;
-}
-CXIdxClientContainer startedTranslationUnit(CXClientData, void *)
-{
-    return NULL;
-}
 void translation_unit_t::index_source(std::set<symbol> &symbol_index)
 {
     data_t _data;
