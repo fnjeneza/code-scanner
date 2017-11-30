@@ -223,7 +223,7 @@ symbol build_symbol(const CXCursor &cursor_)
     // process only declarations and references
     if (clang_isCursorDefinition(cursor_))
     {
-        return symbol(str, location, kind::definition);
+        return symbol(str, location, kind::decl_definition);
     }
     // if (clang_isReference(kind) || clang_isDeclaration(kind))
     return symbol(str, location, kind::reference);
@@ -318,7 +318,8 @@ void translation_unit_t::index_symbols(
                 if (clang_isCursorDefinition(cursor_))
                 {
                     auto location = utils::location(cursor_);
-                    __data->emplace(symbol(str, location, kind::definition));
+                    __data->emplace(
+                        symbol(str, location, kind::decl_definition));
                 }
                 else
                 // if (clang_isReference(kind) || clang_isDeclaration(kind))
@@ -343,10 +344,10 @@ void indexDeclaration(CXClientData client_data, const CXIdxDeclInfo *decl)
     {
         return;
     }
-    auto s = symbol(str, location, kind::definition);
+    auto s = symbol(str, location, kind::decl_definition);
     if (decl->isDefinition)
     {
-        __data->emplace(symbol(str, location, kind::definition));
+        __data->emplace(symbol(str, location, kind::decl_definition));
         std::cout << "def " << s.m_location.uri << " "
                   << s.m_location.range.start.line << std::endl;
         return;

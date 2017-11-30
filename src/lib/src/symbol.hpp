@@ -7,7 +7,8 @@
 namespace code::analyzer {
 enum class kind
 {
-    definition,
+    declaration,
+    decl_definition, // a definition is a declaration
     reference
 };
 

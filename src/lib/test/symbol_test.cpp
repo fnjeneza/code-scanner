@@ -24,7 +24,7 @@ TEST_CASE("hash symbol", "[symbol_test]")
     REQUIRE(seed == seed2);
 
     auto s3 = s2;
-    s3.m_kind  = code::analyzer::kind::definition;
+    s3.m_kind  = code::analyzer::kind::decl_definition;
     auto seed3 = std::hash<code::analyzer::symbol>{}(s3);
     REQUIRE(seed != seed3);
 }
