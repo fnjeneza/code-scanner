@@ -235,40 +235,6 @@ void translation_unit_t::index_symbols(
     // get translation unit cursor
     CXCursor unit_cursor = clang_getTranslationUnitCursor(m_unit);
 
-    // // range of the hole translation unit
-    // auto range = clang_getCursorExtent(unit_cursor);
-    // // container for tokens
-    // CXToken *tokens = nullptr;
-    // // number of tokens
-    // unsigned size = 0;
-    // // tokenize the translation unit
-    // clang_tokenize(m_unit, range, &tokens, &size);
-    // std::vector<CXCursor> cursors(size);
-    // clang_annotateTokens(m_unit, tokens, size, cursors.data());
-    // std::cout << size << std::endl;
-
-    // for (unsigned i = 0; i < size; ++i)
-    // {
-    //     auto kind = clang_getTokenKind(tokens[i]);
-    //     switch (kind)
-    //     {
-    //     // ignore all kind of tokens except Identifier
-    //     case CXToken_Identifier:
-    //         // add the symbol to the index
-    //         index.emplace(build_symbol(cursors[i]));
-    //         break;
-    //     case CXToken_Punctuation:
-    //     case CXToken_Keyword:
-    //     case CXToken_Literal:
-    //     case CXToken_Comment:
-    //     default:
-    //         break;
-    //     }
-    // }
-
-    // // free the tokens
-    // clang_disposeTokens(m_unit, tokens, size);
-
     data_t _data;
     _data._symbols            = &index;
     _data.compile_command_ref = m_compile_cmd;
@@ -344,57 +310,45 @@ void indexDeclaration(CXClientData client_data, const CXIdxDeclInfo *decl)
     {
         return;
     }
-    auto s = symbol(str, location, kind::decl_definition);
     if (decl->isDefinition)
     {
         __data->emplace(symbol(str, location, kind::decl_definition));
-        std::cout << "def " << s.m_location.uri << " "
-                  << s.m_location.range.start.line << std::endl;
         return;
     }
     __data->emplace(symbol(str, location, kind::declaration));
-    std::cout << "decl " << s.m_location.uri << " "
-              << s.m_location.range.start.line << std::endl;
 }
 
 void indexEntityReference(CXClientData              client_data,
                           const CXIdxEntityRefInfo *entity)
 {
-    auto sp = utils::to_string(clang_getCursorSpelling(entity->cursor));
+    data_t *          client   = static_cast<data_t *>(client_data);
+    std::set<symbol> *__data   = client->_symbols;
+    auto              cursor   = entity->cursor;
+    auto              location = utils::location(cursor);
+    auto              str      = utils::to_string(clang_getCursorUSR(cursor));
+    if (str.empty())
     {
-        std::cout << sp;
-        auto location = utils::location(entity->cursor);
-        auto str      = utils::to_string(clang_getCursorUSR(entity->cursor));
-        auto s        = symbol(str, location, kind::reference);
-        // if (sp == "InitParams")
-        std::cout << " ref " << s.m_location.uri << " "
-                  << s.m_location.range.start.line << std::endl;
+        return;
     }
-    std::cout << "indexEntityRef" << std::endl;
+    __data->emplace(symbol(str, location, kind::reference));
 }
 
-int abortQuery(CXClientData client_data, void *reserved) { return 0; }
+int abortQuery(CXClientData, void *) { return 0; }
 
-void diagnostic(CXClientData client_data, CXDiagnosticSet, void *reserved) {}
+void diagnostic(CXClientData, CXDiagnosticSet, void *) {}
 
-CXIdxClientFile
-enteredMainFile(CXClientData client_data, CXFile mainFile, void *reserved)
+CXIdxClientFile enteredMainFile(CXClientData, CXFile, void *) { return NULL; }
+
+CXIdxClientFile ppIncludedFile(CXClientData, const CXIdxIncludedFileInfo *)
 {
     return NULL;
 }
-
-CXIdxClientFile ppIncludedFile(CXClientData                 client_data,
-                               const CXIdxIncludedFileInfo *included_file)
+CXIdxClientASTFile importedASTFile(CXClientData,
+                                   const CXIdxImportedASTFileInfo *)
 {
     return NULL;
 }
-CXIdxClientASTFile importedASTFile(CXClientData                    client_data,
-                                   const CXIdxImportedASTFileInfo *imported_ast)
-{
-    return NULL;
-}
-CXIdxClientContainer startedTranslationUnit(CXClientData client_data,
-                                            void *       reserved)
+CXIdxClientContainer startedTranslationUnit(CXClientData, void *)
 {
     return NULL;
 }
