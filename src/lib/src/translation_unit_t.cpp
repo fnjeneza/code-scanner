@@ -73,7 +73,9 @@ void indexEntityReference(CXClientData              client_data,
     std::set<symbol> *__data   = client->_symbols;
     auto              cursor   = entity->cursor;
     auto              location = utils::location(cursor);
-    auto              str      = utils::to_string(clang_getCursorUSR(cursor));
+    // auto              str      =
+    // utils::to_string(clang_getCursorUSR(cursor));
+    auto str = std::string(entity->referencedEntity->USR);
     if (str.empty())
     {
         return;
@@ -371,8 +373,13 @@ void translation_unit_t::index_source(std::set<symbol> &symbol_index)
     cbk.startedTranslationUnit = startedTranslationUnit;
     cbk.indexDeclaration       = indexDeclaration;
     cbk.indexEntityReference   = indexEntityReference;
-    clang_indexTranslationUnit(
-        index_action, &_data, &cbk, sizeof cbk, CXIndexOpt_None, m_unit);
+    clang_indexTranslationUnit(index_action,
+                               &_data,
+                               &cbk,
+                               sizeof cbk,
+                               CXIndexOpt_None |
+                                   CXIndexOpt_SuppressRedundantRefs,
+                               m_unit);
 
     clang_IndexAction_dispose(index_action);
     clang_disposeIndex(index);
