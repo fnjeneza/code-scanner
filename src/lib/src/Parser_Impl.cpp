@@ -41,10 +41,11 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
         for (auto &cmd : acc)
         {
-                translation_unit_t(cmd).index_source(m_index);
-                // task.async([cmd, &headers_command, this]() {
-                //     translation_unit_t(cmd).index_source(m_index);
-                // });
+            translation_unit_t(cmd).index_source(m_index);
+            // translation_unit_t(cmd).index_symbols(headers_command, m_index);
+            // task.async([cmd, &headers_command, this]() {
+            //     translation_unit_t(cmd).index_source(m_index);
+            // });
         }
     }
 
@@ -55,39 +56,26 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    // find the USR
-    {
-        // iterator that will be filled by the iterator which contains the
-        // search word
-        auto it_ret = std::end(m_index);
+    // iterator that will be filled by the iterator which contains the
+    // search word
+    auto it_found = std::end(m_index);
 
-        for (auto it = std::begin(m_index); it != std::end(m_index); ++it)
+    unsigned         index = 0;
+    for (auto it = std::begin(m_index); it != std::end(m_index); ++it, ++index)
+    {
+        if (params.textDocument.uri == it->m_location.uri &&
+            params.position.line == it->m_location.range.start.line &&
+            it->m_location.range.start.character <= params.position.character)
         {
-            unsigned closest_index = 0;
-            if (params.textDocument.uri == it->m_location.uri &&
-                params.position.line == it->m_location.range.start.line)
-            {
-                // find the closest character
-                const unsigned &offset = it->m_location.range.start.character;
-                if (offset <= params.position.character &&
-                    offset > closest_index)
-                {
-                    it_ret = it;
-                }
-            }
-        }
-        if (it_ret != std::end(m_index))
-        {
-            std::cout << "found " << it_ret->m_location.uri << " "
-                      << it_ret->m_location.range.start.character
-                      << "<=" << params.position.character
-                      << "<=" << it_ret->m_location.range.end.character
-                      << " line " << it_ret->m_location.range.start.line << " "
-                      << it_ret->m_usr << std::endl;
+                it_found = it;
+                std::cout << "found " << it_found->m_location.uri << " "
+                          << it_found->m_location.range.start.character
+                          << "<=" << params.position.character
+                          << "<=" << it_found->m_location.range.end.character
+                          << " line " << it_found->m_location.range.start.line
+                          << " " << it_found->m_usr << std::endl;
         }
     }
-    // TODO find USR definition
-
     auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
 
     // TODO handle all compile cmds

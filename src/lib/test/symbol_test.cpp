@@ -18,6 +18,8 @@ TEST_CASE("hash symbol", "[symbol_test]")
     s2.m_location.range.end.line        = 10;
     s2.m_location.range.end.character   = 120;
 
+    REQUIRE(s == s2);
+
     auto seed = std::hash<code::analyzer::symbol>{}(s);
     auto seed2 = std::hash<code::analyzer::symbol>{}(s2);
 
@@ -27,4 +29,19 @@ TEST_CASE("hash symbol", "[symbol_test]")
     s3.m_kind  = code::analyzer::kind::decl_definition;
     auto seed3 = std::hash<code::analyzer::symbol>{}(s3);
     REQUIRE(seed != seed3);
+}
+
+TEST_CASE("less", "[symbol_test]")
+{
+    code::analyzer::Location location;
+    location.range.start.line      = 10;
+    location.range.start.character = 100;
+    location.range.end.line        = 10;
+    location.range.end.character   = 120;
+    std::set<code::analyzer::symbol> container;
+    container.emplace(code::analyzer::symbol(
+        "usr1", location, code::analyzer::kind::reference));
+    container.emplace(code::analyzer::symbol(
+        "usr1", location, code::analyzer::kind::reference));
+    REQUIRE(container.size() == 1);
 }
