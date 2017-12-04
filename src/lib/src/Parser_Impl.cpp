@@ -56,8 +56,12 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    for (const auto &sym : m_index)
+    // TODO when cursor has multiple definition according to the compilations
+    // flags
+    auto found = std::cend(m_index);
+    for (auto it = std::cbegin(m_index); it != std::cend(m_index); ++it)
     {
+        const auto &sym = *it;
         if (params.textDocument.uri == sym.m_location.uri &&
             params.position.line == sym.m_location.range.start.line &&
             sym.m_location.range.start.character <= params.position.character &&
@@ -69,31 +73,24 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
                       << "<=" << sym.m_location.range.end.character << " line "
                       << sym.m_location.range.start.line << " " << sym.m_usr
                       << std::endl;
+            found = it;
+            break;
         }
     }
-    auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
-
-    // TODO handle all compile cmds
-    m_tu.compile_cmd(cmds[0]);
-    Location location = m_tu.definition(params.position);
-    if (!location.is_valid())
+    if (found != std::cend(m_index))
     {
-        std::cout << "location not valid" << std::endl;
-        // auto usr = m_tu.usr(params.position);
-        // // search in repository
-        // auto defs = m_repository.definitions(usr);
-
-        // for (auto def : defs)
-        // {
-        //     // TODO handle multiple compile commands
-        //     location = translation_unit_t(cmds[0]).definition(usr);
-        //     if (location.is_valid())
-        //     {
-        //         return location;
-        //     }
-        // }
+        // search for definition in the index
+        auto it_definition = std::find_if(
+            std::cbegin(m_index), std::cend(m_index), [&found](auto &sym) {
+                return sym.m_usr == found->m_usr &&
+                       sym.m_kind == kind::decl_definition;
+            });
+        if (it_definition != std::cend(m_index))
+        {
+            return it_definition->m_location;
+        }
     }
-    return location;
+    return Location();
 }
 
 Location Parser_Impl::reference(const TextDocumentPositionParams &params)
