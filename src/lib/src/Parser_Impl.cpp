@@ -56,24 +56,19 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
 Location Parser_Impl::definition(const TextDocumentPositionParams &params)
 {
-    // iterator that will be filled by the iterator which contains the
-    // search word
-    auto it_found = std::end(m_index);
-
-    unsigned         index = 0;
-    for (auto it = std::begin(m_index); it != std::end(m_index); ++it, ++index)
+    for (const auto &sym : m_index)
     {
-        if (params.textDocument.uri == it->m_location.uri &&
-            params.position.line == it->m_location.range.start.line &&
-            it->m_location.range.start.character <= params.position.character)
+        if (params.textDocument.uri == sym.m_location.uri &&
+            params.position.line == sym.m_location.range.start.line &&
+            sym.m_location.range.start.character <= params.position.character &&
+            params.position.character <= sym.m_location.range.end.character)
         {
-                it_found = it;
-                std::cout << "found " << it_found->m_location.uri << " "
-                          << it_found->m_location.range.start.character
-                          << "<=" << params.position.character
-                          << "<=" << it_found->m_location.range.end.character
-                          << " line " << it_found->m_location.range.start.line
-                          << " " << it_found->m_usr << std::endl;
+            std::cout << "found " << sym.m_location.uri << " "
+                      << sym.m_location.range.start.character
+                      << "<=" << params.position.character
+                      << "<=" << sym.m_location.range.end.character << " line "
+                      << sym.m_location.range.start.line << " " << sym.m_usr
+                      << std::endl;
         }
     }
     auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);

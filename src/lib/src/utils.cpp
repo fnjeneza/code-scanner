@@ -65,8 +65,22 @@ Location location(const CXCursor &cursor)
         return Location();
     }
 
-    auto range = clang_getCursorExtent(cursor);
-    return location(range);
+    auto loc   = clang_getCursorLocation(cursor);
+    CXFile   _file;
+    Location _location;
+    clang_getFileLocation(loc,
+                          &_file,
+                          &_location.range.start.line,
+                          &_location.range.start.character,
+                          nullptr);
+    _location.uri =
+        std::filesystem::canonical(to_string(clang_getFileName(_file)));
+    _location.range.end.line      = _location.range.start.line;
+    // size of the cursor name
+    auto size = static_cast<unsigned>(
+        to_string(clang_getCursorSpelling(cursor)).size());
+    _location.range.end.character = _location.range.start.character + size - 1;
+    return _location;
 }
 
 bool is_identifier(const CXCursor &cursor)
