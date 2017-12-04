@@ -67,12 +67,12 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
             sym.m_location.range.start.character <= params.position.character &&
             params.position.character <= sym.m_location.range.end.character)
         {
-            std::cout << "found " << sym.m_location.uri << " "
-                      << sym.m_location.range.start.character
-                      << "<=" << params.position.character
-                      << "<=" << sym.m_location.range.end.character << " line "
-                      << sym.m_location.range.start.line << " " << sym.m_usr
-                      << std::endl;
+            // check if the found symbol is definition
+            if (it->m_kind == kind::decl_definition)
+            {
+                return it->m_location;
+            }
+
             found = it;
             break;
         }
