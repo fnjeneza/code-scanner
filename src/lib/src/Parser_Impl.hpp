@@ -27,8 +27,13 @@ class Parser_Impl
                const std::vector<std::string> &compile_arguments,
                const std::vector<std::string> &flags_to_ignore);
 
-    Location definition(const TextDocumentPositionParams &params);
-    Location reference(const TextDocumentPositionParams &params);
+    Location definition(const TextDocumentPositionParams &params) const
+        noexcept;
+    Location reference(const TextDocumentPositionParams &params) const noexcept;
+
+  private:
+    Location find(const TextDocumentPositionParams &params,
+                  const kind &                      predicate) const noexcept;
 
   private:
     // repository<std::string>             m_repository;

@@ -54,7 +54,8 @@ Parser_Impl::initialize(const std::string &             build_uri,
     return std::experimental::nullopt;
 }
 
-Location Parser_Impl::definition(const TextDocumentPositionParams &params)
+Location Parser_Impl::find(const TextDocumentPositionParams &params,
+                           const kind &predicate) const noexcept
 {
     // TODO when cursor has multiple definition according to the compilations
     // flags
@@ -67,8 +68,8 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
             sym.m_location.range.start.character <= params.position.character &&
             params.position.character <= sym.m_location.range.end.character)
         {
-            // check if the found symbol is definition
-            if (it->m_kind == kind::decl_definition)
+            // check if the found symbol is match the predicate kind
+            if (it->m_kind == predicate)
             {
                 return it->m_location;
             }
@@ -80,27 +81,30 @@ Location Parser_Impl::definition(const TextDocumentPositionParams &params)
     if (found != std::cend(m_index))
     {
         // search for definition in the index
-        auto it_definition = std::find_if(
-            std::cbegin(m_index), std::cend(m_index), [&found](auto &sym) {
-                return sym.m_usr == found->m_usr &&
-                       sym.m_kind == kind::decl_definition;
-            });
-        if (it_definition != std::cend(m_index))
+        auto it_pred = std::find_if(std::cbegin(m_index),
+                                    std::cend(m_index),
+                                    [&found, &predicate](auto &sym) {
+                                        return sym.m_usr == found->m_usr &&
+                                               sym.m_kind == predicate;
+                                    });
+        if (it_pred != std::cend(m_index))
         {
-            return it_definition->m_location;
+            return it_pred->m_location;
         }
     }
     return Location();
 }
 
-Location Parser_Impl::reference(const TextDocumentPositionParams &params)
+Location Parser_Impl::definition(const TextDocumentPositionParams &params) const
+    noexcept
 {
-    auto cmds = m_compile_db->compile_commands2(params.textDocument.uri);
+    return find(params, kind::decl_definition);
+}
 
-    // TODO handle all compile cmds
-    m_tu.compile_cmd(cmds[0]);
-    Location location = m_tu.reference(params.position);
-    return location;
+Location Parser_Impl::reference(const TextDocumentPositionParams &params) const
+    noexcept
+{
+    return find(params, kind::reference);
 }
 
 } // namespace code::analyzer
