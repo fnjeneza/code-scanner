@@ -73,8 +73,6 @@ void indexEntityReference(CXClientData              client_data,
     std::set<symbol> *__data   = client->_symbols;
     auto              cursor   = entity->cursor;
     auto              location = utils::location(cursor);
-    // auto              str      = utils::to_string(clang_getCursorUSR(
-    //     clang_getCursorReferenced(entity->container->cursor)));
     auto str = std::string(entity->referencedEntity->USR);
     if (str.empty())
     {
@@ -103,25 +101,6 @@ CXIdxClientContainer startedTranslationUnit(CXClientData, void *)
     return NULL;
 }
 
-symbol build_symbol(const CXCursor &cursor_)
-{
-    auto str = utils::to_string(clang_getCursorUSR(cursor_));
-    // ignore empty usr
-    if (str.empty())
-    {
-        return symbol();
-    }
-    auto location = utils::location(cursor_);
-
-    // check that it is a reference or a definition
-    // process only declarations and references
-    if (clang_isCursorDefinition(cursor_))
-    {
-        return symbol(str, location, kind::decl_definition);
-    }
-    // if (clang_isReference(kind) || clang_isDeclaration(kind))
-    return symbol(str, location, kind::reference);
-}
 } // namespace
 
 translation_unit_t::translation_unit_t(const compile_command &cmd,
@@ -202,12 +181,6 @@ void translation_unit_t::parse(const translation_unit_flag &opt)
 Location translation_unit_t::definition(const Position &position) const
 {
     auto _cursor = cursor(m_unit, m_compile_cmd.m_file, position);
-    auto loc     = utils::location(_cursor);
-    std::cout << utils::to_string(
-                     clang_getCursorUSR(clang_getCursorReferenced(_cursor)))
-              << std::endl;
-    std::cout << loc.range.start.line << " " << loc.range.start.character << " "
-              << loc.range.end.character << std::endl;
     // search for definition
     return utils::location(clang_getCursorDefinition(_cursor));
 }
