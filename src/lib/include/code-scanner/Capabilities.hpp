@@ -8,17 +8,17 @@ namespace analyzer {
 
 struct DynamicRegistration
 {
-    bool dynamicRegistration;
+    bool dynamicRegistration = false;
 };
 
 struct WorkspaceEdit
 {
-    bool documentChanges;
+    bool documentChanges = false;
 };
 
 struct WorkspaceClientCapabilities
 {
-    bool                applyEdit;
+    bool                applyEdit = false;
     WorkspaceEdit       workspaceEdit;
     DynamicRegistration didChangeConfiguration;
     DynamicRegistration didChangeWatchedFiles;
@@ -28,7 +28,7 @@ struct WorkspaceClientCapabilities
 
 struct CompletionItem
 {
-    bool snippetSupport;
+    bool snippetSupport = false;
 };
 
 struct Completion : public DynamicRegistration
@@ -38,9 +38,8 @@ struct Completion : public DynamicRegistration
 
 struct Synchronization : public DynamicRegistration
 {
-    bool willSave;
-    bool WillSaveWaituntil;
-    bool didSave;
+    bool willSave          = false;
+    bool WillSaveWaituntil = false bool didSave = false;
 };
 
 struct TextDocumentClientCapabilities
@@ -64,7 +63,7 @@ struct TextDocumentClientCapabilities
 
 struct CodeLensOptions
 {
-    bool resolveProvider;
+    bool resolveProvider = false;
 };
 
 struct DocumentOnTypeFormattingOptions
@@ -75,7 +74,7 @@ struct DocumentOnTypeFormattingOptions
 
 struct DocumentLinkOptions
 {
-    bool resolveProvider;
+    bool resolveProvider = false;
 };
 
 struct ExecuteCommandOptions
@@ -90,41 +89,41 @@ struct SignatureHelpOptions
 
 struct CompletionOptions
 {
-    bool                     resolveProvider;
+    bool                     resolveProvider = false;
     std::vector<std::string> triggerCharacters;
 };
 
 struct SaveOptions
 {
-    bool includeText;
+    bool includeText = false;
 };
 
 struct TextDocumentSyncOptions
 {
-    bool        openClose;
+    bool        openClose = false;
     std::size_t change;
-    bool        willSave;
-    bool        willSaveWaitUntil;
+    bool        willSave          = false;
+    bool        willSaveWaitUntil = false;
     SaveOptions save;
 };
 
 struct ServerCapabilities
 {
     TextDocumentSyncOptions         textDocumentSync;
-    bool                            hoverProvider;
+    bool                            hoverProvider = false;
     CompletionOptions               completionProvider;
     SignatureHelpOptions            signatureHelpProvider;
-    bool                            definitionProvider;
-    bool                            referencesProvider;
-    bool                            documentHighlightProvider;
-    bool                            documentSymbolProvider;
-    bool                            workspaceSymbolProvider;
-    bool                            codeActionProvider;
+    bool                            definitionProvider        = false;
+    bool                            referencesProvider        = false;
+    bool                            documentHighlightProvider = false;
+    bool                            documentSymbolProvider    = false;
+    bool                            workspaceSymbolProvider   = false;
+    bool                            codeActionProvider        = false;
     CodeLensOptions                 codeLensProvider;
-    bool                            documentFormattingProvider;
-    bool                            documentRangeFormattingProvider;
+    bool                            documentFormattingProvider      = false;
+    bool                            documentRangeFormattingProvider = false;
     DocumentOnTypeFormattingOptions documentOnTypeFormattingProvider;
-    bool                            renameProvider;
+    bool                            renameProvider = false;
     DocumentLinkOptions             documentLinkProvider;
     ExecuteCommandOptions           executeCommandProvider;
     std::string                     experimental;
