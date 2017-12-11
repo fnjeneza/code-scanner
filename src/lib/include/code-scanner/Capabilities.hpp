@@ -90,7 +90,7 @@ struct SignatureHelpOptions
 
 struct CompletionOptions
 {
-    bool                     resolverProvider;
+    bool                     resolveProvider;
     std::vector<std::string> triggerCharacters;
 };
 
