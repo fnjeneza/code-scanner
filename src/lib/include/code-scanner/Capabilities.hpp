@@ -112,7 +112,7 @@ struct ServerCapabilities
 {
     TextDocumentSyncOptions         textDocumentSync;
     bool                            hoverProvider;
-    CompletionOptions               completionProvide;
+    CompletionOptions               completionProvider;
     SignatureHelpOptions            signatureHelpProvider;
     bool                            definitionProvider;
     bool                            referencesProvider;
@@ -123,7 +123,7 @@ struct ServerCapabilities
     CodeLensOptions                 codeLensProvider;
     bool                            documentFormattingProvider;
     bool                            documentRangeFormattingProvider;
-    DocumentOnTypeFormattingOptions documentOnTypeFormattingOptions;
+    DocumentOnTypeFormattingOptions documentOnTypeFormattingProvider;
     bool                            renameProvider;
     DocumentLinkOptions             documentLinkProvider;
     ExecuteCommandOptions           executeCommandProvider;
