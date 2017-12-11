@@ -129,6 +129,11 @@ struct ServerCapabilities
     std::string                     experimental;
 };
 
+struct InitializeResult
+{
+    ServerCapabilities capabilities;
+};
+
 struct Capabilities
 {
     WorkspaceClientCapabilities    workspace;
