@@ -39,7 +39,8 @@ struct Completion : public DynamicRegistration
 struct Synchronization : public DynamicRegistration
 {
     bool willSave          = false;
-    bool WillSaveWaituntil = false bool didSave = false;
+    bool WillSaveWaituntil = false;
+    bool didSave           = false;
 };
 
 struct TextDocumentClientCapabilities
