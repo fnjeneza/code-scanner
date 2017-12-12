@@ -102,7 +102,7 @@ struct SaveOptions
 struct TextDocumentSyncOptions
 {
     bool        openClose = false;
-    std::size_t change;
+    std::size_t change            = 0;
     bool        willSave          = false;
     bool        willSaveWaitUntil = false;
     SaveOptions save;
