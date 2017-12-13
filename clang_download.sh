@@ -4,12 +4,11 @@ echo "llvm installation"
 
 set -e
 
-VERSION=4.0.1
+VERSION=5.0.0
 LLVM=llvm-$VERSION
 CLANG=cfe-$VERSION
 LLVM_ARCHIVE=$LLVM.src.tar.xz
 CLANG_ARCHIVE=$CLANG.src.tar.xz
-NB_CPU=`cat /proc/cpuinfo | grep processor | wc -l`
 CURRENT=$PWD
 
 cd /tmp
