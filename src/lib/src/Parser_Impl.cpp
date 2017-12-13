@@ -37,9 +37,18 @@ Parser_Impl::initialize(const std::string &             build_uri,
         task_system task;
         // auto all_filenames = compile_database_t::source_filenames();
         auto acc = m_compile_db->all_compile_commands();
+        std::vector<compile_command> commands_to_index;
+        for (auto &cmd : acc)
+        {
+            auto found = m_indexed_files.find(utils::File(cmd.m_file));
+            if (found == m_indexed_files.cend())
+            {
+                commands_to_index.push_back(cmd);
+            }
+        }
         // acc      = m_repository.check_file_timestamp(acc);
 
-        for (auto &cmd : acc)
+        for (auto &cmd : commands_to_index)
         {
             auto indexed = translation_unit_t(cmd).index_source(m_index);
             if(indexed)
