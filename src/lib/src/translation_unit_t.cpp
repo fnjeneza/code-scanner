@@ -342,11 +342,11 @@ void translation_unit_t::index_symbols(
         &_data);
 }
 
-void translation_unit_t::index_source(std::set<symbol> &symbol_index)
+bool translation_unit_t::index_source(std::set<symbol> &symbol_index)
 {
     data_t _data;
-    _data._symbols                             = &symbol_index;
-    auto                          index        = clang_createIndex(1, 1);
+    _data._symbols                = &symbol_index;
+    auto             index        = clang_createIndex(1, 1);
     auto             index_action = clang_IndexAction_create(index);
     IndexerCallbacks cbk;
     cbk.abortQuery             = abortQuery;
@@ -357,17 +357,23 @@ void translation_unit_t::index_source(std::set<symbol> &symbol_index)
     cbk.startedTranslationUnit = startedTranslationUnit;
     cbk.indexDeclaration       = indexDeclaration;
     cbk.indexEntityReference   = indexEntityReference;
-    clang_indexTranslationUnit(index_action,
-                               &_data,
-                               &cbk,
-                               sizeof cbk,
-                               // CXIndexOpt_None |
-                               CXIndexOpt_IndexFunctionLocalSymbols,
-                               // CXIndexOpt_SuppressRedundantRefs,
-                               m_unit);
+    auto error =
+        clang_indexTranslationUnit(index_action,
+                                   &_data,
+                                   &cbk,
+                                   sizeof cbk,
+                                   // CXIndexOpt_None |
+                                   CXIndexOpt_IndexFunctionLocalSymbols,
+                                   // CXIndexOpt_SuppressRedundantRefs,
+                                   m_unit);
 
     clang_IndexAction_dispose(index_action);
     clang_disposeIndex(index);
+    if(error)
+    {
+      return false;
+    }
+    return true;
 }
 
 } // namespace analyzer

@@ -41,7 +41,11 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
         for (auto &cmd : acc)
         {
-            translation_unit_t(cmd).index_source(m_index);
+            auto indexed = translation_unit_t(cmd).index_source(m_index);
+            if(indexed)
+            {
+                m_indexed_files.emplace(utils::File(cmd.m_file));
+            }
             // translation_unit_t(cmd).index_symbols(headers_command, m_index);
             // task.async([cmd, &headers_command, this]() {
             //     translation_unit_t(cmd).index_source(m_index);

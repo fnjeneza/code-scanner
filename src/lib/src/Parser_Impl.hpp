@@ -10,6 +10,7 @@
 
 #include "code-scanner/Location.hpp"
 #include "code-scanner/Params.hpp"
+#include "file.hpp"
 #include "repository.hpp"
 #include "translation_unit_t.hpp"
 
@@ -41,6 +42,7 @@ class Parser_Impl
     std::unique_ptr<compile_database_t> m_compile_db;
     // TODO use a database to store symbols
     std::set<symbol>           m_index;
+    std::set<utils::File>      m_indexed_files;
     std::mutex                 m_mutex;
 };
 
