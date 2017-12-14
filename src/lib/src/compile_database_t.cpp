@@ -161,7 +161,7 @@ compile_database_t::compile_database_t(
     {
         if (!flag.empty())
         {
-            // concatenate all flags, with '|' as separation
+            // concatenate all flags, with '|' as separation for the regex
             m_flags_to_ignore += " " + flag + " |";
         }
     }
@@ -206,8 +206,8 @@ void compile_database_t::parse_compile_commands() noexcept
             // read the command from the json database
             auto       cmd = it.at("command").get<std::string>();
             std::regex flags{m_flags_to_ignore};
-            // remove all flags to ignore
-            cmd = std::regex_replace(cmd, flags, "");
+            // replace flags to ignore by a space
+            cmd = std::regex_replace(cmd, flags, " ");
             // remove the binary compiler name
             auto index = cmd.find(" ");
             cmd        = cmd.substr(index);

@@ -362,8 +362,8 @@ bool translation_unit_t::index_source(std::set<symbol> &symbol_index)
                                    &_data,
                                    &cbk,
                                    sizeof cbk,
-                                   // CXIndexOpt_None |
-                                   CXIndexOpt_IndexFunctionLocalSymbols,
+                                   CXIndexOpt_None,
+                                   // CXIndexOpt_IndexFunctionLocalSymbols,
                                    // CXIndexOpt_SuppressRedundantRefs,
                                    m_unit);
 
@@ -371,7 +371,8 @@ bool translation_unit_t::index_source(std::set<symbol> &symbol_index)
     clang_disposeIndex(index);
     if(error)
     {
-      return false;
+        std::cout << "error " << m_compile_cmd.m_file << std::endl;
+        return false;
     }
     return true;
 }
