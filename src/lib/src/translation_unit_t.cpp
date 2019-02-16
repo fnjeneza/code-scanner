@@ -21,18 +21,18 @@ struct data_t
     compile_command            compile_command_ref;
 };
 
-CXTranslationUnit_Flags option(const translation_unit_flag &flag)
-{
-    switch (flag)
-    {
-    case translation_unit_flag::skip_function_bodies:
-        return CXTranslationUnit_SkipFunctionBodies;
-        // CXTranslationUnit_DetailedPreprocessingRecord;
-    case translation_unit_flag::none:
-    default:
-        return CXTranslationUnit_None;
-    }
-}
+// CXTranslationUnit_Flags option(const translation_unit_flag &flag)
+// {
+//     switch (flag)
+//     {
+//     case translation_unit_flag::skip_function_bodies:
+//         return CXTranslationUnit_SkipFunctionBodies;
+//         // CXTranslationUnit_DetailedPreprocessingRecord;
+//     case translation_unit_flag::none:
+//     default:
+//         return CXTranslationUnit_None;
+//     }
+// }
 
 CXCursor cursor(const CXTranslationUnit &unit,
                 const std::string_view & filename,
@@ -131,7 +131,7 @@ void translation_unit_t::compile_cmd(const compile_command &cmd)
     }
 }
 
-void translation_unit_t::parse(const translation_unit_flag &opt)
+void translation_unit_t::parse(const translation_unit_flag &/*opt*/)
 {
     auto &__flags = m_compile_cmd.m_command;
 
