@@ -13,7 +13,7 @@ namespace code::analyzer {
 Parser_Impl::Parser_Impl()  = default;
 Parser_Impl::~Parser_Impl() = default;
 
-std::experimental::optional<std::error_code>
+std::optional<std::error_code>
 Parser_Impl::initialize(const std::string &             build_uri,
                         const std::vector<std::string> &compile_commands,
                         const std::vector<std::string> &flags_to_ignore)
@@ -64,7 +64,7 @@ Parser_Impl::initialize(const std::string &             build_uri,
 
     m_compile_db->merge(std::move(headers_command));
 
-    return std::experimental::nullopt;
+    return std::nullopt;
 }
 
 Location Parser_Impl::find(const TextDocumentPositionParams &params,

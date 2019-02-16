@@ -121,7 +121,7 @@ json database()
 // bool is_source(const std::string_view &filename)
 // {
 
-//     auto ext = std::experimental::filesystem::path(filename).extension();
+//     auto ext = std::filesystem::path(filename).extension();
 //     if (ext == ".cpp" || ext == ".cxx" || ext == ".cc" || ext == ".c")
 //     {
 //         return true;
@@ -131,7 +131,7 @@ json database()
 
 // bool is_header(const std::string_view &filename)
 // {
-//     auto ext = std::experimental::filesystem::path(filename).extension();
+//     auto ext = std::filesystem::path(filename).extension();
 //     if (ext == ".hpp" || ext == ".hxx" || ext == ".hh" || ext == ".h")
 //     {
 //         return true;

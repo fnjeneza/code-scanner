@@ -1,9 +1,9 @@
 #include "config.hpp"
 #include "code-scanner/ErrorCodes.hpp"
-#include <experimental/filesystem>
+#include <filesystem>
 
 namespace std {
-namespace filesystem = std::experimental::filesystem;
+namespace filesystem = std::filesystem;
 }
 
 using flags = std::vector<std::string>;
@@ -14,7 +14,7 @@ static flags       __compile_commands;
 static flags       __flags_to_ignore;
 } // namespace
 
-std::experimental::optional<std::error_code>
+std::optional<std::error_code>
 config::builder(const std::string &build_uri,
                 const flags &      compile_commands,
                 const flags &      flags_to_ignore)
@@ -31,7 +31,7 @@ config::builder(const std::string &build_uri,
     }
     __compile_commands = compile_commands;
     __flags_to_ignore  = flags_to_ignore;
-    return std::experimental::nullopt;
+    return std::nullopt;
 }
 
 flags config::flags_to_ignore() { return __flags_to_ignore; }
