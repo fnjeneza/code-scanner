@@ -62,7 +62,7 @@ template <>
 struct less<code::analyzer::symbol>
 {
     using T = code::analyzer::symbol;
-    bool operator()(const T &lhs, const T &rhs)
+    bool operator()(const T &lhs, const T &rhs) const
     {
         return (
             lhs.m_usr < rhs.m_usr || lhs.m_location.uri < rhs.m_location.uri ||
