@@ -62,7 +62,7 @@ target_sources(code-scanner
 
 target_include_directories(code-scanner
     PUBLIC include
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 target_link_libraries(code-scanner
