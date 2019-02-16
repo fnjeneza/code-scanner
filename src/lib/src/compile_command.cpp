@@ -2,7 +2,7 @@
 // TODO remove utils and use  template split
 #include "utils.hpp"
 
-#include "filesystem.hpp"
+#include <filesystem>
 namespace code::analyzer {
 // declarations
 std::string canonical(const std::string_view &directory,
