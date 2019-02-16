@@ -20,11 +20,13 @@ if(NOT FLATC)
   message(FATAL_ERROR "flatc not found")
 endif()
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated)
 # generate the flatbuffers
 add_custom_command(
-  OUTPUT generate_idl
-  COMMAND ${FLATC} --cpp ${CMAKE_CURRENT_SOURCE_DIR}/idl/database.fbs
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/database_generated.h
+  COMMAND ${FLATC} -o ${CMAKE_CURRENT_BINARY_DIR}/generated/ --cpp ${CMAKE_CURRENT_SOURCE_DIR}/idl/database.fbs
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS idl/database.fbs
 )
 
 get_filename_component(FLATBUFFERS_INCLUDE_DIR ${FLATC}/../../include ABSOLUTE)
@@ -44,17 +46,18 @@ include_directories(SYSTEM
 # code scanner library
 add_library(code-scanner SHARED
   src/code-scanner.cpp
-  generate_idl # generate file
 )
 
 target_sources(code-scanner
-    PRIVATE src/utils.cpp
-    PRIVATE src/Parser_Impl.cpp
-    PRIVATE src/translation_unit_t.cpp
-    PRIVATE src/compile_database_t.cpp
-    PRIVATE src/config.cpp
-    PRIVATE src/ErrorCodes.cpp
-    PRIVATE src/compile_command.cpp
+    PRIVATE
+      src/utils.cpp
+      src/Parser_Impl.cpp
+      src/translation_unit_t.cpp
+      src/compile_database_t.cpp
+      src/config.cpp
+      src/ErrorCodes.cpp
+      src/compile_command.cpp
+      ${CMAKE_CURRENT_BINARY_DIR}/generated/database_generated.h
 )
 
 target_include_directories(code-scanner
