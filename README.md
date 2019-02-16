@@ -2,9 +2,8 @@
 Simple c++ code parser based on clang
 
 ### Prerequisites
-Install clang-dev version >=4.0
--[clang+llvm](http://releases.llvm.org/)
--[flatbuffers](https://github.com/google/flatbuffers)
+- [clang+llvm](http://releases.llvm.org/)
+- [flatbuffers](https://github.com/google/flatbuffers)
 
 ### Compilation
 To compile just run
