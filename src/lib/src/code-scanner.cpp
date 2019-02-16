@@ -21,7 +21,7 @@ Parser::Parser()
 
 Parser::~Parser() = default;
 
-std::experimental::optional<std::error_code>
+std::optional<std::error_code>
 Parser::initialize(const InitializeParams &params)
 {
     // compile arguments from initializationOptions
@@ -65,7 +65,7 @@ Parser::initialize(const InitializeParams &params)
     }
     // set initialized
     m_initialized = true;
-    return std::experimental::nullopt;
+    return std::nullopt;
 }
 
 Location Parser::definition(const TextDocumentPositionParams &params)

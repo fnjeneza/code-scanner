@@ -1,6 +1,6 @@
 #pragma once
 
-#include <experimental/optional>
+#include <optional>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
@@ -23,7 +23,7 @@ class Parser_Impl
     Parser_Impl();
     ~Parser_Impl();
 
-    std::experimental::optional<std::error_code>
+    std::optional<std::error_code>
     initialize(const std::string &             build_uri,
                const std::vector<std::string> &compile_arguments,
                const std::vector<std::string> &flags_to_ignore);

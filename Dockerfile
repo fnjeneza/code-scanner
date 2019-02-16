@@ -1,12 +1,11 @@
-FROM ubuntu
+FROM gcc:8.2
 RUN apt update && \
     apt install -y \
     --no-install-recommends \
     ninja-build \
     cmake \
     curl \
-    xz-utils \
-    build-essential
+    xz-utils
 
 ARG REMOTE_ARCHIVE=clang+llvm-7.0.1-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 ARG ARCHIVE=/tmp/clang_llvm.tar.xz
