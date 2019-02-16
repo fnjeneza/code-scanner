@@ -30,18 +30,18 @@ int main(int argc, char **argv)
     {
         arg.ParseCLI(argc, argv);
     }
-    catch (args::Help)
+    catch (const args::Help &e)
     {
         std::cout << arg;
         return 0;
     }
-    catch (args::ParseError e)
+    catch (const args::ParseError &e)
     {
         std::cerr << e.what() << std::endl;
         std::cerr << arg;
         return 1;
     }
-    catch (args::ValidationError e)
+    catch (const args::ValidationError &e)
     {
         std::cerr << e.what() << std::endl;
         std::cerr << arg;
