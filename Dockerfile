@@ -4,8 +4,7 @@ RUN apt update && \
     --no-install-recommends \
     ninja-build \
     cmake \
-    curl \
-    xz-utils
+    cmake-curses-gui
 
 ARG REMOTE_ARCHIVE=clang+llvm-7.0.1-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 ARG ARCHIVE=/tmp/clang_llvm.tar.xz
@@ -14,7 +13,6 @@ WORKDIR /opt/clang_llvm
 RUN tar xvf $ARCHIVE --strip-components=1
 RUN rm $ARCHIVE
 
-RUN apt update && apt install unzip -y --no-install-recommends
 ARG VERSION=1.10.0
 ARG FLATC_REMOTE=https://github.com/google/flatbuffers/archive/v${VERSION}.zip
 ARG FLATC_ARCHIVE=flatbuffers.zip
